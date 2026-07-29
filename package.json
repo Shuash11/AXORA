@@ -1,0 +1,12 @@
+{
+  "name": "axora-hero",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "npm run test:markup && npm run test:carousel",
+    "test:markup": "node --test tests/hero-markup.test.mjs",
+    "test:carousel": "node --test tests/carousel-state.test.mjs",
+    "verify:static": "node --test tests/hero-markup.test.mjs"
+  }
+}
