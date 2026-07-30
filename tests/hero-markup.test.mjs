@@ -200,6 +200,23 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card p,\s*\.card-stat-label,\s*#contact p,\s*#team-dialog \[data-dialog-bio\],\s*#team-dialog section p,\s*#team-dialog article p,\s*\.site-footer p\s*\{[^}]*font-size:\s*1rem/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design,\s*\.service-support[\s\S]*?\{[^}]*grid-column:\s*1[^}]*grid-row:\s*auto/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card,\s*\.service-card:first-child,\s*\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\),\s*\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1/);
+  assert.match(rule('\\[hidden\\]'), /display:\s*none\s*!important/);
+  assert.match(rule('body'), /min-inline-size:\s*0/);
+  assert.match(css, /\.hero > \*\s*\{[^}]*min-inline-size:\s*0[^}]*max-inline-size:\s*100%/);
+  assert.match(css, /\.hero-text,\s*\.hero-stack,\s*\.stack\s*\{[^}]*min-inline-size:\s*0[^}]*max-inline-size:\s*100%/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.stack\s*\{[^}]*inline-size:\s*min\(310px,\s*100%\)[^}]*max-inline-size:\s*100%/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-stack\.is-enhanced \.stack\s*\{[^}]*inline-size:\s*min\(310px,\s*100%\)[^}]*max-inline-size:\s*100%/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-stack\s*\{[^}]*overflow-x:\s*clip/);
+  assert.match(css, /\.team-card\s*\{[^}]*display:\s*grid[^}]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+auto\s+auto\s+auto/);
+  assert.match(css, /\.team-card small\s*\{[^}]*position:\s*static[^}]*grid-row:\s*3/);
+  assert.match(css, /\.team-card > span:last-child\s*\{[^}]*position:\s*static[^}]*grid-row:\s*4[^}]*min-block-size:\s*44px[^}]*border-block-start:/);
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design[\s\S]*?\{[^}]*grid-column:\s*span\s+6[^}]*grid-row:\s*auto/);
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-support[\s\S]*?\{[^}]*grid-column:\s*1\s*\/\s*-1/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header:not\(\.is-enhanced\)\s*\{[^}]*position:\s*relative/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.nav-toggle:not\(\[hidden\]\)\s*\{[^}]*display:\s*inline-flex/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?#team-dialog\s*\{[^}]*max-inline-size:\s*none[^}]*inline-size:\s*100%[^}]*inset-inline:\s*0[^}]*margin:\s*auto\s+0\s+0/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.team-card\.is-selected,\s*\.team-card:not\(:disabled\):hover,\s*\.team-card:not\(:disabled\):focus-visible\s*\{[^}]*transform:\s*none\s*!important/);
 });
 
 test('carousel controller preserves accessible state, guarded autoplay, keyboard, and swipe behavior', () => {
