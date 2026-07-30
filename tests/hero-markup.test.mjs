@@ -181,7 +181,12 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /\.team-grid,\s*\.team-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /#team-dialog\[open\]\s*\{[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)/);
   for (const selector of ['\\.card-stat-label', '\\.service-card p', '#contact p', '#team-dialog \\[data-dialog-bio\\]', '#team-dialog section p', '#team-dialog article p', '\\.site-footer p']) assert.match(css, new RegExp(`${selector}\\s*\\{[^}]*font-size:\\s*1rem`));
-  assert.match(css, /\.stack\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto[\s\S]*?scroll-snap-type:\s*x/);
+  assert.match(css, /\.stack\s*\{[^}]*position:\s*relative[^}]*display:\s*block[^}]*inline-size:\s*min\(370px,\s*100%\)[^}]*block-size:\s*500px[^}]*overflow:\s*hidden[^}]*perspective:\s*1[45]\d{2}px[^}]*transform-style:\s*preserve-3d/);
+  assert.match(css, /\.stack > \.card\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*inline-size:\s*100%[^}]*opacity:\s*1/);
+  for (let index = 1; index <= 5; index += 1) assert.match(css, new RegExp(`\\.stack > \\.card:nth-child\\(${index}\\)\\s*\\{[^}]*z-index:\\s*${6 - index}[^}]*opacity:\\s*1[^}]*transform:\\s*translate3d\\(`));
+  assert.doesNotMatch(css, /\.stack\s*\{[^}]*display:\s*flex/);
+  assert.doesNotMatch(css, /\.stack\s*\{[^}]*overflow-x:\s*auto/);
+  assert.doesNotMatch(css, /\.stack\s*\{[^}]*scroll-snap-type:\s*x/);
   assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[45]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
   assert.match(css, /\.hero-stack\.is-enhanced \.card\s*\{[\s\S]*?position:\s*absolute[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
   assert.match(css, /\.carousel-controls\s*\{[\s\S]*?display:\s*none/);
