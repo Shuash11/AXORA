@@ -45,7 +45,8 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.match(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./);
   assert.match(html, /href="#services"[^>]*>Explore our services/);
   assert.match(html, /href="#team"[^>]*>Meet the team/);
-  for (const label of ['Web apps', 'Mobile apps', 'Design', 'Tech support']) assert.ok(html.includes(label));
+  const trustStrip = html.match(/<p class="trust-strip">([\s\S]*?)<\/p>/)?.[1] ?? '';
+  assert.match(trustStrip, /^Web apps\s*<span aria-hidden="true">·<\/span>\s*Mobile apps\s*<span aria-hidden="true">·<\/span>\s*Design\s*<span aria-hidden="true">·<\/span>\s*Tech support$/);
   assert.match(html, /<div class="scene-rings" aria-hidden="true">\s*<span class="scene-ring"><\/span>\s*<span class="scene-ring"><\/span>\s*<span class="scene-axis"><\/span>\s*<\/div>/);
   assert.match(html, /<p class="scene-label">OZAMIZ CITY · 2026<\/p>/);
   assert.match(html, /<div class="stack" data-tilt>/);
@@ -71,10 +72,19 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.equal((html.match(/<small>Role \/ specialty<\/small>/g) ?? []).length, 4);
   assert.equal((html.match(/View work and achievements/g) ?? []).length, 4);
 
-  for (const text of ['Have something useful to build?', 'Tell us what you are working on and where you need a capable extra set of hands.', 'mailto:your-email@example.com', 'Replace this email before launch.', 'Start a conversation']) assert.ok(html.includes(text));
-  assert.match(html, /<dialog id="team-dialog">/);
-  for (const hook of ['data-dialog-close', 'data-dialog-name', 'data-dialog-marker', 'data-dialog-role', 'data-dialog-bio', 'data-dialog-achievements', 'data-dialog-work']) assert.ok(html.includes(hook));
-  for (const text of ['Team Member 01', 'Role / specialty', "Add this team member's short biography, focus, and approach here.", '01', '02', 'Add a short project summary and contribution.', 'Placeholder content']) assert.ok(html.includes(text));
+  const contact = html.match(/<section id="contact"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+  for (const text of ['Have something useful to build?', 'Tell us what you are working on and where you need a capable extra set of hands.', 'mailto:your-email@example.com', 'Replace this email before launch.', 'Start a conversation']) assert.ok(contact.includes(text));
+  const dialog = html.match(/<dialog id="team-dialog">([\s\S]*?)<\/dialog>/)?.[1] ?? '';
+  assert.ok(dialog, 'the native team dialog must be present');
+  for (const hook of ['data-dialog-close', 'data-dialog-name', 'data-dialog-marker', 'data-dialog-role', 'data-dialog-bio', 'data-dialog-achievements', 'data-dialog-work']) assert.ok(dialog.includes(hook));
+  for (const text of ['Team Member 01', 'Role / specialty', "Add this team member's short biography, focus, and approach here.", '01', '02', 'Add a short project summary and contribution.', 'Placeholder content']) assert.ok(dialog.includes(text));
+  const achievements = dialog.match(/<section data-dialog-achievements[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+  const achievementLabels = [...achievements.matchAll(/<p>Achievement placeholder (0[12])<\/p>/g)].map((match) => match[1]);
+  assert.deepEqual(achievementLabels, ['01', '02']);
+  const work = dialog.match(/<section data-dialog-work[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+  const projectLabels = [...work.matchAll(/<article>\s*<h4>Project placeholder (0[12])<\/h4>[\s\S]*?<\/article>/g)].map((match) => match[1]);
+  assert.deepEqual(projectLabels, ['01', '02']);
+  assert.equal((work.match(/Add a short project summary and contribution\./g) ?? []).length, 2);
   assert.match(footer, /Web apps, mobile apps, design, and practical tech support\./);
   assert.match(html, /<script\s+src="script\.js"\s+defer><\/script>/i);
   assert.doesNotMatch(html, /<script\b(?=[^>]*\bsrc="script\.js")(?=[^>]*\btype="module")[^>]*>/i);
@@ -82,6 +92,9 @@ test('full landing page has the required semantic sections, navigation, and cont
 
 test('five complete achievement cards preserve the exact local image mapping and content', () => {
   assert.equal(classCount(html, 'card'), 5);
+  for (const className of ['card-photo', 'card-body', 'card-tag', 'card-stat', 'card-stat-label', 'card-attribution']) {
+    assert.equal(classCount(html, className), 5, `there must be five .${className} elements`);
+  }
   const cardMatches = [...html.matchAll(/<article\b(?=[^>]*\bclass="card")(?=[^>]*\bdata-slide="\d+")[^>]*>([\s\S]*?)<\/article>/g)];
   assert.equal(cardMatches.length, 5);
   assert.equal((html.match(/\bdata-slide\b/gi) ?? []).length, 5);
@@ -89,31 +102,94 @@ test('five complete achievement cards preserve the exact local image mapping and
   assert.equal((html.match(/loading="lazy"/gi) ?? []).length, 4);
   assert.equal((html.match(/decoding="async"/gi) ?? []).length, 5);
   assert.equal((html.match(/draggable="false"/gi) ?? []).length, 5);
-  assert.match(html, /loading="eager"/);
-  assert.match(html, /fetchpriority="high"/);
+  const expectedStates = [
+    ['0', '0', 'false'],
+    ['1', '1', 'true'],
+    ['2', '2', 'true'],
+    ['3', '-2', 'true'],
+    ['4', '-1', 'true'],
+  ];
+  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="false"/.test(opening)).length, 1);
+  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="true"/.test(opening)).length, 4);
   cards.forEach(([file, src, alt, ...content], index) => {
     const opening = cardMatches[index][0].match(/^<article\b[^>]*>/)?.[0] ?? '';
+    const image = cardMatches[index][1].match(/<img\b[^>]*>/)?.[0] ?? '';
     assert.ok(existsSync(file), `missing source asset: ${file}`);
-    assert.match(opening, new RegExp(`data-slide="${index}"`));
-    assert.match(opening, /aria-hidden=/);
+    const [slide, position, hidden] = expectedStates[index];
+    assert.match(opening, new RegExp(`data-slide="${slide}"`));
+    assert.match(opening, new RegExp(`data-position="${position}"`));
+    assert.match(opening, new RegExp(`aria-hidden="${hidden}"`));
     assert.match(cardMatches[index][1], new RegExp(`src="${escapeRegExp(src)}"`));
     assert.match(cardMatches[index][1], new RegExp(`alt="${escapeRegExp(alt)}"`));
-    assert.match(cardMatches[index][1], /width="2048"\s+height="1536"/);
+    assert.match(image, /width="2048"\s+height="1536"/);
+    assert.match(image, /decoding="async"/);
+    assert.match(image, /draggable="false"/);
+    if (index === 0) {
+      assert.match(image, /loading="eager"/);
+      assert.match(image, /fetchpriority="high"/);
+    } else {
+      assert.match(image, /loading="lazy"/);
+      assert.doesNotMatch(image, /fetchpriority=/);
+    }
     content.forEach((text) => assert.ok(cardMatches[index][1].includes(text), `card ${index + 1} is missing ${text}`));
   });
   assert.match(html, /<section class="hero-stack" role="region" aria-roledescription="carousel"[^>]*tabindex="0"/);
   assert.match(html, /<p class="carousel-status sr-only" role="status" aria-live="polite">Card 1 of 5<\/p>/);
+  const dots = [...html.matchAll(/<button\b[^>]*\bclass="dot"[^>]*>/g)].map((match) => match[0]);
+  assert.equal(dots.length, 5);
+  dots.forEach((dot, index) => {
+    assert.match(dot, new RegExp(`data-dot="${index}"`));
+    assert.match(dot, new RegExp(`aria-label="Show card ${index + 1}"`));
+    assert.match(dot, new RegExp(`aria-current="${index === 0}"`));
+  });
 });
 
-test('carousel markup retains warm visual, direct-file, focus, overflow, and reduced-motion safeguards', () => {
+test('carousel markup retains warm visual, focus, overflow, and reduced-motion safeguards', () => {
   for (const color of ['#211A15', '#2C231C', '#362B22', '#F5EFE4', '#B8AA97', '#E7A23A', '#6FB3A0']) assert.match(css, new RegExp(color, 'i'));
   for (const font of ['Lora', 'Plus Jakarta Sans', 'Space Mono']) assert.match(css, new RegExp(font));
   for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*(?:clip|hidden)', '@media \\(max-width:\\s*900px\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
-  assert.doesNotMatch(script, /^\s*(?:import|export)\b/m);
-  for (const helper of ['normalizeIndex', 'nextIndex', 'previousIndex', 'relativeOffset']) assert.match(script, new RegExp(`function\\s+${helper}\\s*\\([^)]*\\bcount\\b[^)]*\\)`));
-  for (const interaction of ['ArrowLeft', 'ArrowRight', 'pointerenter', 'pointerleave', 'focusin', 'focusout', 'visibilitychange', 'pointerdown', 'pointerup', 'dragstart']) assert.match(script, new RegExp(interaction));
-  assert.match(script, /matchMedia\(['"]\(prefers-reduced-motion: reduce\)['"]\)/);
+  assert.match(css, /\.stack\s*\{[\s\S]*?perspective:\s*1[0-3]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
+  assert.match(css, /\.card\s*\{[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
+});
+
+test('carousel controller preserves accessible state, guarded autoplay, keyboard, and swipe behavior', () => {
+  assert.match(script, /document\.querySelector\(['"]\.hero-stack['"]\)/);
+  assert.match(script, /card\.dataset\.position\s*=\s*String\(relativeOffset\(/);
+  assert.match(script, /card\.setAttribute\(['"]aria-hidden['"],\s*String\(index !== activeIndex\)\)/);
+  assert.match(script, /dot\.setAttribute\(['"]aria-current['"],\s*String\(index === activeIndex\)\)/);
+  assert.match(script, /status\.setAttribute\(['"]aria-live['"],\s*announce \? ['"]polite['"] : ['"]off['"]\)/);
+  assert.match(script, /function canAutoplay\(\)\s*\{[\s\S]*?count > 1[\s\S]*?!prefersReducedMotion[\s\S]*?isDocumentVisible[\s\S]*?!isPointerInside[\s\S]*?!isFocusWithin/);
+  assert.match(script, /function scheduleAutoplay\(\)\s*\{[\s\S]*?clearAutoplay\(\);[\s\S]*?if \(!canAutoplay\(\)\)\s*\{\s*return;[\s\S]*?window\.setTimeout\([\s\S]*?\}, 3200\)/);
+
+  assert.match(script, /heroStack\.addEventListener\(['"]keydown['"][\s\S]*?event\.key === ['"]ArrowLeft['"][\s\S]*?event\.key === ['"]ArrowRight['"]/);
+  assert.match(script, /heroStack\.addEventListener\(['"]pointerenter['"][\s\S]*?isPointerInside = true[\s\S]*?scheduleAutoplay\(\)/);
+  assert.match(script, /heroStack\.addEventListener\(['"]pointerleave['"][\s\S]*?isPointerInside = false[\s\S]*?scheduleAutoplay\(\)/);
+  assert.match(script, /heroStack\.addEventListener\(['"]focusin['"][\s\S]*?isFocusWithin = true[\s\S]*?scheduleAutoplay\(\)/);
+  assert.match(script, /heroStack\.addEventListener\(['"]focusout['"][\s\S]*?isFocusWithin = heroStack\.contains\(event\.relatedTarget\)[\s\S]*?scheduleAutoplay\(\)/);
+  assert.match(script, /document\.addEventListener\(['"]visibilitychange['"][\s\S]*?isDocumentVisible = !document\.hidden[\s\S]*?scheduleAutoplay\(\)/);
+
+  assert.match(script, /stack\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/);
+  assert.match(script, /stack\.addEventListener\(['"]pointerdown['"][\s\S]*?stack\.setPointerCapture\(event\.pointerId\)/);
+  assert.match(script, /stack\.addEventListener\(['"]pointerup['"][\s\S]*?Math\.abs\(deltaX\) >= 44 && Math\.abs\(deltaX\) > Math\.abs\(deltaY\)/);
+  assert.match(script, /show\(deltaX < 0 \? nextIndex\(activeIndex, count\) : previousIndex\(activeIndex, count\)\)/);
   assert.match(script, /stack\.getBoundingClientRect\(\)/);
   assert.match(script, /style\.setProperty\(['"]--tilt-x['"]/);
   assert.match(script, /style\.setProperty\(['"]--tilt-y['"]/);
+});
+
+test('direct-file carousel helpers and reduced-motion cleanup retain the warm baseline behavior', () => {
+  assert.match(html, /<script\s+src="script\.js"\s+defer><\/script>/i);
+  assert.doesNotMatch(script, /^\s*(?:import|export)\b/m);
+  for (const helper of ['normalizeIndex', 'nextIndex', 'previousIndex', 'relativeOffset']) {
+    assert.match(script, new RegExp(`function\\s+${helper}\\s*\\([^)]*\\bcount\\b[^)]*\\)`), `${helper} must be local to the direct-file controller`);
+    assert.ok((script.match(new RegExp(`\\b${helper}\\s*\\(`, 'g')) ?? []).length >= 2, `${helper} must be used by the controller`);
+  }
+  assert.match(script, /function validateCount\(count\)\s*\{\s*if \(count < 1\)/);
+  assert.match(script, /function normalizeIndex\(index, count\)\s*\{\s*validateCount\(count\)/);
+  assert.match(script, /matchMedia\(['"]\(prefers-reduced-motion: reduce\)['"]\)/);
+  assert.match(script, /function stopGlow\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(glowFrame\)[\s\S]*?glowFrame = undefined/);
+  assert.match(script, /resetTilt = function resetTilt\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(tiltFrame\)[\s\S]*?setProperty\(['"]--tilt-x['"], ['"]0deg['"]\)[\s\S]*?setProperty\(['"]--tilt-y['"], ['"]0deg['"]\)/);
+  assert.match(script, /refreshAutoplay = scheduleAutoplay/);
+  assert.match(script, /reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?if \(prefersReducedMotion\)\s*\{[\s\S]*?stopGlow\(\);[\s\S]*?resetTilt\(\);[\s\S]*?refreshAutoplay\(\)/);
 });
