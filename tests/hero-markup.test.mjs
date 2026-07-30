@@ -20,9 +20,9 @@ const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 test('full landing page has the required semantic sections, navigation, and content', () => {
   assert.equal((html.match(/<h1\b/gi) ?? []).length, 1);
-  assert.match(html, /<header\b[^>]*\bclass="[^"]*\bsite-header\b[^"]*"/);
-  assert.match(html, /<main>/);
-  assert.match(html, /<footer\b[^>]*\bclass="[^"]*\bsite-footer\b[^"]*"/);
+  assert.equal((html.match(/<header\b[^>]*\bclass="[^"]*\bsite-header\b[^"]*"/gi) ?? []).length, 1);
+  assert.equal((html.match(/<main\b/gi) ?? []).length, 1);
+  assert.equal((html.match(/<footer\b[^>]*\bclass="[^"]*\bsite-footer\b[^"]*"/gi) ?? []).length, 1);
   assert.match(html, /AXORA<span aria-hidden="true">\.<\/span>/);
   for (const id of ['home', 'services', 'team', 'contact']) {
     assert.match(html, new RegExp(`<section[^>]+id="${id}"`, 'i'));
