@@ -198,6 +198,8 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card p,\s*\.card-stat-label,\s*#contact p,\s*#team-dialog \[data-dialog-bio\],\s*#team-dialog section p,\s*#team-dialog article p,\s*\.site-footer p\s*\{[^}]*font-size:\s*1rem/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design,\s*\.service-support[\s\S]*?\{[^}]*grid-column:\s*1[^}]*grid-row:\s*auto/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card,\s*\.service-card:first-child,\s*\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\),\s*\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1/);
 });
 
 test('carousel controller preserves accessible state, guarded autoplay, keyboard, and swipe behavior', () => {

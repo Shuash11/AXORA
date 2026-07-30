@@ -233,8 +233,13 @@ h1 em { color: var(--honey); font-weight: inherit; }
 .service-list { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 1.15rem; margin-block-start: clamp(2.5rem, 5vw, 4.5rem); perspective: 1500px; }
 
 .service-card { --tilt-x: 0deg; --tilt-y: 0deg; --lift: 0px; display: flex; grid-column: span 5; flex-direction: column; min-block-size: 248px; padding: clamp(1.3rem, 3vw, 2.15rem); border: 1px solid var(--line); border-radius: var(--radius-md); color: var(--cream); background: linear-gradient(135deg, rgb(54 43 34 / 92%), var(--glass)); box-shadow: var(--shadow-soft); transform: perspective(1500px) rotateX(clamp(-4deg, var(--tilt-x), 4deg)) rotateY(clamp(-4deg, var(--tilt-y), 4deg)) translateY(clamp(-8px, var(--lift), 0px)); transform-style: preserve-3d; transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease; }
+.service-web,
 .service-card:first-child { grid-row: span 2; grid-column: span 7; min-block-size: 100%; }
-.service-card:nth-child(2), .service-card:nth-child(3) { grid-column: span 5; }
+.service-mobile,
+.service-design,
+.service-card:nth-child(2),
+.service-card:nth-child(3) { grid-column: span 5; }
+.service-support,
 .service-card:nth-child(4) { grid-column: 1 / -1; min-block-size: 180px; }
 .service-card:hover, .service-card:focus-visible, .service-card:focus-within { border-color: rgb(231 162 58 / 65%); box-shadow: var(--shadow-deep); }
 .service-card svg { inline-size: 34px; block-size: 34px; margin-block-end: auto; color: var(--teal); stroke: currentColor; }
@@ -300,8 +305,8 @@ h1 em { color: var(--honey); font-weight: inherit; }
   .lede { margin-inline: auto; }
   .hero-stack { justify-self: center; }
   .service-card { grid-column: span 6; }
-  .service-card:first-child { grid-row: auto; grid-column: span 6; min-block-size: 248px; }
-  .service-card:nth-child(4) { grid-column: 1 / -1; }
+  .service-web, .service-card:first-child { grid-row: auto; grid-column: span 6; min-block-size: 248px; }
+  .service-support, .service-card:nth-child(4) { grid-column: 1 / -1; }
   #team-dialog[open] { grid-template-columns: 1fr; row-gap: 1.25rem; }
   #team-dialog section { grid-column: 1; }
 }
@@ -323,7 +328,15 @@ h1 em { color: var(--honey); font-weight: inherit; }
   .hero-stack.is-enhanced .card[data-position="1"] { transform: translate3d(14px, -14px, 0) translateZ(-40px) scale(.97) rotateZ(1.5deg); }
   .hero-stack.is-enhanced .card[data-position="2"] { transform: translate3d(25px, -25px, 0) translateZ(-80px) scale(.94) rotateZ(3deg); }
   .service-grid, .service-list, .team-grid, .team-list { grid-template-columns: 1fr; }
-  .service-card, .service-card:first-child, .service-card:nth-child(4) { grid-column: 1; min-block-size: 220px; }
+  .service-web,
+  .service-mobile,
+  .service-design,
+  .service-support,
+  .service-card,
+  .service-card:first-child,
+  .service-card:nth-child(2),
+  .service-card:nth-child(3),
+  .service-card:nth-child(4) { grid-column: 1; grid-row: auto; min-block-size: 220px; }
   .team-card { min-block-size: 360px; }
   .service-card p, .card-stat-label, #contact p, #team-dialog [data-dialog-bio], #team-dialog section p, #team-dialog article p, .site-footer p { font-size: 1rem; }
   .contact-panel, #contact { grid-template-columns: 1fr; gap: 1.25rem; padding: 2rem 1.4rem; }
