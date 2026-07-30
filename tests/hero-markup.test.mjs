@@ -140,7 +140,7 @@ test('five complete achievement cards preserve the exact local image mapping and
     assert.match(dot, new RegExp(`aria-current="${index === 0}"`));
     assert.match(dot, /disabled/);
   });
-  assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Carousel autoplay">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
+  assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Pause carousel autoplay">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
 });
 
 test('carousel markup retains warm visual, focus, overflow, and reduced-motion safeguards', () => {
