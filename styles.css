@@ -181,7 +181,8 @@ h1 em { color: var(--honey); font-weight: inherit; }
 }
 
 @media (max-width: 800px) {
-  .top-links { display: none; }
+  .top { flex-wrap: wrap; }
+  .top-links { display: flex; flex-basis: 100%; flex-wrap: wrap; }
 }
 
 @media (max-width: 420px) {

@@ -37,6 +37,7 @@ test('full landing page has the required semantic sections, navigation, and cont
   }
   assert.match(html, /<button class="nav-toggle"[^>]*aria-controls="primary-nav"[^>]*aria-expanded="false"[^>]*aria-label="Open navigation"/);
   assert.match(html, /<nav id="primary-nav"[^>]*>\s*<a href="#home">Home<\/a>\s*<a href="#services">Services<\/a>\s*<a href="#team">Team<\/a>\s*<a href="#contact">Contact<\/a>/);
+  assert.doesNotMatch(css, /\.top-links\s*\{\s*display:\s*none/);
   assert.match(header, /href="#contact"[^>]*>Let’s talk<\/a>/);
 
   assert.match(html, /<p class="eyebrow">OUR TEAM<\/p>/);
