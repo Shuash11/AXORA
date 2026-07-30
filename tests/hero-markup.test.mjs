@@ -144,8 +144,20 @@ test('five complete achievement cards preserve the exact local image mapping and
 });
 
 test('styles define the approved spatial page', () => {
+  const rule = (selector) => {
+    const match = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`));
+    assert.ok(match, `missing ${selector} rule`);
+    return match[1];
+  };
   for (const color of ['#211A15', '#2C231C', '#362B22', '#F5EFE4', '#B8AA97', '#E7A23A', '#6FB3A0']) assert.match(css, new RegExp(color, 'i'));
   for (const font of ['Lora', 'Plus Jakarta Sans', 'Space Mono']) assert.match(css, new RegExp(font));
+  assert.match(css, /--display:\s*Lora,/);
+  assert.match(css, /--body:\s*["']Plus Jakarta Sans["']/);
+  assert.match(css, /--label:\s*["']Space Mono["']/);
+  assert.match(css, /body\s*\{[^}]*font-family:\s*var\(--body\)/);
+  assert.match(css, /h1\s*\{[^}]*font-family:\s*var\(--display\)/);
+  assert.match(css, /\.eyebrow\s*\{[^}]*font-family:\s*var\(--label\)/);
+  for (const [token, value] of [['--radius-sm', '12px'], ['--radius-md', '22px'], ['--radius-lg', '34px']]) assert.match(css, new RegExp(`${token}:\\s*${value}`));
   for (const token of ['--glass:', '--glass-strong:', '--line-strong:', '--shadow-soft:', '--shadow-deep:', '--radius-sm:', '--radius-md:', '--radius-lg:', '--pointer-x:', '--pointer-y:', '--scroll-depth:']) assert.match(css, new RegExp(token));
   for (const selector of ['.site-header', '.nav-toggle', '.hero', '.scene-rings', '.stack', '.service-grid', '.service-card', '.team-grid', '.team-card', '.team-dialog', '.contact-panel', '.site-footer']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
   for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*(?:clip|hidden)', '\\.sr-only\\s*\\{[\\s\\S]*?clip-path:', '@media \\(max-width:\\s*1023px\\)', '@media \\(max-width:\\s*767px\\)', '@media \\(max-width:\\s*420px\\)', '@media \\(hover:\\s*none\\),\\s*\\(pointer:\\s*coarse\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
@@ -153,8 +165,22 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /transform-style:\s*preserve-3d/);
   assert.match(css, /translateZ\(/);
   assert.match(css, /backdrop-filter:\s*blur\(/);
+  const glowRule = rule('#glow');
+  assert.match(glowRule, /inset:\s*0\s+auto\s+auto\s+0/);
+  assert.match(glowRule, /margin:\s*-320px\s+0\s+0\s+-320px/);
+  assert.match(glowRule, /transform:\s*translate3d\(calc\(50vw\s*\+\s*\(var\(--pointer-x\)\s*\*\s*44vw\)\),\s*calc\(50vh\s*\+\s*\(var\(--pointer-y\)\s*\*\s*42vh\)\s*\+\s*\(var\(--scroll-depth\)\s*\*\s*18px\)\),\s*0\)/);
+  assert.match(css, /\.site-header,\s*\.top\s*\{[^}]*position:\s*sticky/);
+  const scrolledHeaderRule = rule('\\.site-header\\.is-scrolled');
+  assert.match(scrolledHeaderRule, /background:\s*var\(--glass-strong\)/);
+  assert.match(scrolledHeaderRule, /backdrop-filter:\s*blur\(/);
+  assert.match(css, /\.hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(390px,\s*\.92fr\)/);
   assert.match(css, /\.service-grid,\s*\.service-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(12,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /\.service-card:first-child\s*\{[^}]*grid-column:\s*span\s+7/);
+  assert.match(css, /\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\)\s*\{[^}]*grid-column:\s*span\s+5/);
+  assert.match(css, /\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
   assert.match(css, /\.team-grid,\s*\.team-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /#team-dialog\[open\]\s*\{[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)/);
+  for (const selector of ['\\.card-stat-label', '\\.service-card p', '#contact p', '#team-dialog \\[data-dialog-bio\\]', '#team-dialog section p', '#team-dialog article p', '\\.site-footer p']) assert.match(css, new RegExp(`${selector}\\s*\\{[^}]*font-size:\\s*1rem`));
   assert.match(css, /\.stack\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto[\s\S]*?scroll-snap-type:\s*x/);
   assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[45]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
   assert.match(css, /\.hero-stack\.is-enhanced \.card\s*\{[\s\S]*?position:\s*absolute[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
@@ -167,7 +193,11 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-pause/);
   assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-play/);
   assert.match(css, /\.carousel-toggle\[hidden\]\s*\{\s*display:\s*none\s*!important/);
+  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
+  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?\.scene-rings,\s*\.scene-ring,\s*\.scene-axis\s*\{[^}]*transform:\s*none/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card p,\s*\.card-stat-label,\s*#contact p,\s*#team-dialog \[data-dialog-bio\],\s*#team-dialog section p,\s*#team-dialog article p,\s*\.site-footer p\s*\{[^}]*font-size:\s*1rem/);
 });
 
 test('carousel controller preserves accessible state, guarded autoplay, keyboard, and swipe behavior', () => {
