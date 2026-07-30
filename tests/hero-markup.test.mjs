@@ -143,12 +143,20 @@ test('five complete achievement cards preserve the exact local image mapping and
   assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Pause carousel autoplay">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
 });
 
-test('carousel markup retains warm visual, focus, overflow, and reduced-motion safeguards', () => {
+test('styles define the approved spatial page', () => {
   for (const color of ['#211A15', '#2C231C', '#362B22', '#F5EFE4', '#B8AA97', '#E7A23A', '#6FB3A0']) assert.match(css, new RegExp(color, 'i'));
   for (const font of ['Lora', 'Plus Jakarta Sans', 'Space Mono']) assert.match(css, new RegExp(font));
-  for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*(?:clip|hidden)', '@media \\(max-width:\\s*900px\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
+  for (const token of ['--glass:', '--glass-strong:', '--line-strong:', '--shadow-soft:', '--shadow-deep:', '--radius-sm:', '--radius-md:', '--radius-lg:', '--pointer-x:', '--pointer-y:', '--scroll-depth:']) assert.match(css, new RegExp(token));
+  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.scene-rings', '.stack', '.service-grid', '.service-card', '.team-grid', '.team-card', '.team-dialog', '.contact-panel', '.site-footer']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
+  for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*(?:clip|hidden)', '\\.sr-only\\s*\\{[\\s\\S]*?clip-path:', '@media \\(max-width:\\s*1023px\\)', '@media \\(max-width:\\s*767px\\)', '@media \\(max-width:\\s*420px\\)', '@media \\(hover:\\s*none\\),\\s*\\(pointer:\\s*coarse\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
+  assert.match(css, /perspective:\s*1[45]\d{2}px/);
+  assert.match(css, /transform-style:\s*preserve-3d/);
+  assert.match(css, /translateZ\(/);
+  assert.match(css, /backdrop-filter:\s*blur\(/);
+  assert.match(css, /\.service-grid,\s*\.service-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(12,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /\.team-grid,\s*\.team-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /\.stack\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto[\s\S]*?scroll-snap-type:\s*x/);
-  assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[0-3]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
+  assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[45]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
   assert.match(css, /\.hero-stack\.is-enhanced \.card\s*\{[\s\S]*?position:\s*absolute[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
   assert.match(css, /\.carousel-controls\s*\{[\s\S]*?display:\s*none/);
   assert.match(css, /\.hero-stack\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
