@@ -43,8 +43,10 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.match(html, /<p class="eyebrow">OUR TEAM<\/p>/);
   assert.match(html, /<h1\b[^>]*>\s*Skilled hands,\s*<br\s*\/?>(?:\s*)<em>ready to help\.<\/em>\s*<\/h1>/i);
   assert.match(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./);
-  assert.match(html, /href="#services"[^>]*>Explore our services/);
-  assert.match(html, /href="#team"[^>]*>Meet the team/);
+  const heroActions = html.match(/<div class="hero-actions"([^>]*)>([\s\S]*?)<\/div>/)?.[0] ?? '';
+  assert.doesNotMatch(heroActions, /aria-label=/);
+  assert.match(heroActions, /href="#services"[^>]*>Explore our services/);
+  assert.match(heroActions, /href="#team"[^>]*>Meet the team/);
   const trustStrip = html.match(/<p class="trust-strip">([\s\S]*?)<\/p>/)?.[1] ?? '';
   assert.match(trustStrip, /^Web apps\s*<span aria-hidden="true">·<\/span>\s*Mobile apps\s*<span aria-hidden="true">·<\/span>\s*Design\s*<span aria-hidden="true">·<\/span>\s*Tech support$/);
   assert.match(html, /<div class="scene-rings" aria-hidden="true">\s*<span class="scene-ring"><\/span>\s*<span class="scene-ring"><\/span>\s*<span class="scene-axis"><\/span>\s*<\/div>/);
@@ -102,23 +104,16 @@ test('five complete achievement cards preserve the exact local image mapping and
   assert.equal((html.match(/loading="lazy"/gi) ?? []).length, 4);
   assert.equal((html.match(/decoding="async"/gi) ?? []).length, 5);
   assert.equal((html.match(/draggable="false"/gi) ?? []).length, 5);
-  const expectedStates = [
-    ['0', '0', 'false'],
-    ['1', '1', 'true'],
-    ['2', '2', 'true'],
-    ['3', '-2', 'true'],
-    ['4', '-1', 'true'],
-  ];
-  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="false"/.test(opening)).length, 1);
-  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="true"/.test(opening)).length, 4);
+  const expectedPositions = ['0', '1', '2', '-2', '-1'];
+  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="false"/.test(opening)).length, 5);
+  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="true"/.test(opening)).length, 0);
   cards.forEach(([file, src, alt, ...content], index) => {
     const opening = cardMatches[index][0].match(/^<article\b[^>]*>/)?.[0] ?? '';
     const image = cardMatches[index][1].match(/<img\b[^>]*>/)?.[0] ?? '';
     assert.ok(existsSync(file), `missing source asset: ${file}`);
-    const [slide, position, hidden] = expectedStates[index];
-    assert.match(opening, new RegExp(`data-slide="${slide}"`));
-    assert.match(opening, new RegExp(`data-position="${position}"`));
-    assert.match(opening, new RegExp(`aria-hidden="${hidden}"`));
+    assert.match(opening, new RegExp(`data-slide="${index}"`));
+    assert.match(opening, new RegExp(`data-position="${expectedPositions[index]}"`));
+    assert.match(opening, /aria-hidden="false"/);
     assert.match(cardMatches[index][1], new RegExp(`src="${escapeRegExp(src)}"`));
     assert.match(cardMatches[index][1], new RegExp(`alt="${escapeRegExp(alt)}"`));
     assert.match(image, /width="2048"\s+height="1536"/);
@@ -135,21 +130,34 @@ test('five complete achievement cards preserve the exact local image mapping and
   });
   assert.match(html, /<section class="hero-stack" role="region" aria-roledescription="carousel"[^>]*tabindex="0"/);
   assert.match(html, /<p class="carousel-status sr-only" role="status" aria-live="polite">Card 1 of 5<\/p>/);
-  const dots = [...html.matchAll(/<button\b[^>]*\bclass="dot"[^>]*>/g)].map((match) => match[0]);
+  const controls = html.match(/<div class="carousel-controls" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
+  assert.ok(controls, 'source carousel controls must remain hidden until enhancement succeeds');
+  const dots = [...controls.matchAll(/<button\b[^>]*\bclass="dot"[^>]*>/g)].map((match) => match[0]);
   assert.equal(dots.length, 5);
   dots.forEach((dot, index) => {
     assert.match(dot, new RegExp(`data-dot="${index}"`));
     assert.match(dot, new RegExp(`aria-label="Show card ${index + 1}"`));
     assert.match(dot, new RegExp(`aria-current="${index === 0}"`));
+    assert.match(dot, /disabled/);
   });
+  assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Pause carousel">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
 });
 
 test('carousel markup retains warm visual, focus, overflow, and reduced-motion safeguards', () => {
   for (const color of ['#211A15', '#2C231C', '#362B22', '#F5EFE4', '#B8AA97', '#E7A23A', '#6FB3A0']) assert.match(css, new RegExp(color, 'i'));
   for (const font of ['Lora', 'Plus Jakarta Sans', 'Space Mono']) assert.match(css, new RegExp(font));
   for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*(?:clip|hidden)', '@media \\(max-width:\\s*900px\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
-  assert.match(css, /\.stack\s*\{[\s\S]*?perspective:\s*1[0-3]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
-  assert.match(css, /\.card\s*\{[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
+  assert.match(css, /\.stack\s*\{[\s\S]*?display:\s*flex[\s\S]*?overflow-x:\s*auto[\s\S]*?scroll-snap-type:\s*x/);
+  assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[0-3]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
+  assert.match(css, /\.hero-stack\.is-enhanced \.card\s*\{[\s\S]*?position:\s*absolute[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
+  assert.match(css, /\.carousel-controls\s*\{[\s\S]*?display:\s*none/);
+  assert.match(css, /\.hero-stack\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
+  assert.match(css, /\.hero-stack\.is-enhanced \.card\[data-position="-1"\][\s\S]*?opacity:\s*0/);
+  assert.match(css, /\.hero-stack\.is-enhanced \.card\[data-position="-2"\][\s\S]*?opacity:\s*0/);
+  assert.doesNotMatch(css, /(?:^|\n)\s*\.card\[data-position/m);
+  assert.match(css, /\.carousel-toggle\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
+  assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-pause/);
+  assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-play/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
 });
 
@@ -159,7 +167,10 @@ test('carousel controller preserves accessible state, guarded autoplay, keyboard
   assert.match(script, /card\.setAttribute\(['"]aria-hidden['"],\s*String\(index !== activeIndex\)\)/);
   assert.match(script, /dot\.setAttribute\(['"]aria-current['"],\s*String\(index === activeIndex\)\)/);
   assert.match(script, /status\.setAttribute\(['"]aria-live['"],\s*announce \? ['"]polite['"] : ['"]off['"]\)/);
-  assert.match(script, /function canAutoplay\(\)\s*\{[\s\S]*?count > 1[\s\S]*?!prefersReducedMotion[\s\S]*?isDocumentVisible[\s\S]*?!isPointerInside[\s\S]*?!isFocusWithin/);
+  assert.match(script, /const carouselToggle = heroStack\.querySelector\(['"]\[data-carousel-toggle\]['"]\)/);
+  assert.match(script, /if \(stack && controls && carouselToggle && count === 5 && dots\.length === count && status\)/);
+  assert.match(script, /let isUserPaused = false/);
+  assert.match(script, /function canAutoplay\(\)\s*\{[\s\S]*?count > 1[\s\S]*?!prefersReducedMotion[\s\S]*?!isUserPaused[\s\S]*?isDocumentVisible[\s\S]*?!isPointerInside[\s\S]*?!isFocusWithin/);
   assert.match(script, /function scheduleAutoplay\(\)\s*\{[\s\S]*?clearAutoplay\(\);[\s\S]*?if \(!canAutoplay\(\)\)\s*\{\s*return;[\s\S]*?window\.setTimeout\([\s\S]*?\}, 3200\)/);
 
   assert.match(script, /heroStack\.addEventListener\(['"]keydown['"][\s\S]*?event\.key === ['"]ArrowLeft['"][\s\S]*?event\.key === ['"]ArrowRight['"]/);
@@ -168,6 +179,12 @@ test('carousel controller preserves accessible state, guarded autoplay, keyboard
   assert.match(script, /heroStack\.addEventListener\(['"]focusin['"][\s\S]*?isFocusWithin = true[\s\S]*?scheduleAutoplay\(\)/);
   assert.match(script, /heroStack\.addEventListener\(['"]focusout['"][\s\S]*?isFocusWithin = heroStack\.contains\(event\.relatedTarget\)[\s\S]*?scheduleAutoplay\(\)/);
   assert.match(script, /document\.addEventListener\(['"]visibilitychange['"][\s\S]*?isDocumentVisible = !document\.hidden[\s\S]*?scheduleAutoplay\(\)/);
+  assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)/);
+  assert.match(script, /controls\.hidden = false/);
+  assert.match(script, /dots\.forEach\([\s\S]*?dot\.disabled = false/);
+  assert.match(script, /carouselToggle\.disabled = false/);
+  assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)[\s\S]*?dots\.forEach[\s\S]*?carouselToggle\.disabled = false[\s\S]*?render\(false\)/);
+  assert.match(script, /carouselToggle\.addEventListener\(['"]click['"], \(\) => \{[\s\S]*?isUserPaused = !isUserPaused;[\s\S]*?carouselToggle\.setAttribute\(['"]aria-pressed['"], String\(isUserPaused\)\);[\s\S]*?carouselToggle\.setAttribute\(['"]aria-label['"], isUserPaused \? ['"]Play carousel['"] : ['"]Pause carousel['"]\);[\s\S]*?scheduleAutoplay\(\)/);
 
   assert.match(script, /stack\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/);
   assert.match(script, /stack\.addEventListener\(['"]pointerdown['"][\s\S]*?stack\.setPointerCapture\(event\.pointerId\)/);

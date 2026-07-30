@@ -32,7 +32,7 @@
             <p class="eyebrow">OUR TEAM</p>
             <h1 id="hero-title">Skilled hands,<br><em>ready to help.</em></h1>
             <p class="lede">Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother.</p>
-            <div class="hero-actions" aria-label="Explore AXORA">
+            <div class="hero-actions">
               <a class="button button-primary" href="#services">Explore our services</a>
               <a class="button button-ghost" href="#team">Meet the team</a>
             </div>
@@ -60,7 +60,7 @@
                   <p class="card-attribution">Ozamiz City · July 25, 2026</p>
                 </div>
               </article>
-              <article class="card" data-slide="1" data-position="1" aria-hidden="true">
+              <article class="card" data-slide="1" data-position="1" aria-hidden="false">
                 <div class="card-photo">
                   <img src="Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg" alt="AXORA team members posed onstage at IT Summit and Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
                   <span class="card-photo-hint">02 / 05</span>
@@ -73,7 +73,7 @@
                   <p class="card-attribution">AXORA · Code Camp Season 4</p>
                 </div>
               </article>
-              <article class="card" data-slide="2" data-position="2" aria-hidden="true">
+              <article class="card" data-slide="2" data-position="2" aria-hidden="false">
                 <div class="card-photo">
                   <img src="Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg" alt="AXORA team members celebrating around a table while holding a certificate and trophy at Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
                   <span class="card-photo-hint">03 / 05</span>
@@ -86,7 +86,7 @@
                   <p class="card-attribution">Team moment · Ozamiz City</p>
                 </div>
               </article>
-              <article class="card" data-slide="3" data-position="-2" aria-hidden="true">
+              <article class="card" data-slide="3" data-position="-2" aria-hidden="false">
                 <div class="card-photo">
                   <img src="Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg" alt="AXORA team members in a closer onstage group photo at Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
                   <span class="card-photo-hint">04 / 05</span>
@@ -99,7 +99,7 @@
                   <p class="card-attribution">AXORA · IT Summit 2026</p>
                 </div>
               </article>
-              <article class="card" data-slide="4" data-position="-1" aria-hidden="true">
+              <article class="card" data-slide="4" data-position="-1" aria-hidden="false">
                 <div class="card-photo">
                   <img src="Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg" alt="AXORA team members in a wide full-group stage photograph at IT Summit and Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
                   <span class="card-photo-hint">05 / 05</span>
@@ -113,12 +113,20 @@
                 </div>
               </article>
             </div>
-            <div class="dots" role="group" aria-label="Choose an achievement card">
-              <button class="dot" type="button" data-dot="0" aria-label="Show card 1" aria-current="true"></button>
-              <button class="dot" type="button" data-dot="1" aria-label="Show card 2" aria-current="false"></button>
-              <button class="dot" type="button" data-dot="2" aria-label="Show card 3" aria-current="false"></button>
-              <button class="dot" type="button" data-dot="3" aria-label="Show card 4" aria-current="false"></button>
-              <button class="dot" type="button" data-dot="4" aria-label="Show card 5" aria-current="false"></button>
+            <div class="carousel-controls" hidden>
+              <span class="dots" role="group" aria-label="Choose an achievement card">
+                <button class="dot" type="button" data-dot="0" aria-label="Show card 1" aria-current="true" disabled></button>
+                <button class="dot" type="button" data-dot="1" aria-label="Show card 2" aria-current="false" disabled></button>
+                <button class="dot" type="button" data-dot="2" aria-label="Show card 3" aria-current="false" disabled></button>
+                <button class="dot" type="button" data-dot="3" aria-label="Show card 4" aria-current="false" disabled></button>
+                <button class="dot" type="button" data-dot="4" aria-label="Show card 5" aria-current="false" disabled></button>
+              </span>
+              <button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Pause carousel">
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <g class="icon-pause"><path d="M7 6v12M17 6v12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></g>
+                  <g class="icon-play"><path d="m9 6 9 6-9 6z" fill="currentColor"/></g>
+                </svg>
+              </button>
             </div>
             <p class="carousel-status sr-only" role="status" aria-live="polite">Card 1 of 5</p>
           </section>

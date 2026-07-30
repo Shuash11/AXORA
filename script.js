@@ -80,16 +80,19 @@
 
   if (heroStack) {
     const stack = heroStack.querySelector('.stack');
+    const controls = heroStack.querySelector('.carousel-controls');
     const cards = [...heroStack.querySelectorAll('.card')];
-    const dots = [...heroStack.querySelectorAll('[data-dot]')];
+    const dots = controls ? [...controls.querySelectorAll('[data-dot]')] : [];
+    const carouselToggle = heroStack.querySelector('[data-carousel-toggle]');
     const status = heroStack.querySelector('.carousel-status');
     const count = cards.length;
 
-    if (stack && count === 5 && dots.length === count && status) {
+    if (stack && controls && carouselToggle && count === 5 && dots.length === count && status) {
       let activeIndex = 0;
       let autoplayTimer;
       let pointerStart;
       let tiltFrame;
+      let isUserPaused = false;
       let isPointerInside = heroStack.matches(':hover');
       let isFocusWithin = heroStack.contains(document.activeElement);
       let isDocumentVisible = !document.hidden;
@@ -109,7 +112,7 @@
       }
 
       function canAutoplay() {
-        return count > 1 && !prefersReducedMotion && isDocumentVisible && !isPointerInside && !isFocusWithin;
+        return count > 1 && !prefersReducedMotion && !isUserPaused && isDocumentVisible && !isPointerInside && !isFocusWithin;
       }
 
       function clearAutoplay() {
@@ -161,8 +164,20 @@
       };
       refreshAutoplay = scheduleAutoplay;
 
+      heroStack.classList.add('is-enhanced');
+      controls.hidden = false;
+
       dots.forEach((dot, index) => {
+        dot.disabled = false;
         dot.addEventListener('click', () => show(index));
+      });
+
+      carouselToggle.disabled = false;
+      carouselToggle.addEventListener('click', () => {
+        isUserPaused = !isUserPaused;
+        carouselToggle.setAttribute('aria-pressed', String(isUserPaused));
+        carouselToggle.setAttribute('aria-label', isUserPaused ? 'Play carousel' : 'Pause carousel');
+        scheduleAutoplay();
       });
 
       heroStack.addEventListener('keydown', (event) => {
