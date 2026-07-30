@@ -35,6 +35,7 @@
   let glowFrame;
   let resetTilt = () => {};
   let refreshAutoplay = () => {};
+  let syncAutoplayControl = () => {};
 
   function stopGlow() {
     if (glowFrame !== undefined) {
@@ -163,6 +164,17 @@
         stack.classList.remove('is-tilting');
       };
       refreshAutoplay = scheduleAutoplay;
+      syncAutoplayControl = function syncAutoplayControl() {
+        if (reducedMotionQuery.matches) {
+          carouselToggle.disabled = true;
+          carouselToggle.hidden = true;
+          return;
+        }
+
+        carouselToggle.hidden = false;
+        carouselToggle.disabled = false;
+        carouselToggle.setAttribute('aria-pressed', String(isUserPaused));
+      };
 
       heroStack.classList.add('is-enhanced');
       controls.hidden = false;
@@ -172,11 +184,10 @@
         dot.addEventListener('click', () => show(index));
       });
 
-      carouselToggle.disabled = false;
+      syncAutoplayControl();
       carouselToggle.addEventListener('click', () => {
         isUserPaused = !isUserPaused;
-        carouselToggle.setAttribute('aria-pressed', String(isUserPaused));
-        carouselToggle.setAttribute('aria-label', isUserPaused ? 'Play carousel' : 'Pause carousel');
+        syncAutoplayControl();
         scheduleAutoplay();
       });
 
@@ -295,6 +306,7 @@
       resetTilt();
     }
 
+    syncAutoplayControl();
     refreshAutoplay();
   });
 })();

@@ -188,6 +188,7 @@ h1 em { color: var(--honey); font-weight: inherit; }
 .dot:hover::after, .dot:focus-visible::after { background: var(--cream); }
 .dot[aria-current="true"]::after { inline-size: 22px; background: var(--honey); }
 .carousel-toggle { display: inline-grid; place-items: center; min-inline-size: 44px; min-block-size: 44px; padding: 0; border: 1px solid var(--line); border-radius: 50%; color: var(--cream); background: transparent; cursor: pointer; }
+.carousel-toggle[hidden] { display: none !important; }
 .carousel-toggle svg { inline-size: 18px; block-size: 18px; }
 .carousel-toggle .icon-play { display: none; }
 .carousel-toggle[aria-pressed="true"] .icon-pause { display: none; }

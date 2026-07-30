@@ -140,7 +140,7 @@ test('five complete achievement cards preserve the exact local image mapping and
     assert.match(dot, new RegExp(`aria-current="${index === 0}"`));
     assert.match(dot, /disabled/);
   });
-  assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Pause carousel">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
+  assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Carousel autoplay">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
 });
 
 test('carousel markup retains warm visual, focus, overflow, and reduced-motion safeguards', () => {
@@ -158,6 +158,7 @@ test('carousel markup retains warm visual, focus, overflow, and reduced-motion s
   assert.match(css, /\.carousel-toggle\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
   assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-pause/);
   assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-play/);
+  assert.match(css, /\.carousel-toggle\[hidden\]\s*\{\s*display:\s*none\s*!important/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
 });
 
@@ -171,6 +172,7 @@ test('carousel controller preserves accessible state, guarded autoplay, keyboard
   assert.match(script, /if \(stack && controls && carouselToggle && count === 5 && dots\.length === count && status\)/);
   assert.match(script, /let isUserPaused = false/);
   assert.match(script, /function canAutoplay\(\)\s*\{[\s\S]*?count > 1[\s\S]*?!prefersReducedMotion[\s\S]*?!isUserPaused[\s\S]*?isDocumentVisible[\s\S]*?!isPointerInside[\s\S]*?!isFocusWithin/);
+  assert.match(script, /syncAutoplayControl = function syncAutoplayControl\(\)\s*\{[\s\S]*?if \(reducedMotionQuery\.matches\)\s*\{[\s\S]*?carouselToggle\.disabled = true;[\s\S]*?carouselToggle\.hidden = true;[\s\S]*?carouselToggle\.hidden = false;[\s\S]*?carouselToggle\.disabled = false;[\s\S]*?carouselToggle\.setAttribute\(['"]aria-pressed['"], String\(isUserPaused\)\)/);
   assert.match(script, /function scheduleAutoplay\(\)\s*\{[\s\S]*?clearAutoplay\(\);[\s\S]*?if \(!canAutoplay\(\)\)\s*\{\s*return;[\s\S]*?window\.setTimeout\([\s\S]*?\}, 3200\)/);
 
   assert.match(script, /heroStack\.addEventListener\(['"]keydown['"][\s\S]*?event\.key === ['"]ArrowLeft['"][\s\S]*?event\.key === ['"]ArrowRight['"]/);
@@ -182,9 +184,9 @@ test('carousel controller preserves accessible state, guarded autoplay, keyboard
   assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)/);
   assert.match(script, /controls\.hidden = false/);
   assert.match(script, /dots\.forEach\([\s\S]*?dot\.disabled = false/);
-  assert.match(script, /carouselToggle\.disabled = false/);
-  assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)[\s\S]*?dots\.forEach[\s\S]*?carouselToggle\.disabled = false[\s\S]*?render\(false\)/);
-  assert.match(script, /carouselToggle\.addEventListener\(['"]click['"], \(\) => \{[\s\S]*?isUserPaused = !isUserPaused;[\s\S]*?carouselToggle\.setAttribute\(['"]aria-pressed['"], String\(isUserPaused\)\);[\s\S]*?carouselToggle\.setAttribute\(['"]aria-label['"], isUserPaused \? ['"]Play carousel['"] : ['"]Pause carousel['"]\);[\s\S]*?scheduleAutoplay\(\)/);
+  assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)[\s\S]*?dots\.forEach[\s\S]*?syncAutoplayControl\(\);[\s\S]*?render\(false\)/);
+  assert.match(script, /carouselToggle\.addEventListener\(['"]click['"], \(\) => \{[\s\S]*?isUserPaused = !isUserPaused;[\s\S]*?syncAutoplayControl\(\);[\s\S]*?scheduleAutoplay\(\)/);
+  assert.doesNotMatch(script, /setAttribute\(['"]aria-label['"]/);
 
   assert.match(script, /stack\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/);
   assert.match(script, /stack\.addEventListener\(['"]pointerdown['"][\s\S]*?stack\.setPointerCapture\(event\.pointerId\)/);
@@ -208,5 +210,8 @@ test('direct-file carousel helpers and reduced-motion cleanup retain the warm ba
   assert.match(script, /function stopGlow\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(glowFrame\)[\s\S]*?glowFrame = undefined/);
   assert.match(script, /resetTilt = function resetTilt\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(tiltFrame\)[\s\S]*?setProperty\(['"]--tilt-x['"], ['"]0deg['"]\)[\s\S]*?setProperty\(['"]--tilt-y['"], ['"]0deg['"]\)/);
   assert.match(script, /refreshAutoplay = scheduleAutoplay/);
-  assert.match(script, /reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?if \(prefersReducedMotion\)\s*\{[\s\S]*?stopGlow\(\);[\s\S]*?resetTilt\(\);[\s\S]*?refreshAutoplay\(\)/);
+  const motionChange = script.match(/reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?\n  \}\);/)?.[0] ?? '';
+  assert.match(motionChange, /if \(prefersReducedMotion\)\s*\{[\s\S]*?stopGlow\(\);[\s\S]*?resetTilt\(\);/);
+  assert.match(motionChange, /syncAutoplayControl\(\);[\s\S]*?refreshAutoplay\(\)/);
+  assert.doesNotMatch(motionChange, /isUserPaused\s*=/);
 });
