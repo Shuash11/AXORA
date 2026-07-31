@@ -248,7 +248,8 @@ test('carousel controller preserves accessible state, guarded autoplay, keyboard
   assert.match(script, /dots\.forEach\([\s\S]*?dot\.disabled = false/);
   assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)[\s\S]*?dots\.forEach[\s\S]*?syncAutoplayControl\(\);[\s\S]*?render\(false\)/);
   assert.match(script, /carouselToggle\.addEventListener\(['"]click['"], \(\) => \{[\s\S]*?isUserPaused = !isUserPaused;[\s\S]*?syncAutoplayControl\(\);[\s\S]*?scheduleAutoplay\(\)/);
-  assert.doesNotMatch(script, /setAttribute\(['"]aria-label['"]/);
+  const carouselAutoplayControl = script.match(/syncAutoplayControl = function syncAutoplayControl\(\)\s*\{[\s\S]*?\n      \};/)?.[0] ?? '';
+  assert.doesNotMatch(carouselAutoplayControl, /setAttribute\(['"]aria-label['"]/);
 
   assert.match(script, /stack\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/);
   assert.match(script, /stack\.addEventListener\(['"]pointerdown['"][\s\S]*?stack\.setPointerCapture\(event\.pointerId\)/);
@@ -272,8 +273,52 @@ test('direct-file carousel helpers and reduced-motion cleanup retain the warm ba
   assert.match(script, /function stopGlow\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(glowFrame\)[\s\S]*?glowFrame = undefined/);
   assert.match(script, /resetTilt = function resetTilt\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(tiltFrame\)[\s\S]*?setProperty\(['"]--tilt-x['"], ['"]0deg['"]\)[\s\S]*?setProperty\(['"]--tilt-y['"], ['"]0deg['"]\)/);
   assert.match(script, /refreshAutoplay = scheduleAutoplay/);
-  const motionChange = script.match(/reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?\n  \}\);/)?.[0] ?? '';
+  const motionChange = script.match(/\n  reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?\n  \}\);/)?.[0] ?? '';
   assert.match(motionChange, /if \(prefersReducedMotion\)\s*\{[\s\S]*?stopGlow\(\);[\s\S]*?resetTilt\(\);/);
   assert.match(motionChange, /syncAutoplayControl\(\);[\s\S]*?refreshAutoplay\(\)/);
   assert.doesNotMatch(motionChange, /isUserPaused\s*=/);
+});
+
+test('progressively enhances navigation and the reusable team dialog', () => {
+  assert.match(script, /function initNavigation\(\)\s*\{/);
+  assert.match(script, /function initTeamDialog\(reducedMotionQuery\)\s*\{/);
+  assert.match(script, /const reducedMotionQuery = window\.matchMedia\([\s\S]*?\);[\s\S]*?initNavigation\(\);[\s\S]*?initTeamDialog\(reducedMotionQuery\);/);
+  assert.equal((script.match(/\binitNavigation\(\);/g) ?? []).length, 1);
+  assert.equal((script.match(/\binitTeamDialog\(reducedMotionQuery\);/g) ?? []).length, 1);
+
+  const navigation = script.match(/function initNavigation\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(navigation, /document\.querySelector\(['"]\.site-header['"]\)/);
+  assert.match(navigation, /document\.querySelector\(['"]\.nav-toggle['"]\)/);
+  assert.match(navigation, /document\.querySelector\(['"]#primary-nav['"]\)/);
+  assert.match(navigation, /if \(!header \|\| !toggle \|\| !nav\)\s*\{\s*return;/);
+  assert.match(navigation, /header\.classList\.add\(['"]is-enhanced['"]\);[\s\S]*?toggle\.hidden = false;[\s\S]*?toggle\.setAttribute\(['"]aria-controls['"], ['"]primary-nav['"]\);/);
+  assert.match(navigation, /function setMenu\(open, restoreFocus = false\)[\s\S]*?header\.classList\.toggle\(['"]menu-open['"], open\);[\s\S]*?toggle\.setAttribute\(['"]aria-expanded['"], String\(open\)\);[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], open \? ['"]Close navigation['"] : ['"]Open navigation['"]\);/);
+  assert.doesNotMatch(navigation, /aria-pressed/);
+  assert.match(navigation, /setMenu\(false\);[\s\S]*?toggle\.addEventListener\(['"]click['"]/);
+  assert.match(navigation, /nav\.querySelectorAll\(['"]a['"]\)\.forEach[\s\S]*?setMenu\(false\)/);
+  assert.match(navigation, /document\.addEventListener\(['"]keydown['"][\s\S]*?event\.key !== ['"]Escape['"] \|\| !header\.classList\.contains\(['"]menu-open['"]\)[\s\S]*?setMenu\(false, true\)/);
+  assert.match(navigation, /if \(restoreFocus\)\s*\{\s*toggle\.focus\(\);/);
+  assert.doesNotMatch(navigation, /nav\.style\.|overflow\s*=/);
+
+  const dialog = script.match(/function initTeamDialog\(reducedMotionQuery\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(dialog, /document\.querySelector\(['"]#team-dialog['"]\)/);
+  assert.match(dialog, /document\.querySelectorAll\(['"]\[data-member\]['"]\)/);
+  assert.match(dialog, /members\.length !== 4/);
+  for (const hook of ['[data-dialog-close]', '[data-dialog-name]', '[data-dialog-marker]', '[data-dialog-role]', '[data-dialog-bio]', '[data-dialog-achievements]', '[data-dialog-work]']) assert.match(dialog, new RegExp(escapeRegExp(hook)));
+  assert.match(dialog, /typeof dialog\.showModal !== ['"]function['"]/);
+  assert.match(dialog, /if \([\s\S]*?members\.length !== 4[\s\S]*?\|\| !closeButton[\s\S]*?\|\| typeof dialog\.showModal !== ['"]function['"][\s\S]*?\)\s*\{\s*return;/);
+  assert.match(dialog, /members\.forEach[\s\S]*?member\.disabled = false;[\s\S]*?member\.setAttribute\(['"]aria-haspopup['"], ['"]dialog['"]\)/);
+  assert.match(dialog, /document\.createElement\(/);
+  assert.match(dialog, /\.textContent\s*=/);
+  assert.match(dialog, /replaceChildren\(/);
+  assert.doesNotMatch(dialog, /innerHTML/);
+  for (const text of ['Team Member 01', 'Team Member 02', 'Team Member 03', 'Team Member 04', 'Role / specialty', "Add this team member's short biography, focus, and approach here.", 'Achievement placeholder 01', 'Achievement placeholder 02', 'Project placeholder 01', 'Project placeholder 02', 'Add a short project summary and contribution.']) assert.ok(dialog.includes(text), `missing dialog draft content: ${text}`);
+  assert.match(dialog, /if \(pendingOpen !== undefined \|\| dialog\.open\)\s*\{\s*return;/);
+  assert.match(dialog, /window\.setTimeout\([\s\S]*?\}, 140\)/);
+  assert.match(dialog, /if \(reducedMotionQuery\.matches\)\s*\{[\s\S]*?openDialog\(\);/);
+  assert.match(dialog, /reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?if \(event\.matches && pendingOpen !== undefined\)[\s\S]*?window\.clearTimeout\(pendingOpen\);[\s\S]*?openDialog\(\)/);
+  assert.match(dialog, /closeButton\.addEventListener\(['"]click['"][\s\S]*?dialog\.close\(\)/);
+  assert.match(dialog, /dialog\.addEventListener\(['"]click['"][\s\S]*?event\.target !== dialog[\s\S]*?event\.target\.closest\(['"]\.dialog-shell['"]\)[\s\S]*?dialog\.close\(\)/);
+  assert.match(dialog, /dialog\.addEventListener\(['"]close['"][\s\S]*?document\.body\.classList\.remove\(['"]dialog-open['"]\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\)/);
+  assert.match(dialog, /document\.body\.classList\.add\(['"]dialog-open['"]\);[\s\S]*?closeButton\.focus\(\)/);
 });

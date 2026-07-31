@@ -27,6 +27,187 @@
 
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
   let prefersReducedMotion = reducedMotionQuery.matches;
+
+  function initNavigation() {
+    const header = document.querySelector('.site-header');
+    const toggle = document.querySelector('.nav-toggle');
+    const nav = document.querySelector('#primary-nav');
+
+    if (!header || !toggle || !nav) {
+      return;
+    }
+
+    function setMenu(open, restoreFocus = false) {
+      header.classList.toggle('menu-open', open);
+      toggle.setAttribute('aria-expanded', String(open));
+      toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+
+      if (restoreFocus) {
+        toggle.focus();
+      }
+    }
+
+    header.classList.add('is-enhanced');
+    toggle.hidden = false;
+    toggle.setAttribute('aria-controls', 'primary-nav');
+    setMenu(false);
+
+    toggle.addEventListener('click', () => {
+      setMenu(!header.classList.contains('menu-open'));
+    });
+
+    nav.querySelectorAll('a').forEach((link) => {
+      link.addEventListener('click', () => setMenu(false));
+    });
+
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || !header.classList.contains('menu-open')) {
+        return;
+      }
+
+      setMenu(false, true);
+    });
+  }
+
+  function initTeamDialog(reducedMotionQuery) {
+    const dialog = document.querySelector('#team-dialog');
+    const members = [...document.querySelectorAll('[data-member]')];
+    const closeButton = dialog?.querySelector('[data-dialog-close]');
+    const name = dialog?.querySelector('[data-dialog-name]');
+    const marker = dialog?.querySelector('[data-dialog-marker]');
+    const role = dialog?.querySelector('[data-dialog-role]');
+    const bio = dialog?.querySelector('[data-dialog-bio]');
+    const achievements = dialog?.querySelector('[data-dialog-achievements]');
+    const work = dialog?.querySelector('[data-dialog-work]');
+
+    if (!dialog || members.length !== 4 || !closeButton || !name || !marker || !role || !bio || !achievements || !work || typeof dialog.showModal !== 'function') {
+      return;
+    }
+
+    const membersByIndex = [
+      'Team Member 01',
+      'Team Member 02',
+      'Team Member 03',
+      'Team Member 04',
+    ];
+    const roleText = 'Role / specialty';
+    const bioText = "Add this team member's short biography, focus, and approach here.";
+    const achievementTexts = ['Achievement placeholder 01', 'Achievement placeholder 02'];
+    const projectTexts = ['Project placeholder 01', 'Project placeholder 02'];
+    const projectSummary = 'Add a short project summary and contribution.';
+    let trigger;
+    let selectedMember;
+    let pendingOpen;
+
+    function replaceTextChildren(container, tagName, values) {
+      const children = values.map((value) => {
+        const element = document.createElement(tagName);
+        element.textContent = value;
+        return element;
+      });
+      container.replaceChildren(...children);
+    }
+
+    function populate(index) {
+      const number = String(index + 1).padStart(2, '0');
+      marker.textContent = number;
+      name.textContent = membersByIndex[index];
+      role.textContent = roleText;
+      bio.textContent = bioText;
+
+      const achievementsTitle = document.createElement('h3');
+      achievementsTitle.textContent = 'Achievements';
+      replaceTextChildren(achievements, 'p', achievementTexts);
+      achievements.prepend(achievementsTitle);
+
+      const workTitle = document.createElement('h3');
+      workTitle.textContent = 'Selected work';
+      const projects = projectTexts.map((project) => {
+        const article = document.createElement('article');
+        const heading = document.createElement('h4');
+        const summary = document.createElement('p');
+        heading.textContent = project;
+        summary.textContent = projectSummary;
+        article.replaceChildren(heading, summary);
+        return article;
+      });
+      work.replaceChildren(workTitle, ...projects);
+    }
+
+    function openDialog() {
+      pendingOpen = undefined;
+
+      if (dialog.open) {
+        return;
+      }
+
+      dialog.showModal();
+      document.body.classList.add('dialog-open');
+      closeButton.focus();
+    }
+
+    function requestOpen(member) {
+      if (pendingOpen !== undefined || dialog.open) {
+        return;
+      }
+
+      const index = Number(member.dataset.member);
+      if (!Number.isInteger(index) || index < 0 || index >= membersByIndex.length) {
+        return;
+      }
+
+      trigger = member;
+      selectedMember = member;
+      selectedMember.classList.add('is-selected');
+      populate(index);
+
+      if (reducedMotionQuery.matches) {
+        openDialog();
+        return;
+      }
+
+      pendingOpen = window.setTimeout(() => {
+        openDialog();
+      }, 140);
+    }
+
+    members.forEach((member) => {
+      member.disabled = false;
+      member.setAttribute('aria-haspopup', 'dialog');
+      member.addEventListener('click', () => requestOpen(member));
+    });
+
+    closeButton.addEventListener('click', () => dialog.close());
+    dialog.addEventListener('click', (event) => {
+      if (event.target !== dialog || event.target.closest('.dialog-shell')) {
+        return;
+      }
+
+      dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      if (pendingOpen !== undefined) {
+        window.clearTimeout(pendingOpen);
+      }
+
+      pendingOpen = undefined;
+      document.body.classList.remove('dialog-open');
+      selectedMember?.classList.remove('is-selected');
+      trigger?.focus();
+      trigger = undefined;
+      selectedMember = undefined;
+    });
+    reducedMotionQuery.addEventListener('change', (event) => {
+      if (event.matches && pendingOpen !== undefined) {
+        window.clearTimeout(pendingOpen);
+        pendingOpen = undefined;
+        openDialog();
+      }
+    });
+  }
+
+  initNavigation();
+  initTeamDialog(reducedMotionQuery);
   const glow = document.querySelector('#glow');
   let glowTargetX = window.innerWidth / 2;
   let glowTargetY = window.innerHeight / 2;
