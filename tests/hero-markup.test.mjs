@@ -83,7 +83,8 @@ test('full landing page has the required semantic sections, navigation, and cont
   const renderedHeadline = heroH1.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
   assert.equal(renderedHeadline, 'Turning Ideas Into Solutions.', 'the rendered headline text must be exactly "Turning Ideas Into Solutions."');
   assert.match(html, /<title>AXORA — Turning Ideas Into Solutions<\/title>/, 'the document title must drop the stale headline');
-  assert.match(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./);
+  assert.doesNotMatch(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./, 'the previous virtual-assistant description must be gone');
+  assert.match(html, /<p class="lede load-item"[^>]*>AXORA is a digital solutions studio helping businesses, entrepreneurs, and organizations transform ideas into practical digital products through development, design, and reliable digital support\.<\/p>/, 'the hero must contain the approved studio description');
   const heroActions = html.match(/<div class="hero-actions load-item"([^>]*)>([\s\S]*?)<\/div>/)?.[0] ?? '';
   assert.doesNotMatch(heroActions, /aria-label=/);
   assert.match(heroActions, /href="#services"[^>]*>Explore services/);
