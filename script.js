@@ -453,8 +453,12 @@
       }
 
       const surface = target.closest('[data-tilt]');
+      if (!surface || surface !== activeSurface) {
+        return;
+      }
+
       const relatedTarget = event.relatedTarget;
-      if (surface === activeSurface && (!(relatedTarget instanceof Element) || !surface.contains(relatedTarget))) {
+      if (!(relatedTarget instanceof Element) || !surface.contains(relatedTarget)) {
         resetSurface(activeSurface);
         activeSurface = undefined;
         targetTiltX = 0;

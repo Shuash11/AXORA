@@ -96,7 +96,9 @@ test('full landing page has the required semantic sections, navigation, and cont
   }
 
   assert.match(html, /What we build\s*<br>\s*and support\./);
+  assert.match(html, /<h2 id="services-title">What we build<br>and support\.<\/h2>\s*<p class="section-intro">Practical digital assistance for products, systems, and the everyday work around them\.<\/p>/);
   assert.match(html, /Four people,\s*<br>\s*one shared standard\./);
+  assert.match(html, /<h2 id="team-title">Four people,<br>one shared standard\.<\/h2>\s*<p class="section-intro">AXORA combines different technical and creative strengths to make digital work clearer and easier to move forward\.<\/p>/);
   assert.equal(classCount(html, 'team-card'), 4);
   for (let index = 0; index < 4; index += 1) {
     const number = String(index + 1).padStart(2, '0');
@@ -233,13 +235,15 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /\.dialog-shell\s*\{[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)/);
   for (const selector of ['\\.card-stat-label', '\\.service-card p', '#contact p', '#team-dialog \\[data-dialog-bio\\]', '#team-dialog section p', '#team-dialog article p', '\\.site-footer p']) assert.match(css, new RegExp(`${selector}\\s*\\{[^}]*font-size:\\s*1rem`));
   assert.match(css, /\.stack\s*\{[^}]*position:\s*relative[^}]*display:\s*block[^}]*inline-size:\s*min\(370px,\s*100%\)[^}]*block-size:\s*500px[^}]*overflow:\s*hidden[^}]*perspective:\s*1[45]\d{2}px[^}]*transform-style:\s*preserve-3d/);
-  assert.match(css, /\.stack > \.card\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*inline-size:\s*100%[^}]*opacity:\s*1/);
-  for (let index = 1; index <= 5; index += 1) assert.match(css, new RegExp(`\\.stack > \\.card:nth-child\\(${index}\\)\\s*\\{[^}]*z-index:\\s*${6 - index}[^}]*opacity:\\s*1[^}]*transform:\\s*translate3d\\(`));
+  assert.match(css, /\.stack > \.card\s*\{[^}]*position:\s*absolute[^}]*inline-size:\s*auto[^}]*block-size:\s*auto[^}]*opacity:\s*1/);
+  assert.match(css, /\.stack > \.card:nth-child\(1\)\s*\{[^}]*inset:\s*20px\s+20px\s+20px\s+20px[^}]*z-index:\s*5/);
+  for (let index = 2; index <= 5; index += 1) assert.match(css, new RegExp(`\\.stack > \\.card:nth-child\\(${index}\\)\\s*\\{[^}]*inset:[^}]*z-index:\\s*${6 - index}[^}]*opacity:\\s*1`));
   assert.doesNotMatch(css, /\.stack\s*\{[^}]*display:\s*flex/);
   assert.doesNotMatch(css, /\.stack\s*\{[^}]*overflow-x:\s*auto/);
   assert.doesNotMatch(css, /\.stack\s*\{[^}]*scroll-snap-type:\s*x/);
   assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[45]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
   assert.match(css, /\.hero-stack\.is-enhanced \.card\s*\{[\s\S]*?position:\s*absolute[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
+  assert.match(css, /\.section-intro\s*\{[^}]*max-inline-size:\s*34rem[^}]*margin:[^}]*color:\s*var\(--cream-dim\)[^}]*font-size:\s*1rem/);
   assert.match(css, /\.carousel-controls\s*\{[\s\S]*?display:\s*none/);
   assert.match(css, /\.hero-stack\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
   assert.match(css, /\.hero-stack\.is-enhanced \.card\[data-position="-1"\][\s\S]*?opacity:\s*0/);
@@ -271,6 +275,7 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design[\s\S]*?\{[^}]*grid-column:\s*span\s+6[^}]*grid-row:\s*auto/);
   assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-support[\s\S]*?\{[^}]*grid-column:\s*1\s*\/\s*-1/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header:not\(\.is-enhanced\)\s*\{[^}]*position:\s*relative/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced ~ main #home,\s*\.site-header\.is-enhanced ~ main #services,\s*\.site-header\.is-enhanced ~ main #team,\s*\.site-header\.is-enhanced ~ main #contact\s*\{[^}]*scroll-margin-block-start:\s*128px/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.nav-toggle:not\(\[hidden\]\)\s*\{[^}]*display:\s*inline-flex/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.site-nav\s*\{[^}]*display:\s*none/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced\.menu-open \.site-nav\s*\{[^}]*display:\s*grid/);
@@ -345,6 +350,7 @@ test('shared spatial-motion scheduler owns pointer, scroll, and surface settling
   assert.match(spatialMotion, /reducedMotionQuery\.addEventListener\(['"]change['"], handleCapabilityChange\)/);
   assert.match(spatialMotion, /target instanceof Element/);
   assert.match(spatialMotion, /target\.closest\(['"]\[data-tilt\]['"]\)/);
+  assert.match(spatialMotion, /const surface = target\.closest\(['"]\[data-tilt\]['"]\);\s*if \(!surface \|\| surface !== activeSurface\)\s*\{\s*return;\s*\}\s*const relatedTarget = event\.relatedTarget;\s*if \(!\(relatedTarget instanceof Element\) \|\| !surface\.contains\(relatedTarget\)\)/);
   assert.match(spatialMotion, /!event\.isPrimary \|\| event\.pointerType === ['"]touch['"]/);
   assert.match(spatialMotion, /document\.addEventListener\(['"]pointermove['"],[\s\S]*?\{ passive: true \}\)/);
   assert.match(spatialMotion, /pendingPointer = \{ clientX: event\.clientX, clientY: event\.clientY, surface \}/);
@@ -392,7 +398,7 @@ function createSpatialHarness() {
       };
     }
 
-    closest(selector) { return selector === '[data-tilt]' ? this.surface : undefined; }
+    closest(selector) { return selector === '[data-tilt]' ? this.surface ?? null : null; }
     contains(element) { return element === this || element?.surface === this; }
     getBoundingClientRect() { this.boundsCalls += 1; return this.rect; }
   }
@@ -425,6 +431,7 @@ function createSpatialHarness() {
   surfaceB.surface = surfaceB;
   const childA = new MockElement(surfaceA);
   const childB = new MockElement(surfaceB);
+  const ordinary = new MockElement(null);
   const frames = new Map();
   let nextFrameId = 1;
   const document = {
@@ -474,6 +481,7 @@ function createSpatialHarness() {
   return {
     childA,
     childB,
+    ordinary,
     document,
     emitDocument: (type, event) => emit(documentListeners, type, event),
     emitWindow: (type, event) => emit(windowListeners, type, event),
@@ -528,6 +536,19 @@ test('shared spatial motion coalesces pointer input and restores capability stat
   assert.equal(runtime.surfaceB.boundsCalls, boundsBeforePointerOut, 'pointerout drops an unrendered local sample');
   assert.equal(runtime.surfaceB.style.getPropertyValue('--tilt-x'), '0deg');
   assert.equal(runtime.surfaceB.classList.contains('is-tilting'), false);
+
+  runtime.emitDocument('pointermove', pointer(runtime.ordinary, 300, 100));
+  runtime.runFrame();
+  assert.doesNotThrow(() => runtime.emitDocument('pointerout', { target: runtime.ordinary, relatedTarget: undefined }), 'ordinary non-tilt pointerout is safe when the active surface is null');
+  assert.equal(runtime.surfaceB.classList.contains('is-tilting'), false, 'ordinary pointerout does not reset an unrelated surface');
+
+  runtime.emitDocument('pointermove', pointer(runtime.childA, 100, 100));
+  runtime.runFrame();
+  assert.equal(runtime.surfaceA.classList.contains('is-tilting'), true);
+  assert.doesNotThrow(() => runtime.emitDocument('pointerout', { target: runtime.ordinary, relatedTarget: undefined }), 'ordinary non-tilt pointerout is safe when another surface is active');
+  assert.equal(runtime.surfaceA.classList.contains('is-tilting'), true, 'ordinary pointerout leaves the active surface alone');
+  runtime.emitDocument('pointerout', { target: runtime.childA, relatedTarget: undefined });
+  assert.equal(runtime.surfaceA.classList.contains('is-tilting'), false, 'leaving the active surface resets its tilt state');
 
   runtime.emitDocument('pointermove', pointer(runtime.childA, 1000, 1000));
   assert.equal(runtime.frameCount(), 1);
