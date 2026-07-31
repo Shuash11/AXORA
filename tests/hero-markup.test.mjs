@@ -72,8 +72,17 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.match(css, /^\.site-nav\s*\{[^}]*display:\s*flex/m, 'the desktop nav must be visible without JS (only the mobile dropdown hides it inside the 767px media query)');
   assert.match(header, /href="#contact"[^>]*>Let’s talk<\/a>/);
 
-  assert.match(html, /<p class="eyebrow load-item"[^>]*>AXORA · VIRTUAL ASSISTANTS<\/p>/);
-  assert.match(html, /<h1\b[^>]*>\s*Skilled hands,\s*<br\s*\/?>(?:\s*)<em>ready to help\.<\/em>\s*<\/h1>/i);
+  assert.doesNotMatch(html, /AXORA\s*·\s*VIRTUAL ASSISTANTS/i, 'the stale hero eyebrow must be gone');
+  assert.doesNotMatch(html, /Skilled hands,|ready to help\./i, 'the old headline must be gone');
+  const heroIdentity = html.match(/<p class="hero-identity load-item"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
+  assert.ok(heroIdentity, 'the hero identity must be a hero-specific two-line block');
+  assert.match(heroIdentity, /^\s*<strong>AXORA<\/strong>\s*<span>Digital Solutions Studio<\/span>\s*$/m, 'the identity must be exactly AXORA / Digital Solutions Studio as two real markup lines');
+  assert.doesNotMatch(heroIdentity, /[·|—–]/, 'the identity must not fake two lines with a separator character');
+  const heroH1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[0] ?? '';
+  assert.match(heroH1, /^<h1 id="hero-title" class="load-item" style="--order: 1">Turning Ideas Into<br><em>Solutions\.<\/em><\/h1>$/, 'the hero H1 must keep its designed line break and gradient emphasis');
+  const renderedHeadline = heroH1.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  assert.equal(renderedHeadline, 'Turning Ideas Into Solutions.', 'the rendered headline text must be exactly "Turning Ideas Into Solutions."');
+  assert.match(html, /<title>AXORA — Turning Ideas Into Solutions<\/title>/, 'the document title must drop the stale headline');
   assert.match(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./);
   const heroActions = html.match(/<div class="hero-actions load-item"([^>]*)>([\s\S]*?)<\/div>/)?.[0] ?? '';
   assert.doesNotMatch(heroActions, /aria-label=/);
@@ -240,6 +249,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /h1\s*\{[^}]*font-family:\s*var\(--display\)/);
   assert.match(css, /h1\s*\{[^}]*font-size:\s*clamp\(2\.8rem,\s*5\.4vw,\s*4\.9rem\)/, 'desktop H1 must retain the prominent responsive display scale');
   assert.match(css, /\.eyebrow\s*\{[^}]*font-family:\s*var\(--label\)/);
+  assert.match(css, /\.hero-identity\s*\{[^}]*flex-direction:\s*column[^}]*font-family:\s*var\(--label\)/, 'the hero identity must be a two-line label-type block');
   for (const selector of ['.site-header', '.nav-toggle', '.hero', '.hero-scene', '.scene', '.stage', '.scene-slide', '.carousel-controls', '.carousel-arrow', '.dot', '.service-card', '.team-card', '.contact-panel', '.site-footer', '.team-photo']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
   assert.match(css, /\.team-photo\s*\{[^}]*object-fit:\s*cover/, '.team-photo must use object-fit: cover');
   assert.match(css, /\.team-photo\s*\{[^}]*object-position:\s*top/, '.team-photo must anchor the face near top');

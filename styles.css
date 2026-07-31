@@ -296,6 +296,22 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 
 .eyebrow::before { inline-size: 26px; block-size: 1px; flex: 0 0 26px; content: ""; background: currentColor; opacity: .7; }
 
+.hero-identity {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: .32rem;
+  margin: 0 0 1.15rem;
+  color: var(--accent);
+  font-family: var(--label);
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+}
+
+.hero-identity strong { font-size: .84rem; font-weight: 500; letter-spacing: .2em; }
+.hero-identity span { color: var(--text-dim); font-size: .62rem; letter-spacing: .12em; }
+
 /* ---------- Buttons & chips ---------- */
 
 .button {
