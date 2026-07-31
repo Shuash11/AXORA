@@ -91,8 +91,12 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.equal(classCount(html, 'passing-ball-track'), 1);
   assert.equal(classCount(html, 'passing-ball'), 1);
   assert.ok(existsSync('assets/waving-hand.svg'), 'the local waving-hand asset must exist');
-  assert.match(html, /<a class="scroll-greeter" href="#contact" aria-label="Say hello to AXORA" aria-hidden="true" tabindex="-1" hidden>/);
-  assert.match(html, /<img src="assets\/waving-hand\.svg" alt="" width="36" height="36">/);
+  assert.match(html, /<a class="scroll-greeter" href="#contact" aria-label="Contact AXORA" aria-hidden="true" tabindex="-1" hidden>/);
+  assert.match(html, /<span class="greeter-bubble"><strong>Hi!<\/strong><span>AXORA ready for action\.<\/span><\/span>/);
+  for (const className of ['peek-character', 'peek-body', 'peek-head', 'peek-hair', 'peek-hand']) {
+    assert.equal(classCount(html, className), 1, `there must be one .${className}`);
+  }
+  assert.match(html, /<img src="assets\/waving-hand\.svg" alt="" width="42" height="42">/);
 
   assert.match(html, /<section class="hero-scene load-item"[^>]*role="region"[^>]*aria-roledescription="carousel"[^>]*aria-label="AXORA team event photos"[^>]*tabindex="0">/);
   assert.match(html, /<div class="scene" data-tilt>/);
@@ -230,11 +234,12 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /transform-style:\s*preserve-3d/);
   assert.match(css, /backdrop-filter:\s*blur\(/);
   assert.doesNotMatch(css, /#glow|\.glow|--pointer-x|--scroll-depth/, 'the giant cursor glow and scroll-depth machinery must be gone');
-  for (const animation of ['drift-violet', 'drift-coral', 'drift-mint', 'pass-ball', 'roll-ball', 'float-coral', 'float-mint', 'wave-greeting']) assert.match(css, new RegExp(`@keyframes\\s+${animation}`));
+  for (const animation of ['drift-violet', 'drift-coral', 'drift-mint', 'pass-ball', 'roll-ball', 'float-coral', 'float-mint', 'wave-greeting', 'character-peek', 'bubble-pop', 'character-blink']) assert.match(css, new RegExp(`@keyframes\\s+${animation}`));
   assert.match(css, /\.hero-scene::before,\s*\.hero-scene::after/);
   assert.match(css, /\.passing-ball\s*\{[^}]*radial-gradient\(circle at 30% 27%/);
   assert.match(css, /\.scroll-greeter\.is-visible\s*\{[^}]*opacity:\s*1[^}]*pointer-events:\s*auto/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?animation:\s*none\s*!important/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scroll-greeter\.is-visible \.greeter-bubble\s*\{[^}]*opacity:\s*1\s*!important[^}]*transform:\s*none\s*!important/);
   assert.match(css, /\.js \[data-reveal\]\s*\{[^}]*opacity:\s*0[^}]*translateY\(26px\)\s+rotateX\(3deg\)/, 'reveal must settle with a 20-32px rise and subtle rotateX');
   assert.match(css, /\.js \[data-reveal\]\.is-revealed\s*\{[^}]*opacity:\s*1/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*no-preference\)[\s\S]*?\.load-item\s*\{[^}]*animation:\s*rise/);
