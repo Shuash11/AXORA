@@ -268,6 +268,10 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.team-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-list,\s*\.team-list\s*\{[^}]*grid-template-columns:\s*1fr/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-actions\s*\{[^}]*grid-template-columns:\s*1fr/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.chips\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, 'mobile capability chips must form a balanced two-column grid');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer \.brand\s*\{[^}]*grid-area:\s*auto/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer nav\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, 'mobile footer navigation must use a two-column grid');
   assert.match(css, /\.nav-toggle\s*\{[^}]*min-block-size:\s*44px[^}]*align-items:\s*center[^}]*justify-content:\s*center/, 'nav toggle must be a 44px-tall tap target (tester: 151x24 at 390/320)');
   assert.match(css, /@media \(max-width:\s*767px\)\s*\{[\s\S]*?html:not\(\.js\)\s*\.scene-back-a,\s*html:not\(\.js\)\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'no-JS scene backdrop cards must be bounded flush on narrow screens (tester: 390->425, 320->350)');
   assert.match(css, /@media \(max-width:\s*767px\)\s*and\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.scene-back-a,\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'reduced-motion scene backdrop cards must be bounded flush on narrow screens (tester: 390->404, 320->333)');
@@ -307,6 +311,8 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(spatialMotion, /return stopSpatialMotion;/);
   assert.match(spatialMotion, /header\?\.classList\.toggle\(['"]is-scrolled['"], window\.scrollY > 24\)/);
   assert.match(spatialMotion, /document\.querySelector\(['"]\.scroll-greeter['"]\)/);
+  assert.match(spatialMotion, /document\.querySelector\(['"]\.site-footer['"]\)/);
+  assert.match(spatialMotion, /footer\.getBoundingClientRect\(\)\.top > window\.innerHeight - 32/);
   assert.match(spatialMotion, /greeter\.classList\.toggle\(['"]is-visible['"], visible\)/);
   assert.match(spatialMotion, /greeter\.setAttribute\(['"]aria-hidden['"], String\(!visible\)\)/);
   assert.match(spatialMotion, /greeter\.tabIndex = visible \? 0 : -1/);
@@ -428,6 +434,7 @@ function createSpatialHarness() {
   const root = new MockElement();
   const header = new MockElement();
   const greeter = new MockElement();
+  const footer = new MockElement(undefined, { left: 0, top: 2000, width: 1000, height: 200 });
   const surfaceA = new MockElement(undefined, { left: 0, top: 0, width: 100, height: 100 });
   const surfaceB = new MockElement(undefined, { left: 200, top: 0, width: 100, height: 100 });
   surfaceA.surface = surfaceA;
@@ -444,7 +451,7 @@ function createSpatialHarness() {
     activeElement: undefined,
     addEventListener(type, listener) { addListener(documentListeners, type, listener); },
     getElementById() { return undefined; },
-    querySelector(selector) { return { '.site-header': header, '.scroll-greeter': greeter }[selector]; },
+    querySelector(selector) { return { '.site-header': header, '.scroll-greeter': greeter, '.site-footer': footer }[selector]; },
     querySelectorAll() { return []; },
   };
   const window = {
@@ -492,6 +499,7 @@ function createSpatialHarness() {
     finePointer,
     flush,
     frameCount: () => frames.size,
+    footer,
     header,
     greeter,
     reducedMotion,
@@ -578,6 +586,11 @@ test('shared pointer scheduler coalesces input, tilts at most 3 degrees, and res
   assert.equal(runtime.greeter.classList.contains('is-visible'), true, 'scroll reveals the greeting');
   assert.equal(runtime.greeter.attributes.get('aria-hidden'), 'false');
   assert.equal(runtime.greeter.tabIndex, 0, 'the visible greeting enters the keyboard order');
+  runtime.footer.rect.top = 700;
+  runtime.emitWindow('scroll', {});
+  assert.equal(runtime.greeter.classList.contains('is-visible'), false, 'the greeting clears the footer before it can cover content');
+  assert.equal(runtime.greeter.attributes.get('aria-hidden'), 'true');
+  assert.equal(runtime.greeter.tabIndex, -1);
   runtime.finePointer.setMatches(false);
   assert.equal(runtime.frameCount(), 0, 'coarse pointers stop spatial work');
 });

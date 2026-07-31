@@ -302,6 +302,7 @@
     const root = document.documentElement;
     const header = document.querySelector('.site-header');
     const greeter = document.querySelector('.scroll-greeter');
+    const footer = document.querySelector('.site-footer');
     const sectionIds = ['home', 'services', 'team', 'contact'];
     const sections = sectionIds
       .map((id) => document.getElementById(id))
@@ -464,7 +465,8 @@
     function handleScroll() {
       header?.classList.toggle('is-scrolled', window.scrollY > 24);
       if (greeter) {
-        const visible = window.scrollY > Math.min(420, window.innerHeight * .45);
+        const footerIsClear = !footer || footer.getBoundingClientRect().top > window.innerHeight - 32;
+        const visible = window.scrollY > Math.min(420, window.innerHeight * .45) && footerIsClear;
         greeter.classList.toggle('is-visible', visible);
         greeter.setAttribute('aria-hidden', String(!visible));
         greeter.tabIndex = visible ? 0 : -1;

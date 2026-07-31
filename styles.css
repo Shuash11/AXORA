@@ -1080,7 +1080,7 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 .scroll-greeter {
   position: fixed;
   z-index: 60;
-  inset: auto -18px 8px auto;
+  inset: auto 0 8px auto;
   display: inline-flex;
   align-items: flex-end;
   min-block-size: 160px;
@@ -1347,18 +1347,21 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .hero { gap: 2.6rem; padding-block: 2.5rem 3.75rem; }
   .hero-actions { display: grid; grid-template-columns: 1fr; max-inline-size: 22rem; }
   .hero-actions .button { inline-size: 100%; }
-  .chips { gap: .45rem; }
+  .chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; inline-size: 100%; max-inline-size: 360px; }
+  .chip { justify-content: center; min-inline-size: 0; inline-size: 100%; padding-inline: .5rem; }
   .service-list, .team-list { grid-template-columns: 1fr; }
   .service-web, .service-mobile, .service-design, .service-support { grid-column: 1; grid-row: auto; min-block-size: 176px; }
   .service-support { min-block-size: 160px; }
   .team-card { min-block-size: 320px; }
   .contact-panel { padding: 2.1rem 1.5rem; }
-  .site-footer { grid-template-columns: 1fr; justify-items: start; }
-  .site-footer nav { justify-content: flex-start; }
-  .site-footer p { grid-column: auto; grid-row: auto; justify-self: start; text-align: start; }
+  .site-footer { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding-block: 2.25rem calc(2.25rem + env(safe-area-inset-bottom)); }
+  .site-footer .brand { grid-area: auto; order: 1; }
+  .site-footer p { order: 2; inline-size: 100%; max-inline-size: 32ch; margin: .75rem 0 1.4rem; font-size: .82rem; line-height: 1.65; text-align: start; }
+  .site-footer nav { order: 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; inline-size: 100%; }
+  .site-footer nav a { justify-content: center; min-inline-size: 0; padding-inline: .75rem; border: 1px solid var(--line); border-radius: 999px; background: rgb(255 255 255 / 72%); box-shadow: inset 0 1px 0 #FFFFFF; }
   .passing-ball { inline-size: 58px; block-size: 58px; }
   .passing-ball::after { inset: 11px auto auto 13px; inline-size: 18px; block-size: 10px; }
-  .scroll-greeter { inset: auto -25px 0 auto; min-block-size: 150px; }
+  .scroll-greeter { inset: auto 0 0 auto; min-block-size: 150px; }
   .greeter-bubble { inline-size: 158px; margin: 0 -10px 72px 0; padding: 12px 14px; }
   .greeter-bubble strong { font-size: 1.05rem; }
   .greeter-bubble span { font-size: .67rem; }
@@ -1373,7 +1376,7 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .hero-scene.is-enhanced [data-carousel-next] { right: 10px; }
   .team-card { min-block-size: 320px; }
   .contact-email { font-size: .82rem; }
-  .scroll-greeter { inset-inline-end: -32px; }
+  .scroll-greeter { inset-inline-end: 0; }
   .greeter-bubble { inline-size: 148px; margin-inline-end: -13px; padding: 11px 12px; }
   .peek-character { scale: .92; }
 }
