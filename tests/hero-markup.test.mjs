@@ -20,6 +20,10 @@ const classCount = (source, className) => [...source.matchAll(/\bclass=(["'])(.*
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 test('full landing page has the required semantic sections, navigation, and content', () => {
+  const faviconLinks = [...html.matchAll(/<link\b[^>]*\brel="icon"[^>]*>/gi)].map((match) => match[0]);
+  assert.equal(faviconLinks.length, 1, 'the page must define exactly one favicon');
+  assert.match(faviconLinks[0], /\bhref="data:image\/svg\+xml,[^"]+"/i);
+  assert.doesNotMatch(faviconLinks[0], /\bhref="(?!data:image\/svg\+xml,)/i, 'the favicon must not use an external or local path');
   assert.equal((html.match(/<h1\b/gi) ?? []).length, 1);
   assert.equal((html.match(/<header\b[^>]*\bclass="[^"]*\bsite-header\b[^"]*"/gi) ?? []).length, 1);
   assert.equal((html.match(/<main\b/gi) ?? []).length, 1);
