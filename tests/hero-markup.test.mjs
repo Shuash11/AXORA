@@ -179,7 +179,7 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\)\s*\{[^}]*grid-column:\s*span\s+5/);
   assert.match(css, /\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
   assert.match(css, /\.team-grid,\s*\.team-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(css, /#team-dialog\[open\]\s*\{[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)/);
+  assert.match(css, /\.dialog-shell\s*\{[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)/);
   for (const selector of ['\\.card-stat-label', '\\.service-card p', '#contact p', '#team-dialog \\[data-dialog-bio\\]', '#team-dialog section p', '#team-dialog article p', '\\.site-footer p']) assert.match(css, new RegExp(`${selector}\\s*\\{[^}]*font-size:\\s*1rem`));
   assert.match(css, /\.stack\s*\{[^}]*position:\s*relative[^}]*display:\s*block[^}]*inline-size:\s*min\(370px,\s*100%\)[^}]*block-size:\s*500px[^}]*overflow:\s*hidden[^}]*perspective:\s*1[45]\d{2}px[^}]*transform-style:\s*preserve-3d/);
   assert.match(css, /\.stack > \.card\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*inline-size:\s*100%[^}]*opacity:\s*1/);
@@ -220,6 +220,11 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-support[\s\S]*?\{[^}]*grid-column:\s*1\s*\/\s*-1/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header:not\(\.is-enhanced\)\s*\{[^}]*position:\s*relative/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.nav-toggle:not\(\[hidden\]\)\s*\{[^}]*display:\s*inline-flex/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.site-nav\s*\{[^}]*display:\s*none/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced\.menu-open \.site-nav\s*\{[^}]*display:\s*grid/);
+  assert.match(css, /#team-dialog\s*\{[^}]*padding:\s*0/);
+  assert.match(css, /\.dialog-shell\s*\{[^}]*position:\s*relative[^}]*display:\s*grid[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)[^}]*padding:\s*clamp\(1\.5rem,\s*4vw,\s*3rem\)/);
+  assert.match(css, /\.dialog-shell > p:first-of-type\s*\{/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?#team-dialog\s*\{[^}]*max-inline-size:\s*none[^}]*inline-size:\s*100%[^}]*inset-inline:\s*0[^}]*margin:\s*auto\s+0\s+0/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.team-card\.is-selected,\s*\.team-card:not\(:disabled\):hover,\s*\.team-card:not\(:disabled\):focus-visible\s*\{[^}]*transform:\s*none\s*!important/);
 });
@@ -302,8 +307,10 @@ test('progressively enhances navigation and the reusable team dialog', () => {
 
   const dialog = script.match(/function initTeamDialog\(reducedMotionQuery\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
   assert.match(dialog, /document\.querySelector\(['"]#team-dialog['"]\)/);
-  assert.match(dialog, /document\.querySelectorAll\(['"]\[data-member\]['"]\)/);
+  assert.match(dialog, /document\.querySelectorAll\(['"]button\[data-member\]['"]\)/);
   assert.match(dialog, /members\.length !== 4/);
+  assert.match(dialog, /new Set\(members\.map\(\(member\) => Number\(member\.dataset\.member\)\)\)/);
+  assert.match(dialog, /memberIndexes\.size !== 4[\s\S]*?memberIndexes\.has\(0\)[\s\S]*?memberIndexes\.has\(1\)[\s\S]*?memberIndexes\.has\(2\)[\s\S]*?memberIndexes\.has\(3\)/);
   for (const hook of ['[data-dialog-close]', '[data-dialog-name]', '[data-dialog-marker]', '[data-dialog-role]', '[data-dialog-bio]', '[data-dialog-achievements]', '[data-dialog-work]']) assert.match(dialog, new RegExp(escapeRegExp(hook)));
   assert.match(dialog, /typeof dialog\.showModal !== ['"]function['"]/);
   assert.match(dialog, /if \([\s\S]*?members\.length !== 4[\s\S]*?\|\| !closeButton[\s\S]*?\|\| typeof dialog\.showModal !== ['"]function['"][\s\S]*?\)\s*\{\s*return;/);
@@ -321,4 +328,5 @@ test('progressively enhances navigation and the reusable team dialog', () => {
   assert.match(dialog, /dialog\.addEventListener\(['"]click['"][\s\S]*?event\.target !== dialog[\s\S]*?event\.target\.closest\(['"]\.dialog-shell['"]\)[\s\S]*?dialog\.close\(\)/);
   assert.match(dialog, /dialog\.addEventListener\(['"]close['"][\s\S]*?document\.body\.classList\.remove\(['"]dialog-open['"]\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\)/);
   assert.match(dialog, /document\.body\.classList\.add\(['"]dialog-open['"]\);[\s\S]*?closeButton\.focus\(\)/);
+  assert.match(html, /<dialog id="team-dialog">\s*<div class="dialog-shell">[\s\S]*?<\/div>\s*<\/dialog>/);
 });

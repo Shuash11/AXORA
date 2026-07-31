@@ -71,7 +71,8 @@
 
   function initTeamDialog(reducedMotionQuery) {
     const dialog = document.querySelector('#team-dialog');
-    const members = [...document.querySelectorAll('[data-member]')];
+    const members = [...document.querySelectorAll('button[data-member]')];
+    const dialogShell = dialog?.querySelector('.dialog-shell');
     const closeButton = dialog?.querySelector('[data-dialog-close]');
     const name = dialog?.querySelector('[data-dialog-name]');
     const marker = dialog?.querySelector('[data-dialog-marker]');
@@ -80,7 +81,9 @@
     const achievements = dialog?.querySelector('[data-dialog-achievements]');
     const work = dialog?.querySelector('[data-dialog-work]');
 
-    if (!dialog || members.length !== 4 || !closeButton || !name || !marker || !role || !bio || !achievements || !work || typeof dialog.showModal !== 'function') {
+    const memberIndexes = new Set(members.map((member) => Number(member.dataset.member)));
+
+    if (!dialog || members.length !== 4 || ![...memberIndexes].every(Number.isInteger) || memberIndexes.size !== 4 || !memberIndexes.has(0) || !memberIndexes.has(1) || !memberIndexes.has(2) || !memberIndexes.has(3) || !dialogShell || !closeButton || !name || !marker || !role || !bio || !achievements || !work || typeof dialog.showModal !== 'function') {
       return;
     }
 
