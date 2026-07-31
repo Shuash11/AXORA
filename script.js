@@ -274,6 +274,7 @@
     let targetTiltY = 0;
     let currentTiltX = 0;
     let currentTiltY = 0;
+    let pendingPointer;
 
     function clamp(value, minimum, maximum) {
       return Math.max(minimum, Math.min(maximum, value));
@@ -333,11 +334,37 @@
         return;
       }
 
+      const pointer = pendingPointer;
+      pendingPointer = undefined;
+      if (pointer) {
+        targetPointerX = clamp((pointer.clientX / Math.max(window.innerWidth, 1)) * 2 - 1, -1, 1);
+        targetPointerY = clamp((pointer.clientY / Math.max(window.innerHeight, 1)) * 2 - 1, -1, 1);
+        setActiveSurface(pointer.surface);
+
+        if (pointer.surface) {
+          const bounds = pointer.surface.getBoundingClientRect();
+          const relativeX = bounds.width ? (pointer.clientX - bounds.left) / bounds.width - .5 : 0;
+          const relativeY = bounds.height ? (pointer.clientY - bounds.top) / bounds.height - .5 : 0;
+          targetTiltX = Math.max(-4, Math.min(4, relativeY * -8));
+          targetTiltY = Math.max(-4, Math.min(4, relativeX * 8));
+          pointer.surface.classList.add('is-tilting');
+        }
+      }
+
       currentPointerX += (targetPointerX - currentPointerX) * .14;
       currentPointerY += (targetPointerY - currentPointerY) * .14;
       currentScroll += (targetScroll - currentScroll) * .14;
       currentTiltX += (targetTiltX - currentTiltX) * .14;
       currentTiltY += (targetTiltY - currentTiltY) * .14;
+
+      if (hasSettled()) {
+        currentPointerX = targetPointerX;
+        currentPointerY = targetPointerY;
+        currentScroll = targetScroll;
+        currentTiltX = targetTiltX;
+        currentTiltY = targetTiltY;
+      }
+
       setRootVariables();
 
       if (activeSurface) {
@@ -372,6 +399,7 @@
       targetTiltY = 0;
       currentTiltX = 0;
       currentTiltY = 0;
+      pendingPointer = undefined;
       resetSurface(activeSurface);
       activeSurface = undefined;
       setRootVariables();
@@ -388,38 +416,37 @@
       scheduleRender();
     }
 
+    function handleCapabilityChange() {
+      if (!isMotionAllowed()) {
+        stopSpatialMotion();
+        return;
+      }
+
+      updateScroll();
+    }
+
     root.style.setProperty('--pointer-x', '0');
     root.style.setProperty('--pointer-y', '0');
     root.style.setProperty('--scroll-depth', '0');
-    updateScroll();
+    handleCapabilityChange();
 
     document.addEventListener('pointermove', (event) => {
-      if (!isMotionAllowed()) {
+      if (!isMotionAllowed() || !event.isPrimary || event.pointerType === 'touch') {
         return;
       }
 
-      targetPointerX = clamp((event.clientX / Math.max(window.innerWidth, 1)) * 2 - 1, -1, 1);
-      targetPointerY = clamp((event.clientY / Math.max(window.innerHeight, 1)) * 2 - 1, -1, 1);
-      if (!(event.target instanceof Element)) {
-        return;
-      }
-
-      const surface = event.target.closest('[data-tilt]');
-      setActiveSurface(surface);
-
-      if (surface) {
-        const bounds = surface.getBoundingClientRect();
-        const relativeX = bounds.width ? (event.clientX - bounds.left) / bounds.width - .5 : 0;
-        const relativeY = bounds.height ? (event.clientY - bounds.top) / bounds.height - .5 : 0;
-        targetTiltX = Math.max(-4, Math.min(4, relativeY * -8));
-        targetTiltY = Math.max(-4, Math.min(4, relativeX * 8));
-        surface.classList.add('is-tilting');
-      }
-
+      const target = event.target;
+      const surface = target instanceof Element ? target.closest('[data-tilt]') : undefined;
+      pendingPointer = { clientX: event.clientX, clientY: event.clientY, surface };
       scheduleRender();
-    });
+    }, { passive: true });
 
     document.addEventListener('pointerout', (event) => {
+      if (event.isPrimary === false || event.pointerType === 'touch') {
+        return;
+      }
+
+      pendingPointer = undefined;
       const target = event.target;
       if (!(target instanceof Element)) {
         return;
@@ -438,20 +465,13 @@
     });
 
     window.addEventListener('scroll', updateScroll, { passive: true });
-    finePointerQuery.addEventListener('change', (event) => {
-      if (!event.matches) {
-        stopSpatialMotion();
-      }
-    });
-
-    if (!isMotionAllowed()) {
-      stopSpatialMotion();
-    }
+    finePointerQuery.addEventListener('change', handleCapabilityChange);
+    reducedMotionQuery.addEventListener('change', handleCapabilityChange);
 
     return stopSpatialMotion;
   }
 
-  const stopSpatialMotion = initSpatialMotion(reducedMotionQuery);
+  initSpatialMotion(reducedMotionQuery);
   let refreshAutoplay = () => {};
   let syncAutoplayControl = () => {};
 
@@ -633,11 +653,6 @@
 
   reducedMotionQuery.addEventListener('change', (event) => {
     prefersReducedMotion = event.matches;
-
-    if (prefersReducedMotion) {
-      stopSpatialMotion();
-    }
-
     syncAutoplayControl();
     refreshAutoplay();
   });

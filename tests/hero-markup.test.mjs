@@ -284,6 +284,7 @@ test('shared spatial-motion scheduler owns pointer, scroll, and surface settling
   const spatialMotion = script.match(/function initSpatialMotion\(reducedMotionQuery\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
   assert.match(spatialMotion, /let frameId;/);
   assert.match(spatialMotion, /function render\(\)\s*\{/);
+  assert.match(spatialMotion, /let pendingPointer;/);
   assert.match(spatialMotion, /window\.requestAnimationFrame\(render\)/);
   assert.match(spatialMotion, /window\.cancelAnimationFrame\(frameId\)/);
   assert.match(spatialMotion, /root\.style\.setProperty\(['"]--pointer-x['"]/);
@@ -294,8 +295,14 @@ test('shared spatial-motion scheduler owns pointer, scroll, and surface settling
   assert.match(spatialMotion, /\+= \(targetPointerX - currentPointerX\) \* \./);
   assert.match(spatialMotion, /<= \.001/);
   assert.match(spatialMotion, /window\.matchMedia\(['"]\(hover: hover\) and \(pointer: fine\)['"]\)/);
-  assert.match(spatialMotion, /event\.target instanceof Element/);
+  assert.match(spatialMotion, /function handleCapabilityChange\(\)\s*\{/);
+  assert.match(spatialMotion, /finePointerQuery\.addEventListener\(['"]change['"], handleCapabilityChange\)/);
+  assert.match(spatialMotion, /reducedMotionQuery\.addEventListener\(['"]change['"], handleCapabilityChange\)/);
+  assert.match(spatialMotion, /target instanceof Element/);
   assert.match(spatialMotion, /target\.closest\(['"]\[data-tilt\]['"]\)/);
+  assert.match(spatialMotion, /!event\.isPrimary \|\| event\.pointerType === ['"]touch['"]/);
+  assert.match(spatialMotion, /document\.addEventListener\(['"]pointermove['"],[\s\S]*?\{ passive: true \}\)/);
+  assert.match(spatialMotion, /pendingPointer = \{ clientX: event\.clientX, clientY: event\.clientY, surface \}/);
   assert.match(spatialMotion, /surface\.getBoundingClientRect\(\)/);
   assert.match(spatialMotion, /Math\.max\(-4, Math\.min\(4,/);
   assert.match(spatialMotion, /surface\.classList\.add\(['"]is-tilting['"]\)/);
@@ -309,9 +316,206 @@ test('shared spatial-motion scheduler owns pointer, scroll, and surface settling
   assert.doesNotMatch(script, /glow\.style\.transform/);
   assert.match(script, /refreshAutoplay = scheduleAutoplay/);
   const motionChange = script.match(/\n  reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?\n  \}\);/)?.[0] ?? '';
-  assert.match(motionChange, /if \(prefersReducedMotion\)\s*\{[\s\S]*?stopSpatialMotion\(\);/);
   assert.match(motionChange, /syncAutoplayControl\(\);[\s\S]*?refreshAutoplay\(\)/);
+  assert.doesNotMatch(motionChange, /stopSpatialMotion\(\)/);
   assert.doesNotMatch(motionChange, /isUserPaused\s*=/);
+});
+
+function createSpatialHarness() {
+  class MockElement {
+    constructor(surface, rect = { left: 0, top: 0, width: 100, height: 100 }) {
+      this.surface = surface;
+      this.rect = rect;
+      this.boundsCalls = 0;
+      this.styleValues = new Map();
+      this.style = {
+        setProperty: (name, value) => this.styleValues.set(name, String(value)),
+        getPropertyValue: (name) => this.styleValues.get(name) ?? '',
+      };
+      const classes = new Set();
+      this.classList = {
+        add: (...names) => names.forEach((name) => classes.add(name)),
+        remove: (...names) => names.forEach((name) => classes.delete(name)),
+        toggle: (name, force) => {
+          if (force === undefined) {
+            if (classes.has(name)) classes.delete(name);
+            else classes.add(name);
+          } else if (force) classes.add(name);
+          else classes.delete(name);
+        },
+        contains: (name) => classes.has(name),
+      };
+    }
+
+    closest(selector) { return selector === '[data-tilt]' ? this.surface : undefined; }
+    contains(element) { return element === this || element?.surface === this; }
+    getBoundingClientRect() { this.boundsCalls += 1; return this.rect; }
+  }
+
+  const documentListeners = new Map();
+  const windowListeners = new Map();
+  const addListener = (listeners, type, listener) => {
+    if (!listeners.has(type)) listeners.set(type, []);
+    listeners.get(type).push(listener);
+  };
+  const emit = (listeners, type, event = {}) => listeners.get(type)?.forEach((listener) => listener(event));
+  const createQuery = (matches) => {
+    const listeners = new Set();
+    return {
+      matches,
+      addEventListener(type, listener) { if (type === 'change') listeners.add(listener); },
+      setMatches(next) {
+        this.matches = next;
+        listeners.forEach((listener) => listener({ matches: next }));
+      },
+    };
+  };
+  const reducedMotion = createQuery(false);
+  const finePointer = createQuery(true);
+  const root = new MockElement();
+  const header = new MockElement();
+  const surfaceA = new MockElement(undefined, { left: 0, top: 0, width: 100, height: 100 });
+  const surfaceB = new MockElement(undefined, { left: 200, top: 0, width: 100, height: 100 });
+  surfaceA.surface = surfaceA;
+  surfaceB.surface = surfaceB;
+  const childA = new MockElement(surfaceA);
+  const childB = new MockElement(surfaceB);
+  const frames = new Map();
+  let nextFrameId = 1;
+  const document = {
+    documentElement: root,
+    body: new MockElement(),
+    hidden: false,
+    activeElement: undefined,
+    addEventListener(type, listener) { addListener(documentListeners, type, listener); },
+    querySelector(selector) { return selector === '.site-header' ? header : undefined; },
+    querySelectorAll() { return []; },
+  };
+  const window = {
+    innerWidth: 1000,
+    innerHeight: 1000,
+    scrollY: 0,
+    matchMedia(query) { return query === '(prefers-reduced-motion: reduce)' ? reducedMotion : finePointer; },
+    requestAnimationFrame(callback) {
+      const frameId = nextFrameId;
+      nextFrameId += 1;
+      frames.set(frameId, callback);
+      return frameId;
+    },
+    cancelAnimationFrame(frameId) { frames.delete(frameId); },
+    addEventListener(type, listener) { addListener(windowListeners, type, listener); },
+    setTimeout() { return 1; },
+    clearTimeout() {},
+  };
+  runInNewContext(script, { document, window, Element: MockElement, decodeURIComponent });
+
+  function runFrame() {
+    const entry = frames.entries().next().value;
+    if (!entry) return false;
+    const [frameId, callback] = entry;
+    frames.delete(frameId);
+    callback();
+    return true;
+  }
+
+  function flush() {
+    let count = 0;
+    while (runFrame()) {
+      count += 1;
+      assert.ok(count < 200, 'spatial frames must settle');
+    }
+  }
+
+  return {
+    childA,
+    childB,
+    document,
+    emitDocument: (type, event) => emit(documentListeners, type, event),
+    emitWindow: (type, event) => emit(windowListeners, type, event),
+    finePointer,
+    flush,
+    frameCount: () => frames.size,
+    header,
+    reducedMotion,
+    root,
+    runFrame,
+    surfaceA,
+    surfaceB,
+    window,
+  };
+}
+
+test('shared spatial motion coalesces pointer input and restores capability state at runtime', () => {
+  const runtime = createSpatialHarness();
+  const pointer = (target, clientX, clientY, extras = {}) => ({
+    isPrimary: true,
+    pointerType: 'mouse',
+    target,
+    clientX,
+    clientY,
+    ...extras,
+  });
+
+  runtime.flush();
+  for (let x = 100; x <= 1000; x += 100) runtime.emitDocument('pointermove', pointer(runtime.childA, x, 1000));
+  assert.equal(runtime.frameCount(), 1, 'many raw pointer moves share one queued frame');
+  assert.equal(runtime.surfaceA.boundsCalls, 0, 'raw pointer work must not read bounds');
+  runtime.runFrame();
+  assert.equal(runtime.surfaceA.boundsCalls, 1, 'the rendered latest sample reads bounds once');
+  assert.equal(runtime.root.style.getPropertyValue('--pointer-x'), '0.140', 'latest pointer sample wins');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-y'), '0.56deg');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-x'), '-0.56deg');
+  assert.equal(runtime.surfaceA.classList.contains('is-tilting'), true);
+  runtime.flush();
+  assert.equal(runtime.frameCount(), 0, 'frames stop after settling');
+
+  runtime.emitDocument('pointermove', pointer(runtime.childB, 200, 0));
+  runtime.runFrame();
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-x'), '0deg');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-y'), '0deg');
+  assert.equal(runtime.surfaceA.classList.contains('is-tilting'), false);
+  assert.equal(runtime.surfaceB.classList.contains('is-tilting'), true);
+
+  runtime.emitDocument('pointermove', pointer(runtime.childB, 250, 50));
+  const boundsBeforePointerOut = runtime.surfaceB.boundsCalls;
+  runtime.emitDocument('pointerout', { target: runtime.childB, relatedTarget: undefined });
+  runtime.flush();
+  assert.equal(runtime.surfaceB.boundsCalls, boundsBeforePointerOut, 'pointerout drops an unrendered local sample');
+  assert.equal(runtime.surfaceB.style.getPropertyValue('--tilt-x'), '0deg');
+  assert.equal(runtime.surfaceB.classList.contains('is-tilting'), false);
+
+  runtime.emitDocument('pointermove', pointer(runtime.childA, 1000, 1000));
+  assert.equal(runtime.frameCount(), 1);
+  runtime.reducedMotion.setMatches(true);
+  assert.equal(runtime.frameCount(), 0, 'capability loss cancels queued work');
+  assert.equal(runtime.root.style.getPropertyValue('--pointer-x'), '0.000');
+  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.000');
+  runtime.reducedMotion.setMatches(false);
+  runtime.flush();
+
+  const rootBeforeIgnoredPointer = runtime.root.style.getPropertyValue('--pointer-x');
+  runtime.emitDocument('pointermove', pointer(runtime.childA, 1000, 1000, { pointerType: 'touch' }));
+  runtime.emitDocument('pointermove', pointer(runtime.childA, 1000, 1000, { isPrimary: false }));
+  assert.equal(runtime.frameCount(), 0, 'touch and secondary pointers do not schedule spatial work');
+  assert.equal(runtime.root.style.getPropertyValue('--pointer-x'), rootBeforeIgnoredPointer);
+
+  runtime.window.scrollY = 500;
+  runtime.reducedMotion.setMatches(true);
+  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.000');
+  runtime.reducedMotion.setMatches(false);
+  assert.equal(runtime.frameCount(), 1, 're-enabling reduced motion restores current scroll without a scroll event');
+  runtime.flush();
+  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.500');
+  assert.equal(runtime.header.classList.contains('is-scrolled'), true);
+
+  runtime.finePointer.setMatches(false);
+  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.000');
+  runtime.window.scrollY = 750;
+  runtime.finePointer.setMatches(true);
+  assert.equal(runtime.frameCount(), 1, 'fine-pointer restoration schedules current scroll depth');
+  runtime.flush();
+  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.750');
+  assert.equal(runtime.frameCount(), 0, 'no RAF callbacks continue after final settling');
 });
 
 test('progressively enhances navigation and the reusable team dialog', () => {
