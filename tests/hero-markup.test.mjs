@@ -88,6 +88,11 @@ test('full landing page has the required semantic sections, navigation, and cont
   for (const className of ['blob-violet', 'blob-coral', 'blob-mint']) {
     assert.equal(classCount(html, className), 1, `there must be one .${className}`);
   }
+  assert.equal(classCount(html, 'passing-ball-track'), 1);
+  assert.equal(classCount(html, 'passing-ball'), 1);
+  assert.ok(existsSync('assets/waving-hand.svg'), 'the local waving-hand asset must exist');
+  assert.match(html, /<a class="scroll-greeter" href="#contact" aria-label="Say hello to AXORA" aria-hidden="true" tabindex="-1" hidden>/);
+  assert.match(html, /<img src="assets\/waving-hand\.svg" alt="" width="36" height="36">/);
 
   assert.match(html, /<section class="hero-scene load-item"[^>]*role="region"[^>]*aria-roledescription="carousel"[^>]*aria-label="AXORA team event photos"[^>]*tabindex="0">/);
   assert.match(html, /<div class="scene" data-tilt>/);
@@ -225,8 +230,10 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /transform-style:\s*preserve-3d/);
   assert.match(css, /backdrop-filter:\s*blur\(/);
   assert.doesNotMatch(css, /#glow|\.glow|--pointer-x|--scroll-depth/, 'the giant cursor glow and scroll-depth machinery must be gone');
-  for (const animation of ['drift-violet', 'drift-coral', 'drift-mint', 'float-coral', 'float-mint']) assert.match(css, new RegExp(`@keyframes\\s+${animation}`));
+  for (const animation of ['drift-violet', 'drift-coral', 'drift-mint', 'pass-ball', 'roll-ball', 'float-coral', 'float-mint', 'wave-greeting']) assert.match(css, new RegExp(`@keyframes\\s+${animation}`));
   assert.match(css, /\.hero-scene::before,\s*\.hero-scene::after/);
+  assert.match(css, /\.passing-ball\s*\{[^}]*radial-gradient\(circle at 30% 27%/);
+  assert.match(css, /\.scroll-greeter\.is-visible\s*\{[^}]*opacity:\s*1[^}]*pointer-events:\s*auto/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?animation:\s*none\s*!important/);
   assert.match(css, /\.js \[data-reveal\]\s*\{[^}]*opacity:\s*0[^}]*translateY\(26px\)\s+rotateX\(3deg\)/, 'reveal must settle with a 20-32px rise and subtle rotateX');
   assert.match(css, /\.js \[data-reveal\]\.is-revealed\s*\{[^}]*opacity:\s*1/);
@@ -294,6 +301,10 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(spatialMotion, /function stopSpatialMotion\(\)\s*\{/);
   assert.match(spatialMotion, /return stopSpatialMotion;/);
   assert.match(spatialMotion, /header\?\.classList\.toggle\(['"]is-scrolled['"], window\.scrollY > 24\)/);
+  assert.match(spatialMotion, /document\.querySelector\(['"]\.scroll-greeter['"]\)/);
+  assert.match(spatialMotion, /greeter\.classList\.toggle\(['"]is-visible['"], visible\)/);
+  assert.match(spatialMotion, /greeter\.setAttribute\(['"]aria-hidden['"], String\(!visible\)\)/);
+  assert.match(spatialMotion, /greeter\.tabIndex = visible \? 0 : -1/);
   assert.match(spatialMotion, /function updateScrollSpy\(\)\s*\{/);
   assert.match(spatialMotion, /link\.classList\.toggle\(['"]is-active['"], active\)/);
   const reveals = script.match(/function initReveals\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
@@ -360,6 +371,9 @@ function createSpatialHarness() {
       this.surface = surface;
       this.rect = rect;
       this.boundsCalls = 0;
+      this.attributes = new Map();
+      this.hidden = true;
+      this.tabIndex = -1;
       this.styleValues = new Map();
       this.style = {
         setProperty: (name, value) => this.styleValues.set(name, String(value)),
@@ -383,6 +397,7 @@ function createSpatialHarness() {
     closest(selector) { return selector === '[data-tilt]' ? this.surface ?? null : null; }
     contains(element) { return element === this || element?.surface === this; }
     getBoundingClientRect() { this.boundsCalls += 1; return this.rect; }
+    setAttribute(name, value) { this.attributes.set(name, String(value)); }
   }
 
   const documentListeners = new Map();
@@ -407,6 +422,7 @@ function createSpatialHarness() {
   const finePointer = createQuery(true);
   const root = new MockElement();
   const header = new MockElement();
+  const greeter = new MockElement();
   const surfaceA = new MockElement(undefined, { left: 0, top: 0, width: 100, height: 100 });
   const surfaceB = new MockElement(undefined, { left: 200, top: 0, width: 100, height: 100 });
   surfaceA.surface = surfaceA;
@@ -423,7 +439,7 @@ function createSpatialHarness() {
     activeElement: undefined,
     addEventListener(type, listener) { addListener(documentListeners, type, listener); },
     getElementById() { return undefined; },
-    querySelector(selector) { return selector === '.site-header' ? header : undefined; },
+    querySelector(selector) { return { '.site-header': header, '.scroll-greeter': greeter }[selector]; },
     querySelectorAll() { return []; },
   };
   const window = {
@@ -472,6 +488,7 @@ function createSpatialHarness() {
     flush,
     frameCount: () => frames.size,
     header,
+    greeter,
     reducedMotion,
     root,
     runFrame,
@@ -493,6 +510,10 @@ test('shared pointer scheduler coalesces input, tilts at most 3 degrees, and res
   });
 
   runtime.flush();
+  assert.equal(runtime.greeter.hidden, false, 'the scroll greeting is enabled only after JavaScript initializes');
+  assert.equal(runtime.greeter.classList.contains('is-visible'), false);
+  assert.equal(runtime.greeter.attributes.get('aria-hidden'), 'true');
+  assert.equal(runtime.greeter.tabIndex, -1);
   for (let x = 100; x <= 1000; x += 100) runtime.emitDocument('pointermove', pointer(runtime.childA, x, 1000));
   assert.equal(runtime.frameCount(), 1, 'many raw pointer moves share one queued frame');
   assert.equal(runtime.surfaceA.boundsCalls, 0, 'raw pointer work must not read bounds');
@@ -549,6 +570,9 @@ test('shared pointer scheduler coalesces input, tilts at most 3 degrees, and res
   runtime.window.scrollY = 500;
   runtime.emitWindow('scroll', {});
   assert.equal(runtime.header.classList.contains('is-scrolled'), true, 'scroll toggles the compact header state without a RAF loop');
+  assert.equal(runtime.greeter.classList.contains('is-visible'), true, 'scroll reveals the greeting');
+  assert.equal(runtime.greeter.attributes.get('aria-hidden'), 'false');
+  assert.equal(runtime.greeter.tabIndex, 0, 'the visible greeting enters the keyboard order');
   runtime.finePointer.setMatches(false);
   assert.equal(runtime.frameCount(), 0, 'coarse pointers stop spatial work');
 });
