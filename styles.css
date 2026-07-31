@@ -708,6 +708,14 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
     linear-gradient(180deg, var(--surface-3), var(--surface-2));
 }
 
+.team-photo {
+  display: block;
+  inline-size: 100%;
+  block-size: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
 .team-visual::before {
   position: absolute;
   inset: 0;

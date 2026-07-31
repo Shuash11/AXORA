@@ -121,10 +121,20 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.match(html, /<h2 id="services-title"[^>]*>What we build<br>and support\.<\/h2>\s*<p class="section-intro"[^>]*>Practical digital assistance for products, systems, and the everyday work around them\.<\/p>/);
   assert.match(html, /<h2 id="team-title"[^>]*>Four people,<br>one shared standard\.<\/h2>\s*<p class="section-intro"[^>]*>AXORA combines different technical and creative strengths to make digital work clearer and easier to move forward\.<\/p>/);
   assert.equal(classCount(html, 'team-card'), 4);
+  const member01PortraitPath = 'member images/762542297_1046525607966526_6264202658131260171_n.jpg';
+  assert.ok(existsSync(member01PortraitPath), 'the Member 01 portrait source file must exist on disk');
+  const member01EncodedSrc = 'member%20images/762542297_1046525607966526_6264202658131260171_n.jpg';
   for (let index = 0; index < 4; index += 1) {
     const number = String(index + 1).padStart(2, '0');
     assert.match(html, new RegExp(`<button[^>]*class="team-card"[^>]*data-member="${index}"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>[\\s\\S]*?${number}[\\s\\S]*?Team Member ${number}[\\s\\S]*?<small class="team-role">Role / specialty<\\/small>[\\s\\S]*?View work and achievements`));
-    assert.match(html, new RegExp(`<span class="device-label">TM-0${index + 1}<\\/span>`));
+  }
+  const member01Card = html.match(/<button[^>]*class="team-card"[^>]*data-member="0"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>([\s\S]*?)<\/button>/)?.[0] ?? '';
+  assert.ok(member01Card, 'Member 01 card must be matched');
+  assert.match(member01Card, new RegExp(`<img[^>]*class="team-photo"[^>]*src="${escapeRegExp(member01EncodedSrc)}"[^>]*alt=""[^>]*width="1086"[^>]*height="1448"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`), 'Member 01 must contain the portrait image with correct attributes');
+  assert.doesNotMatch(member01Card, /device-label/, 'Member 01 must not contain a device-label');
+  for (let index = 1; index < 4; index += 1) {
+    const number = String(index + 1).padStart(2, '0');
+    assert.match(html, new RegExp(`<span class="device-label">TM-0${index + 1}<\\/span>`), `Members 02-04 must retain device labels (${number})`);
   }
   assert.equal((html.match(/<small class="team-role">Role \/ specialty<\/small>/g) ?? []).length, 4);
   assert.equal((html.match(/View work and achievements/g) ?? []).length, 4);
@@ -171,9 +181,11 @@ test('five event photo slides preserve the exact local image mapping and caption
   assert.equal(slideMatches.length, 5);
   assert.equal((html.match(/\bdata-slide\b/gi) ?? []).length, 5);
   assert.equal((html.match(/\bdata-dot\b/gi) ?? []).length, 5);
-  assert.equal((html.match(/loading="lazy"/gi) ?? []).length, 4);
-  assert.equal((html.match(/decoding="async"/gi) ?? []).length, 5);
-  assert.equal((html.match(/draggable="false"/gi) ?? []).length, 5);
+  const slideImages = slideMatches.map((m) => m[1].match(/<img\b[^>]*>/)?.[0] ?? '');
+  assert.equal(slideImages.filter((img) => /loading="lazy"/i.test(img)).length, 4, 'four of five carousel slides use lazy loading');
+  assert.equal(slideImages.filter((img) => /loading="eager"/i.test(img)).length, 1, 'one carousel slide uses eager loading');
+  assert.equal(slideImages.filter((img) => /decoding="async"/i.test(img)).length, 5, 'all five carousel slides use async decoding');
+  assert.equal(slideImages.filter((img) => /draggable="false"/i.test(img)).length, 5, 'all five carousel slides use draggable false');
   const expectedPositions = ['0', '1', '2', '-2', '-1'];
   slides.forEach(([file, src, alt, title, note], index) => {
     assert.ok(existsSync(file), `missing source asset: ${file}`);
@@ -228,7 +240,9 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /h1\s*\{[^}]*font-family:\s*var\(--display\)/);
   assert.match(css, /h1\s*\{[^}]*font-size:\s*clamp\(2\.8rem,\s*5\.4vw,\s*4\.9rem\)/, 'desktop H1 must retain the prominent responsive display scale');
   assert.match(css, /\.eyebrow\s*\{[^}]*font-family:\s*var\(--label\)/);
-  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.hero-scene', '.scene', '.stage', '.scene-slide', '.carousel-controls', '.carousel-arrow', '.dot', '.service-card', '.team-card', '.contact-panel', '.site-footer']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
+  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.hero-scene', '.scene', '.stage', '.scene-slide', '.carousel-controls', '.carousel-arrow', '.dot', '.service-card', '.team-card', '.contact-panel', '.site-footer', '.team-photo']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
+  assert.match(css, /\.team-photo\s*\{[^}]*object-fit:\s*cover/, '.team-photo must use object-fit: cover');
+  assert.match(css, /\.team-photo\s*\{[^}]*object-position:\s*top/, '.team-photo must anchor the face near top');
   for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*hidden', '\\.sr-only\\s*\\{[\\s\\S]*?clip-path:', 'scroll-behavior:\\s*smooth', 'scroll-margin-block-start:\\s*96px', '@media \\(max-width:\\s*1023px\\)', '@media \\(max-width:\\s*767px\\)', '@media \\(max-width:\\s*420px\\)', '@media \\(hover:\\s*none\\),\\s*\\(pointer:\\s*coarse\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
   assert.match(css, /perspective:\s*1[34]\d{2}px/);
   assert.match(css, /transform-style:\s*preserve-3d/);
