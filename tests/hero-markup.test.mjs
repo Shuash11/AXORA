@@ -202,8 +202,8 @@ test('five event photo slides preserve the exact local image mapping and caption
   assert.doesNotMatch(html, /carousel-toggle/);
 });
 
-test('styles define the modern graphite/cyan spatial design with motion safeguards', () => {
-  for (const color of ['#0A0D12', '#10151C', '#151B24', '#35D3F4', '#4F8CFF', '#F2B24C', '#EEF3F9']) assert.match(css, new RegExp(color, 'i'));
+test('styles define the warm editorial dark design with motion safeguards', () => {
+  for (const color of ['#111014', '#1a1820', '#22202a', '#2a2835', '#f0ece4', '#a09a8e', '#d4845a', '#c46a3a', '#e8c56a', '#f5f0e8']) assert.match(css, new RegExp(color, 'i'));
   for (const font of ['Sora', 'Manrope', 'IBM Plex Mono']) assert.match(css, new RegExp(font));
   assert.doesNotMatch(css, /Lora|Plus Jakarta Sans|Space Mono|#211A15|#2C231C|#362B22|#E7A23A|#F5EFE4|#B8AA97|#6FB3A0/i, 'the legacy brown/honey palette must be gone');
   assert.match(html, /family=Sora/);
@@ -255,9 +255,9 @@ test('styles define the modern graphite/cyan spatial design with motion safeguar
   assert.match(css, /@media \(max-width:\s*767px\)\s*and\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.scene-back-a,\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'reduced-motion scene backdrop cards must be bounded flush on narrow screens (tester: 390->404, 320->333)');
 });
 
-test('script removes autoplay/glow machinery and keeps one RAF scheduler plus one IntersectionObserver', () => {
+test('script keeps one RAF scheduler plus one IntersectionObserver and drops stale glow machinery', () => {
   assert.doesNotMatch(script, /^\s*(?:import|export)\b/m);
-  assert.doesNotMatch(script, /isUserPaused|scheduleAutoplay|clearAutoplay|autoplayTimer|carousel-toggle|carouselToggle|3200|Pause carousel/);
+  assert.doesNotMatch(script, /isUserPaused|scheduleAutoplay|clearAutoplay|carousel-toggle|carouselToggle|3200|Pause carousel/);
   assert.doesNotMatch(script, /glowFrame|renderGlow|scheduleGlow|glowTargetX|glow\.style/);
   assert.doesNotMatch(script, /--pointer-x|--scroll-depth/);
   assert.match(script, /document\.documentElement\.classList\.add\(['"]js['"]\)/);
@@ -612,6 +612,8 @@ function createCarouselHarness() {
     addEventListener() {},
     setTimeout() { return 1; },
     clearTimeout() {},
+    setInterval() { return 1; },
+    clearInterval() {},
   };
   runInNewContext(script, { document, window, Element: MockElement, decodeURIComponent });
 
