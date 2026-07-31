@@ -1295,19 +1295,6 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 .scroll-greeter.is-visible .peek-hand img { animation: wave-greeting 3.2s .7s ease-in-out infinite; }
 .scroll-greeter.is-visible .peek-eye { animation: character-blink 5s 1.5s ease-in-out infinite; }
 
-.greeter-hand {
-  display: grid;
-  place-items: center;
-  inline-size: 50px;
-  block-size: 50px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 30% 27%, #FFFFFF 0%, #FFF1D3 42%, #FFD15C 100%);
-  box-shadow: inset -6px -7px 12px rgb(176 108 23 / 16%), inset 5px 6px 10px rgb(255 255 255 / 72%), 0 12px 20px -12px rgb(216 75 63 / 48%);
-}
-
-.greeter-hand img { display: block; inline-size: 36px; block-size: 36px; transform-origin: 55% 82%; }
-.scroll-greeter.is-visible .greeter-hand img { animation: wave-greeting 3.2s .3s ease-in-out infinite; }
-
 /* ---------- Responsive ---------- */
 
 @media (max-width: 1023px) {
