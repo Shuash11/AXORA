@@ -8,11 +8,11 @@ const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
 
 const slides = [
-  ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team members together on the IT Summit and Code Camp Season 4 stage in Ozamiz City.', 'IT Summit · Code Camp S4', 'Built to solve', 'AXORA showing up, learning, and building together.', 'Team milestone', 'Ozamiz City · July 25, 2026'],
-  ['Hero Image/755941564_2053703328575625_420494940045368523_n (1).jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg', 'AXORA team members posed onstage at IT Summit and Code Camp Season 4 in Ozamiz City.', 'One team, shared focus', 'Ready together', 'Skilled support starts with people who work as one.', 'Collaboration', 'AXORA · Code Camp Season 4'],
-  ['Hero Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'AXORA team members celebrating around a table while holding a certificate and trophy at Code Camp Season 4 in Ozamiz City.', 'The people behind AXORA', 'Hands-on support', 'Real people helping make everyday digital work easier.', 'Human-led', 'Team moment · Ozamiz City'],
-  ['Hero Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'AXORA team members in a closer onstage group photo at Code Camp Season 4 in Ozamiz City.', 'Technology, made human', 'Clear. Capable.', 'Practical help for websites, systems, content, and more.', 'Tech assistance', 'AXORA · IT Summit 2026'],
-  ['Hero Image/753550594_854922847701273_1471309818899059976_n.jpg', 'Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg', 'AXORA team members in a wide full-group stage photograph at IT Summit and Code Camp Season 4 in Ozamiz City.', 'A wider circle of support', 'Ready to help', 'A skilled team grounded in curiosity and collaboration.', 'People first', 'Ozamiz City · 2026'],
+  ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
+  ['Hero Image/755941564_2053703328575625_420494940045368523_n (1).jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg', 'AXORA team posed on stage.', 'Mobile, built right', 'Clean, focused apps designed for how people actually use them.'],
+  ['Hero Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'Team celebrating with a certificate and trophy.', 'Design with intent', 'Interfaces that look sharp and work even sharper.'],
+  ['Hero Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'Close-up of the team on stage.', 'Support that shows up', 'Troubleshooting, updates, and day-to-day digital help — on call.'],
+  ['Hero Image/753550594_854922847701273_1471309818899059976_n.jpg', 'Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg', 'Full group on stage at the event.', 'Your team, extended', 'Skilled hands ready to plug into your workflow.'],
 ];
 
 const classCount = (source, className) => [...source.matchAll(/\bclass=(["'])(.*?)\1/gi)]
@@ -151,7 +151,7 @@ test('embedded favicon is the canonical safe SVG data URI', () => {
 
 test('five event photo slides preserve the exact local image mapping and caption content', () => {
   assert.equal(classCount(html, 'scene-slide'), 5);
-  for (const className of ['slide-photo', 'slide-caption', 'slide-title', 'slide-note', 'slide-meta', 'slide-tag']) {
+  for (const className of ['slide-photo', 'slide-caption', 'slide-title', 'slide-note']) {
     assert.equal(classCount(html, className), 5, `there must be five .${className} elements`);
   }
   const slideMatches = [...html.matchAll(/<article\b(?=[^>]*\bclass="scene-slide")(?=[^>]*\bdata-slide="\d+")[^>]*>([\s\S]*?)<\/article>/g)];
@@ -162,7 +162,7 @@ test('five event photo slides preserve the exact local image mapping and caption
   assert.equal((html.match(/decoding="async"/gi) ?? []).length, 5);
   assert.equal((html.match(/draggable="false"/gi) ?? []).length, 5);
   const expectedPositions = ['0', '1', '2', '-2', '-1'];
-  slides.forEach(([file, src, alt, tag, title, note, metaA, metaB], index) => {
+  slides.forEach(([file, src, alt, title, note], index) => {
     assert.ok(existsSync(file), `missing source asset: ${file}`);
     const opening = slideMatches[index][0].match(/^<article\b[^>]*>/)?.[0] ?? '';
     const image = slideMatches[index][1].match(/<img\b[^>]*>/)?.[0] ?? '';
@@ -180,10 +180,9 @@ test('five event photo slides preserve the exact local image mapping and caption
       assert.match(image, /loading="lazy"/);
       assert.doesNotMatch(image, /fetchpriority=/);
     }
-    assert.match(slideMatches[index][1], new RegExp(`<span class="slide-tag">${escapeRegExp(tag)}<\\/span>`));
     assert.match(slideMatches[index][1], new RegExp(`<p class="slide-title">${escapeRegExp(title)}<\\/p>`));
     assert.match(slideMatches[index][1], new RegExp(`<p class="slide-note">${escapeRegExp(note)}<\\/p>`));
-    assert.match(slideMatches[index][1], new RegExp(`<span>${escapeRegExp(metaA)}<\\/span><span>${escapeRegExp(metaB)}<\\/span>`));
+    assert.doesNotMatch(slideMatches[index][1], /slide-tag|slide-meta/, 'premium carousel slides must not carry a tag pill or meta line');
   });
   assert.match(html, /<p class="carousel-status sr-only" role="status" aria-live="polite">Photo 1 of 5<\/p>/);
   const controls = html.match(/<div class="carousel-controls" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
@@ -231,7 +230,7 @@ test('styles define the warm editorial dark design with motion safeguards', () =
   assert.match(css, /\.scene-slide\[data-position="-1"\][\s\S]*?opacity:\s*0/);
   assert.match(css, /\.carousel-controls\s*\{[\s\S]*?display:\s*none/);
   assert.match(css, /\.hero-scene\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
-  assert.match(css, /\.carousel-arrow\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
+  assert.match(css, /\.carousel-arrow\s*\{[\s\S]*?min-inline-size:\s*36px[\s\S]*?min-block-size:\s*36px/);
   assert.match(css, /\.dot\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
   assert.match(css, /\.service-card\s*\{[^}]*--lift:\s*0px/);
   assert.match(css, /\.service-card:hover[\s\S]*?--lift:\s*-7px/);

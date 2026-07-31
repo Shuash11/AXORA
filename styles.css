@@ -349,12 +349,14 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 }
 
 .scene-back-a {
-  inset: 3.2rem -1.4rem -1.4rem 2.4rem;
+  inset: 2rem -1rem -1rem 1.5rem;
+  opacity: .5;
   transform: rotate(-2.6deg) translate3d(calc(-14px + var(--px) * -16px), calc(18px + var(--py) * -10px), 0) scale(.96);
 }
 
 .scene-back-b {
-  inset: 1.2rem 2rem 1.6rem -1.6rem;
+  inset: 1rem 1.5rem 1rem -1.2rem;
+  opacity: .4;
   transform: rotate(2.2deg) translate3d(calc(12px + var(--px) * 14px), calc(-14px + var(--py) * 8px), 0) scale(.9);
 }
 
@@ -386,6 +388,7 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 }
 
 .scene-slide {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-inline-size: 0;
@@ -413,51 +416,26 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
 }
 
-.slide-tag {
-  position: absolute;
-  z-index: 1;
-  inset: auto auto 1rem 1rem;
-  max-inline-size: calc(100% - 2rem);
-  padding: .34rem .68rem;
-  border: 1px solid rgb(240 236 228 / 18%);
-  border-radius: 999px;
-  color: var(--text);
-  background: rgb(17 16 20 / 52%);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  font-size: .72rem;
-  font-weight: 600;
-  line-height: 1.35;
-}
+.slide-tag { display: none; }
 
 .slide-caption {
-  margin-block-start: .9rem;
-  padding: 1rem 1.15rem 1.05rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgb(34 32 42 / 94%), rgb(26 24 32 / 94%));
-  -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 0 0;
+  padding: 2rem 1.25rem 1rem;
+  background: linear-gradient(to top, rgb(17 16 20 / 92%) 0%, rgb(17 16 20 / 60%) 60%, transparent 100%);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  border: none;
+  border-top: none;
 }
 
 .slide-caption p { margin: 0; }
 
-.slide-title { font-family: var(--display); font-size: 1.02rem; font-weight: 600; letter-spacing: -.01em; }
+.slide-title { font-family: var(--display); font-size: 1.15rem; font-weight: 700; letter-spacing: -.02em; color: var(--text); }
 
-.slide-note { margin-block-start: .3rem !important; color: var(--text-dim); font-size: .85rem; line-height: 1.55; }
+.slide-note { margin-block-start: .25rem !important; color: var(--text-dim); font-size: .82rem; line-height: 1.5; }
 
-.slide-meta {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-block-start: .8rem !important;
-  padding-block-start: .7rem;
-  border-block-start: 1px solid var(--line);
-  color: var(--text-faint);
-  font-family: var(--label);
-  font-size: .6rem;
-  letter-spacing: .04em;
-}
+.slide-meta { display: none; }
 
 /* Enhanced slide deck: one crisp depth/fade/slide layer at a time. */
 .hero-scene.is-enhanced .stage { gap: 0; }
@@ -481,15 +459,15 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: .4rem;
-  margin-block-start: 1.25rem;
+  gap: .25rem;
+  margin-block-start: .75rem;
 }
 
 .carousel-arrow {
   display: inline-grid;
   place-items: center;
-  min-inline-size: 44px;
-  min-block-size: 44px;
+  min-inline-size: 36px;
+  min-block-size: 36px;
   padding: 0;
   border: 1px solid var(--line-strong);
   border-radius: 50%;
@@ -518,8 +496,8 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 .dot::after {
   position: absolute;
   inset: 50% auto auto 50%;
-  inline-size: 7px;
-  block-size: 7px;
+  inline-size: 5px;
+  block-size: 5px;
   border-radius: 999px;
   content: "";
   background: var(--text-faint);
@@ -528,7 +506,7 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 }
 
 .dot:hover::after, .dot:focus-visible::after { background: var(--text); }
-.dot[aria-current="true"]::after { inline-size: 22px; background: var(--accent); }
+.dot[aria-current="true"]::after { inline-size: 18px; background: var(--accent); }
 
 /* ---------- Services ---------- */
 
@@ -1033,7 +1011,6 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .hero-scene.is-enhanced .carousel-arrow { position: absolute; top: 50%; z-index: 3; transform: translateY(-50%); }
   .hero-scene.is-enhanced [data-carousel-prev] { left: 10px; }
   .hero-scene.is-enhanced [data-carousel-next] { right: 10px; }
-  .slide-meta { flex-direction: column; gap: .25rem; }
   .team-card { min-block-size: 320px; }
   .contact-email { font-size: .82rem; }
 }
