@@ -38,9 +38,11 @@
     }
 
     function setMenu(open, restoreFocus = false) {
+      const label = open ? 'Close navigation' : 'Open navigation';
       header.classList.toggle('menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
-      toggle.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+      toggle.textContent = label;
+      toggle.setAttribute('aria-label', label);
 
       if (restoreFocus) {
         toggle.focus();
@@ -57,7 +59,20 @@
     });
 
     nav.querySelectorAll('a').forEach((link) => {
-      link.addEventListener('click', () => setMenu(false));
+      link.addEventListener('click', () => {
+        const target = document.querySelector(link.hash);
+        setMenu(false);
+
+        window.requestAnimationFrame(() => {
+          if (!target) {
+            setMenu(false, true);
+            return;
+          }
+
+          target.setAttribute('tabindex', '-1');
+          target.focus({ preventScroll: true });
+        });
+      });
     });
 
     document.addEventListener('keydown', (event) => {
@@ -119,11 +134,13 @@
       bio.textContent = bioText;
 
       const achievementsTitle = document.createElement('h3');
+      achievementsTitle.id = 'achievements-title';
       achievementsTitle.textContent = 'Achievements';
       replaceTextChildren(achievements, 'p', achievementTexts);
       achievements.prepend(achievementsTitle);
 
       const workTitle = document.createElement('h3');
+      workTitle.id = 'work-title';
       workTitle.textContent = 'Selected work';
       const projects = projectTexts.map((project) => {
         const article = document.createElement('article');
@@ -195,6 +212,18 @@
 
       pendingOpen = undefined;
       document.body.classList.remove('dialog-open');
+      selectedMember?.classList.remove('is-selected');
+      trigger?.focus();
+      trigger = undefined;
+      selectedMember = undefined;
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key !== 'Escape' || pendingOpen === undefined || dialog.open) {
+        return;
+      }
+
+      window.clearTimeout(pendingOpen);
+      pendingOpen = undefined;
       selectedMember?.classList.remove('is-selected');
       trigger?.focus();
       trigger = undefined;

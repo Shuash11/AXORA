@@ -76,7 +76,7 @@ test('full landing page has the required semantic sections, navigation, and cont
 
   const contact = html.match(/<section id="contact"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
   for (const text of ['Have something useful to build?', 'Tell us what you are working on and where you need a capable extra set of hands.', 'mailto:your-email@example.com', 'Replace this email before launch.', 'Start a conversation']) assert.ok(contact.includes(text));
-  const dialog = html.match(/<dialog id="team-dialog">([\s\S]*?)<\/dialog>/)?.[1] ?? '';
+  const dialog = html.match(/<dialog id="team-dialog"[^>]*>([\s\S]*?)<\/dialog>/)?.[1] ?? '';
   assert.ok(dialog, 'the native team dialog must be present');
   for (const hook of ['data-dialog-close', 'data-dialog-name', 'data-dialog-marker', 'data-dialog-role', 'data-dialog-bio', 'data-dialog-achievements', 'data-dialog-work']) assert.ok(dialog.includes(hook));
   for (const text of ['Team Member 01', 'Role / specialty', "Add this team member's short biography, focus, and approach here.", '01', '02', 'Add a short project summary and contribution.', 'Placeholder content']) assert.ok(dialog.includes(text));
@@ -297,7 +297,7 @@ test('progressively enhances navigation and the reusable team dialog', () => {
   assert.match(navigation, /document\.querySelector\(['"]#primary-nav['"]\)/);
   assert.match(navigation, /if \(!header \|\| !toggle \|\| !nav\)\s*\{\s*return;/);
   assert.match(navigation, /header\.classList\.add\(['"]is-enhanced['"]\);[\s\S]*?toggle\.hidden = false;[\s\S]*?toggle\.setAttribute\(['"]aria-controls['"], ['"]primary-nav['"]\);/);
-  assert.match(navigation, /function setMenu\(open, restoreFocus = false\)[\s\S]*?header\.classList\.toggle\(['"]menu-open['"], open\);[\s\S]*?toggle\.setAttribute\(['"]aria-expanded['"], String\(open\)\);[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], open \? ['"]Close navigation['"] : ['"]Open navigation['"]\);/);
+  assert.match(navigation, /function setMenu\(open, restoreFocus = false\)[\s\S]*?const label = open \? ['"]Close navigation['"] : ['"]Open navigation['"];[\s\S]*?header\.classList\.toggle\(['"]menu-open['"], open\);[\s\S]*?toggle\.setAttribute\(['"]aria-expanded['"], String\(open\)\);[\s\S]*?toggle\.textContent = label;[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], label\);/);
   assert.doesNotMatch(navigation, /aria-pressed/);
   assert.match(navigation, /setMenu\(false\);[\s\S]*?toggle\.addEventListener\(['"]click['"]/);
   assert.match(navigation, /nav\.querySelectorAll\(['"]a['"]\)\.forEach[\s\S]*?setMenu\(false\)/);
@@ -328,5 +328,13 @@ test('progressively enhances navigation and the reusable team dialog', () => {
   assert.match(dialog, /dialog\.addEventListener\(['"]click['"][\s\S]*?event\.target !== dialog[\s\S]*?event\.target\.closest\(['"]\.dialog-shell['"]\)[\s\S]*?dialog\.close\(\)/);
   assert.match(dialog, /dialog\.addEventListener\(['"]close['"][\s\S]*?document\.body\.classList\.remove\(['"]dialog-open['"]\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\)/);
   assert.match(dialog, /document\.body\.classList\.add\(['"]dialog-open['"]\);[\s\S]*?closeButton\.focus\(\)/);
-  assert.match(html, /<dialog id="team-dialog">\s*<div class="dialog-shell">[\s\S]*?<\/div>\s*<\/dialog>/);
+  assert.match(html, /<dialog id="team-dialog" aria-labelledby="team-dialog-name">\s*<div class="dialog-shell">[\s\S]*?<\/div>\s*<\/dialog>/);
+  assert.match(html, /<dialog id="team-dialog" aria-labelledby="team-dialog-name">/);
+  assert.match(html, /<h2 id="team-dialog-name" data-dialog-name>/);
+  assert.match(dialog, /achievementsTitle\.id = ['"]achievements-title['"]/);
+  assert.match(dialog, /workTitle\.id = ['"]work-title['"]/);
+  assert.match(navigation, /const label = open \? ['"]Close navigation['"] : ['"]Open navigation['"];[\s\S]*?toggle\.textContent = label;[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], label\)/);
+  assert.match(navigation, /const target = document\.querySelector\(link\.hash\);[\s\S]*?window\.requestAnimationFrame\(\(\) => \{[\s\S]*?target\.setAttribute\(['"]tabindex['"], ['"]-1['"]\);[\s\S]*?target\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(navigation, /if \(!target\)\s*\{[\s\S]*?setMenu\(false, true\)/);
+  assert.match(dialog, /document\.addEventListener\(['"]keydown['"][\s\S]*?pendingOpen === undefined \|\| dialog\.open[\s\S]*?window\.clearTimeout\(pendingOpen\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\);/);
 });
