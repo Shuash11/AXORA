@@ -18,12 +18,38 @@ const cards = [
 const classCount = (source, className) => [...source.matchAll(/\bclass=(["'])(.*?)\1/gi)]
   .filter((match) => match[2].split(/\s+/).includes(className)).length;
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const canonicalFaviconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#2C231C"/><path d="M14 48L29 16h6l15 32h-9l-3-7H26l-3 7h-9zm16-15h5l-2.5-6z" fill="#F5EFE4"/><circle cx="46" cy="48" r="4" fill="#E7A23A"/></svg>';
+const faviconDataPrefix = 'data:image/svg+xml,';
+const faviconHrefs = (source) => [...source.matchAll(/<link\b[^>]*\brel="icon"[^>]*>/gi)]
+  .map((match) => match[0].match(/\bhref="([^"]*)"/i)?.[1])
+  .filter((href) => href !== undefined);
+
+function validateCanonicalFavicon(href) {
+  if (typeof href !== 'string' || !href.startsWith(faviconDataPrefix)) return false;
+
+  let svg;
+  try {
+    svg = decodeURIComponent(href.slice(faviconDataPrefix.length));
+  } catch {
+    return false;
+  }
+
+  const elements = [...new Set([...svg.matchAll(/<([a-z][\w:-]*)\b/gi)].map((match) => match[1].toLowerCase()))].sort();
+  const withoutNamespace = svg.replace('xmlns="http://www.w3.org/2000/svg"', '');
+  return svg === canonicalFaviconSvg
+    && /^<svg\b[^>]*\bxmlns="http:\/\/www\.w3\.org\/2000\/svg"[^>]*\bviewBox="0 0 64 64"[^>]*>/.test(svg)
+    && elements.join(',') === 'circle,path,rect,svg'
+    && !/<(?:script|foreignObject|style)\b/i.test(svg)
+    && !/\son\w+\s*=/i.test(svg)
+    && !/\b(?:xlink:)?href\s*=/i.test(svg)
+    && !/\burl\s*\(/i.test(svg)
+    && !/(?:\bhttps?:|\/\/)/i.test(withoutNamespace);
+}
 
 test('full landing page has the required semantic sections, navigation, and content', () => {
-  const faviconLinks = [...html.matchAll(/<link\b[^>]*\brel="icon"[^>]*>/gi)].map((match) => match[0]);
-  assert.equal(faviconLinks.length, 1, 'the page must define exactly one favicon');
-  assert.match(faviconLinks[0], /\bhref="data:image\/svg\+xml,[^"]+"/i);
-  assert.doesNotMatch(faviconLinks[0], /\bhref="(?!data:image\/svg\+xml,)/i, 'the favicon must not use an external or local path');
+  const icons = faviconHrefs(html);
+  assert.equal(icons.length, 1, 'the page must define exactly one favicon');
+  assert.match(icons[0], /^data:image\/svg\+xml,/i, 'the favicon must not use an external or local path');
   assert.equal((html.match(/<h1\b/gi) ?? []).length, 1);
   assert.equal((html.match(/<header\b[^>]*\bclass="[^"]*\bsite-header\b[^"]*"/gi) ?? []).length, 1);
   assert.equal((html.match(/<main\b/gi) ?? []).length, 1);
@@ -95,6 +121,21 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.match(footer, /Web apps, mobile apps, design, and practical tech support\./);
   assert.match(html, /<script\s+src="script\.js"\s+defer><\/script>/i);
   assert.doesNotMatch(html, /<script\b(?=[^>]*\bsrc="script\.js")(?=[^>]*\btype="module")[^>]*>/i);
+});
+
+test('embedded favicon is the canonical safe SVG data URI', () => {
+  const [href] = faviconHrefs(html);
+  const decodedSvg = decodeURIComponent(href.slice(faviconDataPrefix.length));
+
+  assert.equal(href.startsWith(faviconDataPrefix), true);
+  assert.equal(decodedSvg, canonicalFaviconSvg);
+  assert.match(decodedSvg, /^<svg\b[^>]*\bxmlns="http:\/\/www\.w3\.org\/2000\/svg"[^>]*\bviewBox="0 0 64 64"[^>]*>/);
+  assert.deepEqual([...new Set([...decodedSvg.matchAll(/<([a-z][\w:-]*)\b/gi)].map((match) => match[1].toLowerCase()))].sort(), ['circle', 'path', 'rect', 'svg']);
+  assert.doesNotMatch(decodedSvg, /<(?:script|foreignObject|style)\b|\son\w+\s*=|\b(?:xlink:)?href\s*=|\burl\s*\(/i);
+  assert.doesNotMatch(decodedSvg.replace('xmlns="http://www.w3.org/2000/svg"', ''), /(?:\bhttps?:|\/\/)/i);
+  assert.equal(validateCanonicalFavicon(href), true);
+  assert.equal(validateCanonicalFavicon('data:image/svg+xml,not-svg'), false);
+  assert.equal(validateCanonicalFavicon(`${faviconDataPrefix}${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><script>alert(1)</script></svg>')}`), false);
 });
 
 test('five complete achievement cards preserve the exact local image mapping and content', () => {
