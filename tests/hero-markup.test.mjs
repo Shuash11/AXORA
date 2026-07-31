@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
@@ -169,6 +170,11 @@ test('styles define the approved spatial page', () => {
   assert.match(glowRule, /inset:\s*0\s+auto\s+auto\s+0/);
   assert.match(glowRule, /margin:\s*-320px\s+0\s+0\s+-320px/);
   assert.match(glowRule, /transform:\s*translate3d\(calc\(50vw\s*\+\s*\(var\(--pointer-x\)\s*\*\s*44vw\)\),\s*calc\(50vh\s*\+\s*\(var\(--pointer-y\)\s*\*\s*42vh\)\s*\+\s*\(var\(--scroll-depth\)\s*\*\s*18px\)\),\s*0\)/);
+  assert.doesNotMatch(glowRule, /transition:/);
+  const ringsRule = rule('\.scene-rings');
+  assert.match(ringsRule, /transform:\s*translate3d\(calc\(var\(--pointer-x\)\s*\*\s*12px\)/);
+  assert.match(ringsRule, /var\(--pointer-y\)/);
+  assert.match(ringsRule, /var\(--scroll-depth\)/);
   assert.match(css, /\.site-header,\s*\.top\s*\{[^}]*position:\s*sticky/);
   const scrolledHeaderRule = rule('\\.site-header\\.is-scrolled');
   assert.match(scrolledHeaderRule, /background:\s*var\(--glass-strong\)/);
@@ -199,9 +205,10 @@ test('styles define the approved spatial page', () => {
   assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-play/);
   assert.match(css, /\.carousel-toggle\[hidden\]\s*\{\s*display:\s*none\s*!important/);
   assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
-  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?\.scene-rings,\s*\.scene-ring,\s*\.scene-axis\s*\{[^}]*transform:\s*none/);
+  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?\.scene-rings,\s*\.scene-ring,\s*\.scene-axis\s*\{[^}]*transform:\s*none\s*!important/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene-rings,\s*\.scene-ring,\s*\.scene-axis\s*\{[^}]*transform:\s*none\s*!important/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card p,\s*\.card-stat-label,\s*#contact p,\s*#team-dialog \[data-dialog-bio\],\s*#team-dialog section p,\s*#team-dialog article p,\s*\.site-footer p\s*\{[^}]*font-size:\s*1rem/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design,\s*\.service-support[\s\S]*?\{[^}]*grid-column:\s*1[^}]*grid-row:\s*auto/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card,\s*\.service-card:first-child,\s*\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\),\s*\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1/);
@@ -260,12 +267,9 @@ test('carousel controller preserves accessible state, guarded autoplay, keyboard
   assert.match(script, /stack\.addEventListener\(['"]pointerdown['"][\s\S]*?stack\.setPointerCapture\(event\.pointerId\)/);
   assert.match(script, /stack\.addEventListener\(['"]pointerup['"][\s\S]*?Math\.abs\(deltaX\) >= 44 && Math\.abs\(deltaX\) > Math\.abs\(deltaY\)/);
   assert.match(script, /show\(deltaX < 0 \? nextIndex\(activeIndex, count\) : previousIndex\(activeIndex, count\)\)/);
-  assert.match(script, /stack\.getBoundingClientRect\(\)/);
-  assert.match(script, /style\.setProperty\(['"]--tilt-x['"]/);
-  assert.match(script, /style\.setProperty\(['"]--tilt-y['"]/);
 });
 
-test('direct-file carousel helpers and reduced-motion cleanup retain the warm baseline behavior', () => {
+test('shared spatial-motion scheduler owns pointer, scroll, and surface settling', () => {
   assert.match(html, /<script\s+src="script\.js"\s+defer><\/script>/i);
   assert.doesNotMatch(script, /^\s*(?:import|export)\b/m);
   for (const helper of ['normalizeIndex', 'nextIndex', 'previousIndex', 'relativeOffset']) {
@@ -275,11 +279,37 @@ test('direct-file carousel helpers and reduced-motion cleanup retain the warm ba
   assert.match(script, /function validateCount\(count\)\s*\{\s*if \(count < 1\)/);
   assert.match(script, /function normalizeIndex\(index, count\)\s*\{\s*validateCount\(count\)/);
   assert.match(script, /matchMedia\(['"]\(prefers-reduced-motion: reduce\)['"]\)/);
-  assert.match(script, /function stopGlow\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(glowFrame\)[\s\S]*?glowFrame = undefined/);
-  assert.match(script, /resetTilt = function resetTilt\(\)\s*\{[\s\S]*?window\.cancelAnimationFrame\(tiltFrame\)[\s\S]*?setProperty\(['"]--tilt-x['"], ['"]0deg['"]\)[\s\S]*?setProperty\(['"]--tilt-y['"], ['"]0deg['"]\)/);
+  assert.match(script, /function initSpatialMotion\(reducedMotionQuery\)\s*\{/);
+  assert.equal((script.match(/\binitSpatialMotion\(reducedMotionQuery\);/g) ?? []).length, 1);
+  const spatialMotion = script.match(/function initSpatialMotion\(reducedMotionQuery\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(spatialMotion, /let frameId;/);
+  assert.match(spatialMotion, /function render\(\)\s*\{/);
+  assert.match(spatialMotion, /window\.requestAnimationFrame\(render\)/);
+  assert.match(spatialMotion, /window\.cancelAnimationFrame\(frameId\)/);
+  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--pointer-x['"]/);
+  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--pointer-y['"]/);
+  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--scroll-depth['"]/);
+  assert.match(spatialMotion, /clamp\([\s\S]*?, -1, 1\)/);
+  assert.match(spatialMotion, /clamp\([\s\S]*?, 0, 1\)/);
+  assert.match(spatialMotion, /\+= \(targetPointerX - currentPointerX\) \* \./);
+  assert.match(spatialMotion, /<= \.001/);
+  assert.match(spatialMotion, /window\.matchMedia\(['"]\(hover: hover\) and \(pointer: fine\)['"]\)/);
+  assert.match(spatialMotion, /event\.target instanceof Element/);
+  assert.match(spatialMotion, /target\.closest\(['"]\[data-tilt\]['"]\)/);
+  assert.match(spatialMotion, /surface\.getBoundingClientRect\(\)/);
+  assert.match(spatialMotion, /Math\.max\(-4, Math\.min\(4,/);
+  assert.match(spatialMotion, /surface\.classList\.add\(['"]is-tilting['"]\)/);
+  assert.match(spatialMotion, /previousSurface\.style\.setProperty\(['"]--tilt-x['"], ['"]0deg['"]\)/);
+  assert.match(spatialMotion, /previousSurface\.classList\.remove\(['"]is-tilting['"]\)/);
+  assert.match(spatialMotion, /window\.addEventListener\(['"]scroll['"],[\s\S]*?\{ passive: true \}/);
+  assert.match(spatialMotion, /header\?\.classList\.toggle\(['"]is-scrolled['"], window\.scrollY > 24\)/);
+  assert.match(spatialMotion, /function stopSpatialMotion\(\)\s*\{/);
+  assert.match(spatialMotion, /return stopSpatialMotion;/);
+  for (const obsolete of ['glowFrame', 'tiltFrame', 'resetTilt', 'stopGlow', 'renderGlow', 'scheduleGlow', 'glowTargetX', 'glowTargetY', 'glowCurrentX', 'glowCurrentY']) assert.doesNotMatch(script, new RegExp(`\\b${obsolete}\\b`));
+  assert.doesNotMatch(script, /glow\.style\.transform/);
   assert.match(script, /refreshAutoplay = scheduleAutoplay/);
   const motionChange = script.match(/\n  reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?\n  \}\);/)?.[0] ?? '';
-  assert.match(motionChange, /if \(prefersReducedMotion\)\s*\{[\s\S]*?stopGlow\(\);[\s\S]*?resetTilt\(\);/);
+  assert.match(motionChange, /if \(prefersReducedMotion\)\s*\{[\s\S]*?stopSpatialMotion\(\);/);
   assert.match(motionChange, /syncAutoplayControl\(\);[\s\S]*?refreshAutoplay\(\)/);
   assert.doesNotMatch(motionChange, /isUserPaused\s*=/);
 });
@@ -334,7 +364,78 @@ test('progressively enhances navigation and the reusable team dialog', () => {
   assert.match(dialog, /achievementsTitle\.id = ['"]achievements-title['"]/);
   assert.match(dialog, /workTitle\.id = ['"]work-title['"]/);
   assert.match(navigation, /const label = open \? ['"]Close navigation['"] : ['"]Open navigation['"];[\s\S]*?toggle\.textContent = label;[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], label\)/);
-  assert.match(navigation, /const target = document\.querySelector\(link\.hash\);[\s\S]*?window\.requestAnimationFrame\(\(\) => \{[\s\S]*?target\.setAttribute\(['"]tabindex['"], ['"]-1['"]\);[\s\S]*?target\.focus\(\{ preventScroll: true \}\)/);
+  assert.match(navigation, /function resolveFragmentTarget\(link\)\s*\{/);
+  assert.match(navigation, /if \(link\.hash\.length <= 1\)\s*\{\s*return;/);
+  assert.match(navigation, /decodeURIComponent\(link\.hash\.slice\(1\)\)/);
+  assert.match(navigation, /catch\s*\{\s*return;/);
+  assert.match(navigation, /document\.getElementById\(fragment\)/);
+  assert.doesNotMatch(navigation, /document\.querySelector\(link\.hash\)/);
+  assert.match(navigation, /const target = resolveFragmentTarget\(link\);[\s\S]*?window\.requestAnimationFrame\(\(\) => \{[\s\S]*?target\.setAttribute\(['"]tabindex['"], ['"]-1['"]\);[\s\S]*?target\.focus\(\{ preventScroll: true \}\)/);
   assert.match(navigation, /if \(!target\)\s*\{[\s\S]*?setMenu\(false, true\)/);
   assert.match(dialog, /document\.addEventListener\(['"]keydown['"][\s\S]*?pendingOpen === undefined \|\| dialog\.open[\s\S]*?window\.clearTimeout\(pendingOpen\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\);/);
+});
+
+test('direct-file navigation handles fragment mutations without selector parsing', () => {
+  class MockElement {
+    constructor() {
+      this.listeners = new Map();
+      this.attributes = new Map();
+      this.classList = { add() {}, remove() {}, toggle() {}, contains() { return false; } };
+      this.style = { setProperty() {} };
+      this.focusCount = 0;
+    }
+
+    addEventListener(type, listener) { this.listeners.set(type, listener); }
+    setAttribute(name, value) { this.attributes.set(name, value); }
+    focus() { this.focusCount += 1; }
+    querySelectorAll() { return []; }
+  }
+
+  const header = new MockElement();
+  const toggle = new MockElement();
+  const nav = new MockElement();
+  const target = new MockElement();
+  const links = [
+    Object.assign(new MockElement(), { origin: 'file://', pathname: '/axora/index.html', hash: '' }),
+    Object.assign(new MockElement(), { origin: 'https://example.com', pathname: '/', hash: '#services' }),
+    Object.assign(new MockElement(), { origin: 'file://', pathname: '/axora/index.html', hash: '#%' }),
+    Object.assign(new MockElement(), { origin: 'file://', pathname: '/axora/index.html', hash: '#missing' }),
+    Object.assign(new MockElement(), { origin: 'file://', pathname: '/axora/index.html', hash: '#services' }),
+  ];
+  nav.querySelectorAll = () => links;
+  const reducedMotion = { matches: false, addEventListener() {} };
+  const finePointer = { matches: true, addEventListener() {} };
+  const document = {
+    body: new MockElement(),
+    documentElement: new MockElement(),
+    hidden: false,
+    activeElement: undefined,
+    addEventListener() {},
+    querySelector(selector) {
+      return { '.site-header': header, '.nav-toggle': toggle, '#primary-nav': nav }[selector];
+    },
+    querySelectorAll() { return []; },
+    getElementById(id) { return id === 'services' ? target : null; },
+  };
+  const window = {
+    location: { origin: 'file://', pathname: '/axora/index.html' },
+    innerWidth: 1440,
+    innerHeight: 900,
+    scrollY: 0,
+    matchMedia(query) { return query === '(prefers-reduced-motion: reduce)' ? reducedMotion : finePointer; },
+    requestAnimationFrame(callback) { callback(); return 1; },
+    cancelAnimationFrame() {},
+    addEventListener() {},
+    setTimeout() { return 1; },
+    clearTimeout() {},
+  };
+
+  runInNewContext(script, { document, window, Element: MockElement, decodeURIComponent });
+
+  for (const link of links.slice(0, 4)) {
+    assert.doesNotThrow(() => link.listeners.get('click')());
+  }
+  assert.equal(toggle.focusCount, 4);
+  links[4].listeners.get('click')();
+  assert.equal(target.focusCount, 1);
 });

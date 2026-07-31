@@ -49,6 +49,23 @@
       }
     }
 
+    function resolveFragmentTarget(link) {
+      if (link.origin !== window.location.origin || link.pathname !== window.location.pathname) {
+        return;
+      }
+
+      if (link.hash.length <= 1) {
+        return;
+      }
+
+      try {
+        const fragment = decodeURIComponent(link.hash.slice(1));
+        return document.getElementById(fragment);
+      } catch {
+        return;
+      }
+    }
+
     header.classList.add('is-enhanced');
     toggle.hidden = false;
     toggle.setAttribute('aria-controls', 'primary-nav');
@@ -60,7 +77,7 @@
 
     nav.querySelectorAll('a').forEach((link) => {
       link.addEventListener('click', () => {
-        const target = document.querySelector(link.hash);
+        const target = resolveFragmentTarget(link);
         setMenu(false);
 
         window.requestAnimationFrame(() => {
@@ -240,55 +257,203 @@
 
   initNavigation();
   initTeamDialog(reducedMotionQuery);
-  const glow = document.querySelector('#glow');
-  let glowTargetX = window.innerWidth / 2;
-  let glowTargetY = window.innerHeight / 2;
-  let glowCurrentX = glowTargetX;
-  let glowCurrentY = glowTargetY;
-  let glowFrame;
-  let resetTilt = () => {};
-  let refreshAutoplay = () => {};
-  let syncAutoplayControl = () => {};
 
-  function stopGlow() {
-    if (glowFrame !== undefined) {
-      window.cancelAnimationFrame(glowFrame);
-      glowFrame = undefined;
-    }
-  }
+  function initSpatialMotion(reducedMotionQuery) {
+    const root = document.documentElement;
+    const header = document.querySelector('.site-header');
+    const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    let frameId;
+    let targetPointerX = 0;
+    let targetPointerY = 0;
+    let targetScroll = 0;
+    let currentPointerX = 0;
+    let currentPointerY = 0;
+    let currentScroll = 0;
+    let activeSurface;
+    let targetTiltX = 0;
+    let targetTiltY = 0;
+    let currentTiltX = 0;
+    let currentTiltY = 0;
 
-  function renderGlow() {
-    glowFrame = undefined;
-    glowCurrentX += (glowTargetX - glowCurrentX) * .14;
-    glowCurrentY += (glowTargetY - glowCurrentY) * .14;
-    glow.style.transform = `translate3d(${glowCurrentX}px, ${glowCurrentY}px, 0)`;
-
-    if (Math.abs(glowTargetX - glowCurrentX) > .2 || Math.abs(glowTargetY - glowCurrentY) > .2) {
-      glowFrame = window.requestAnimationFrame(renderGlow);
-    }
-  }
-
-  function scheduleGlow() {
-    if (!glow || prefersReducedMotion || glowFrame !== undefined) {
-      return;
+    function clamp(value, minimum, maximum) {
+      return Math.max(minimum, Math.min(maximum, value));
     }
 
-    glowFrame = window.requestAnimationFrame(renderGlow);
-  }
+    function isMotionAllowed() {
+      return finePointerQuery.matches && !reducedMotionQuery.matches;
+    }
 
-  if (glow) {
-    glow.style.transform = `translate3d(${glowCurrentX}px, ${glowCurrentY}px, 0)`;
+    function setRootVariables() {
+      root.style.setProperty('--pointer-x', currentPointerX.toFixed(3));
+      root.style.setProperty('--pointer-y', currentPointerY.toFixed(3));
+      root.style.setProperty('--scroll-depth', currentScroll.toFixed(3));
+    }
 
-    document.addEventListener('pointermove', (event) => {
-      if (prefersReducedMotion) {
+    function resetSurface(surface) {
+      if (!surface) {
         return;
       }
 
-      glowTargetX = event.clientX;
-      glowTargetY = event.clientY;
-      scheduleGlow();
+      surface.style.setProperty('--tilt-x', '0deg');
+      surface.style.setProperty('--tilt-y', '0deg');
+      surface.classList.remove('is-tilting');
+    }
+
+    function setActiveSurface(surface) {
+      if (surface === activeSurface) {
+        return;
+      }
+
+      const previousSurface = activeSurface;
+      if (previousSurface) {
+        previousSurface.style.setProperty('--tilt-x', '0deg');
+        previousSurface.style.setProperty('--tilt-y', '0deg');
+        previousSurface.classList.remove('is-tilting');
+      }
+
+      activeSurface = surface;
+      targetTiltX = 0;
+      targetTiltY = 0;
+      currentTiltX = 0;
+      currentTiltY = 0;
+    }
+
+    function hasSettled() {
+      return Math.abs(targetPointerX - currentPointerX) <= .001
+        && Math.abs(targetPointerY - currentPointerY) <= .001
+        && Math.abs(targetScroll - currentScroll) <= .001
+        && Math.abs(targetTiltX - currentTiltX) <= .001
+        && Math.abs(targetTiltY - currentTiltY) <= .001;
+    }
+
+    function render() {
+      frameId = undefined;
+
+      if (!isMotionAllowed()) {
+        return;
+      }
+
+      currentPointerX += (targetPointerX - currentPointerX) * .14;
+      currentPointerY += (targetPointerY - currentPointerY) * .14;
+      currentScroll += (targetScroll - currentScroll) * .14;
+      currentTiltX += (targetTiltX - currentTiltX) * .14;
+      currentTiltY += (targetTiltY - currentTiltY) * .14;
+      setRootVariables();
+
+      if (activeSurface) {
+        activeSurface.style.setProperty('--tilt-x', `${currentTiltX.toFixed(2)}deg`);
+        activeSurface.style.setProperty('--tilt-y', `${currentTiltY.toFixed(2)}deg`);
+      }
+
+      if (!hasSettled()) {
+        frameId = window.requestAnimationFrame(render);
+      }
+    }
+
+    function scheduleRender() {
+      if (isMotionAllowed() && frameId === undefined) {
+        frameId = window.requestAnimationFrame(render);
+      }
+    }
+
+    function stopSpatialMotion() {
+      if (frameId !== undefined) {
+        window.cancelAnimationFrame(frameId);
+        frameId = undefined;
+      }
+
+      targetPointerX = 0;
+      targetPointerY = 0;
+      targetScroll = 0;
+      currentPointerX = 0;
+      currentPointerY = 0;
+      currentScroll = 0;
+      targetTiltX = 0;
+      targetTiltY = 0;
+      currentTiltX = 0;
+      currentTiltY = 0;
+      resetSurface(activeSurface);
+      activeSurface = undefined;
+      setRootVariables();
+    }
+
+    function updateScroll() {
+      header?.classList.toggle('is-scrolled', window.scrollY > 24);
+
+      if (!isMotionAllowed()) {
+        return;
+      }
+
+      targetScroll = clamp(window.scrollY / Math.max(window.innerHeight, 1), 0, 1);
+      scheduleRender();
+    }
+
+    root.style.setProperty('--pointer-x', '0');
+    root.style.setProperty('--pointer-y', '0');
+    root.style.setProperty('--scroll-depth', '0');
+    updateScroll();
+
+    document.addEventListener('pointermove', (event) => {
+      if (!isMotionAllowed()) {
+        return;
+      }
+
+      targetPointerX = clamp((event.clientX / Math.max(window.innerWidth, 1)) * 2 - 1, -1, 1);
+      targetPointerY = clamp((event.clientY / Math.max(window.innerHeight, 1)) * 2 - 1, -1, 1);
+      if (!(event.target instanceof Element)) {
+        return;
+      }
+
+      const surface = event.target.closest('[data-tilt]');
+      setActiveSurface(surface);
+
+      if (surface) {
+        const bounds = surface.getBoundingClientRect();
+        const relativeX = bounds.width ? (event.clientX - bounds.left) / bounds.width - .5 : 0;
+        const relativeY = bounds.height ? (event.clientY - bounds.top) / bounds.height - .5 : 0;
+        targetTiltX = Math.max(-4, Math.min(4, relativeY * -8));
+        targetTiltY = Math.max(-4, Math.min(4, relativeX * 8));
+        surface.classList.add('is-tilting');
+      }
+
+      scheduleRender();
     });
+
+    document.addEventListener('pointerout', (event) => {
+      const target = event.target;
+      if (!(target instanceof Element)) {
+        return;
+      }
+
+      const surface = target.closest('[data-tilt]');
+      const relatedTarget = event.relatedTarget;
+      if (surface === activeSurface && (!(relatedTarget instanceof Element) || !surface.contains(relatedTarget))) {
+        resetSurface(activeSurface);
+        activeSurface = undefined;
+        targetTiltX = 0;
+        targetTiltY = 0;
+        currentTiltX = 0;
+        currentTiltY = 0;
+      }
+    });
+
+    window.addEventListener('scroll', updateScroll, { passive: true });
+    finePointerQuery.addEventListener('change', (event) => {
+      if (!event.matches) {
+        stopSpatialMotion();
+      }
+    });
+
+    if (!isMotionAllowed()) {
+      stopSpatialMotion();
+    }
+
+    return stopSpatialMotion;
   }
+
+  const stopSpatialMotion = initSpatialMotion(reducedMotionQuery);
+  let refreshAutoplay = () => {};
+  let syncAutoplayControl = () => {};
 
   const heroStack = document.querySelector('.hero-stack');
 
@@ -305,7 +470,6 @@
       let activeIndex = 0;
       let autoplayTimer;
       let pointerStart;
-      let tiltFrame;
       let isUserPaused = false;
       let isPointerInside = heroStack.matches(':hover');
       let isFocusWithin = heroStack.contains(document.activeElement);
@@ -366,16 +530,6 @@
         pointerStart = undefined;
       }
 
-      resetTilt = function resetTilt() {
-        if (tiltFrame !== undefined) {
-          window.cancelAnimationFrame(tiltFrame);
-          tiltFrame = undefined;
-        }
-
-        stack.style.setProperty('--tilt-x', '0deg');
-        stack.style.setProperty('--tilt-y', '0deg');
-        stack.classList.remove('is-tilting');
-      };
       refreshAutoplay = scheduleAutoplay;
       syncAutoplayControl = function syncAutoplayControl() {
         if (reducedMotionQuery.matches) {
@@ -446,40 +600,6 @@
 
       stack.addEventListener('dragstart', (event) => event.preventDefault());
 
-      stack.addEventListener('pointermove', (event) => {
-        if (prefersReducedMotion || !event.isPrimary || event.pointerType === 'touch') {
-          return;
-        }
-
-        const bounds = stack.getBoundingClientRect();
-        const relativeX = event.clientX - bounds.left;
-        const relativeY = event.clientY - bounds.top;
-        const tiltY = Math.max(-6, Math.min(6, (relativeX / bounds.width - .5) * 12));
-        const tiltX = Math.max(-6, Math.min(6, (relativeY / bounds.height - .5) * -12));
-
-        if (tiltFrame !== undefined) {
-          return;
-        }
-
-        stack.classList.add('is-tilting');
-        tiltFrame = window.requestAnimationFrame(() => {
-          stack.style.setProperty('--tilt-x', `${tiltX.toFixed(2)}deg`);
-          stack.style.setProperty('--tilt-y', `${tiltY.toFixed(2)}deg`);
-          tiltFrame = undefined;
-        });
-      });
-
-      stack.addEventListener('pointerleave', () => {
-        if (tiltFrame !== undefined) {
-          window.cancelAnimationFrame(tiltFrame);
-          tiltFrame = undefined;
-        }
-
-        stack.style.setProperty('--tilt-x', '0deg');
-        stack.style.setProperty('--tilt-y', '0deg');
-        stack.classList.remove('is-tilting');
-      });
-
       stack.addEventListener('pointerdown', (event) => {
         if (!event.isPrimary || event.button !== 0 || event.target.closest?.('button')) {
           return;
@@ -515,8 +635,7 @@
     prefersReducedMotion = event.matches;
 
     if (prefersReducedMotion) {
-      stopGlow();
-      resetTilt();
+      stopSpatialMotion();
     }
 
     syncAutoplayControl();
