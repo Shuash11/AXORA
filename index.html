@@ -3,79 +3,125 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="theme-color" content="#08111f">
-    <title>AXORA — Remote tech support</title>
+    <meta name="theme-color" content="#F8FAFF">
+    <title>AXORA — Skilled hands, ready to help</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
-    <script type="module" src="script.js" defer></script>
+    <script src="script.js" defer></script>
   </head>
   <body>
-    <header class="site-header">
-      <a class="wordmark" href="#hero" aria-label="AXORA home">AXORA<span aria-hidden="true">.</span></a>
-      <nav class="site-nav" aria-label="Primary navigation">
-        <a href="#services">Services</a>
-        <a href="#story">Our story</a>
-        <a href="#team">The team</a>
+    <div class="ambient-scene" aria-hidden="true">
+      <span class="blob blob-violet"></span>
+      <span class="blob blob-coral"></span>
+      <span class="blob blob-mint"></span>
+      <div id="particles"></div>
+    </div>
+    <div id="glow" aria-hidden="true"></div>
+    <div class="wrap">
+      <nav class="top" aria-label="Primary navigation">
+        <a class="brand" href="#hero" aria-label="AXORA home">AXORA<span aria-hidden="true">.</span></a>
+        <div class="top-links">
+          <a href="#description">What we do</a>
+          <a href="#team">Our team</a>
+          <a href="#work">Our work</a>
+        </div>
+        <a class="top-cta" href="#contact">Let’s talk</a>
       </nav>
-      <a class="header-link" href="#team">Start with people <span aria-hidden="true">↗</span></a>
-    </header>
 
-    <main>
-      <section class="hero" id="hero" aria-labelledby="hero-title">
-        <div class="hero-copy">
-          <p class="eyebrow">REMOTE TECH SUPPORT · HUMAN-LED</p>
-          <h1 id="hero-title">Skilled minds, ready to solve.</h1>
-          <p class="lede">AXORA is a hands-on virtual assistance team helping people and growing businesses handle websites, systems, content, and everyday digital work with confidence.</p>
-          <div class="hero-actions" aria-label="Explore AXORA">
-            <a class="button button-primary" href="#team">Meet AXORA <span aria-hidden="true">↗</span></a>
-            <a class="button button-secondary" href="#services">See what we handle <span aria-hidden="true">↗</span></a>
-          </div>
-          <ul class="proof-list" aria-label="AXORA principles">
-            <li>Tech-focused</li>
-            <li>Remote-ready</li>
-            <li>People-first</li>
-          </ul>
-        </div>
-
-        <div class="hero-gallery-shell">
-          <div class="gallery" role="region" aria-label="AXORA event imagery" aria-roledescription="carousel" tabindex="0">
-            <div class="gallery-deck">
-              <figure class="gallery-slide" data-slide="0">
-                <img src="Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg" alt="AXORA team members together on the IT Summit and Code Camp Season 4 stage in Ozamiz City." width="2048" height="1536" loading="eager" fetchpriority="high" decoding="async" draggable="false">
-              </figure>
-              <figure class="gallery-slide" data-slide="1">
-                <img src="Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg" alt="AXORA team members posed onstage at IT Summit and Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
-              </figure>
-              <figure class="gallery-slide" data-slide="2">
-                <img src="Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg" alt="AXORA team members celebrating around a table while holding a certificate and trophy at Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
-              </figure>
-              <figure class="gallery-slide" data-slide="3">
-                <img src="Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg" alt="AXORA team members in a closer onstage group photo at Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
-              </figure>
-              <figure class="gallery-slide" data-slide="4">
-                <img src="Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg" alt="AXORA team members in a wide full-group stage photograph at IT Summit and Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
-              </figure>
+      <main>
+        <section class="hero" id="hero" aria-labelledby="hero-title">
+          <div class="hero-text">
+            <p class="eyebrow">OUR TEAM</p>
+            <h1 id="hero-title">Skilled hands,<br><em>ready to help.</em></h1>
+            <p class="lede">Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother.</p>
+            <div class="hero-actions" aria-label="Explore AXORA">
+              <a class="button button-primary" href="#team">Meet the team ↓</a>
+              <a class="button button-ghost" href="#description">See what we handle →</a>
             </div>
-            <div class="gallery-rail">
-              <div class="event-caption">
-                <p>IT Summit · Code Camp S4</p>
-                <p>Ozamiz City · 2026</p>
-              </div>
-              <p class="gallery-status" role="status" aria-live="polite">01 / 05 · AXORA in the room</p>
-              <div class="gallery-controls" role="group" aria-label="Photo controls">
-                <button class="gallery-arrow" type="button" data-previous aria-label="Previous photo"><span aria-hidden="true">←</span></button>
-                <div class="gallery-dots" role="group" aria-label="Choose a photo">
-                  <button type="button" data-dot="0" aria-label="Show photo 1" aria-current="true"></button>
-                  <button type="button" data-dot="1" aria-label="Show photo 2"></button>
-                  <button type="button" data-dot="2" aria-label="Show photo 3"></button>
-                  <button type="button" data-dot="3" aria-label="Show photo 4"></button>
-                  <button type="button" data-dot="4" aria-label="Show photo 5"></button>
+            <p class="trust-strip">Tech support <span aria-hidden="true">·</span> Virtual assistance <span aria-hidden="true">·</span> Human-first</p>
+          </div>
+
+          <section class="hero-stack" role="region" aria-roledescription="carousel" aria-label="AXORA team achievements" tabindex="0">
+            <div class="stack">
+              <article class="card" data-slide="0" data-position="0" aria-hidden="false">
+                <div class="card-photo">
+                  <img src="Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg" alt="AXORA team members together on the IT Summit and Code Camp Season 4 stage in Ozamiz City." width="2048" height="1536" loading="eager" fetchpriority="high" decoding="async" draggable="false">
+                  <span class="card-photo-hint">01 / 05</span>
+                  <span class="photo-tag">IT Summit · Code Camp S4</span>
                 </div>
-                <button class="gallery-arrow" type="button" data-next aria-label="Next photo"><span aria-hidden="true">→</span></button>
-              </div>
+                <div class="card-body">
+                  <p class="card-tag">Team milestone</p>
+                  <p class="card-stat">Built to solve</p>
+                  <p class="card-stat-label">AXORA showing up, learning, and building together.</p>
+                  <p class="card-attribution">Ozamiz City · July 25, 2026</p>
+                </div>
+              </article>
+              <article class="card" data-slide="1" data-position="1" aria-hidden="true">
+                <div class="card-photo">
+                  <img src="Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg" alt="AXORA team members posed onstage at IT Summit and Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
+                  <span class="card-photo-hint">02 / 05</span>
+                  <span class="photo-tag">One team, shared focus</span>
+                </div>
+                <div class="card-body">
+                  <p class="card-tag">Collaboration</p>
+                  <p class="card-stat">Ready together</p>
+                  <p class="card-stat-label">Skilled support starts with people who work as one.</p>
+                  <p class="card-attribution">AXORA · Code Camp Season 4</p>
+                </div>
+              </article>
+              <article class="card" data-slide="2" data-position="2" aria-hidden="true">
+                <div class="card-photo">
+                  <img src="Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg" alt="AXORA team members celebrating around a table while holding a certificate and trophy at Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
+                  <span class="card-photo-hint">03 / 05</span>
+                  <span class="photo-tag">The people behind AXORA</span>
+                </div>
+                <div class="card-body">
+                  <p class="card-tag">Human-led</p>
+                  <p class="card-stat">Hands-on support</p>
+                  <p class="card-stat-label">Real people helping make everyday digital work easier.</p>
+                  <p class="card-attribution">Team moment · Ozamiz City</p>
+                </div>
+              </article>
+              <article class="card" data-slide="3" data-position="-2" aria-hidden="true">
+                <div class="card-photo">
+                  <img src="Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg" alt="AXORA team members in a closer onstage group photo at Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
+                  <span class="card-photo-hint">04 / 05</span>
+                  <span class="photo-tag">Technology, made human</span>
+                </div>
+                <div class="card-body">
+                  <p class="card-tag">Tech assistance</p>
+                  <p class="card-stat">Clear. Capable.</p>
+                  <p class="card-stat-label">Practical help for websites, systems, content, and more.</p>
+                  <p class="card-attribution">AXORA · IT Summit 2026</p>
+                </div>
+              </article>
+              <article class="card" data-slide="4" data-position="-1" aria-hidden="true">
+                <div class="card-photo">
+                  <img src="Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg" alt="AXORA team members in a wide full-group stage photograph at IT Summit and Code Camp Season 4 in Ozamiz City." width="2048" height="1536" loading="lazy" decoding="async" draggable="false">
+                  <span class="card-photo-hint">05 / 05</span>
+                  <span class="photo-tag">A wider circle of support</span>
+                </div>
+                <div class="card-body">
+                  <p class="card-tag">People first</p>
+                  <p class="card-stat">Ready to help</p>
+                  <p class="card-stat-label">A skilled team grounded in curiosity and collaboration.</p>
+                  <p class="card-attribution">Ozamiz City · 2026</p>
+                </div>
+              </article>
             </div>
-          </div>
-        </div>
-      </section>
-    </main>
+            <div class="dots" role="group" aria-label="Choose an achievement card">
+              <button class="dot" type="button" data-dot="0" aria-label="Show card 1" aria-current="true"></button>
+              <button class="dot" type="button" data-dot="1" aria-label="Show card 2" aria-current="false"></button>
+              <button class="dot" type="button" data-dot="2" aria-label="Show card 3" aria-current="false"></button>
+              <button class="dot" type="button" data-dot="3" aria-label="Show card 4" aria-current="false"></button>
+              <button class="dot" type="button" data-dot="4" aria-label="Show card 5" aria-current="false"></button>
+            </div>
+            <p class="carousel-status sr-only" role="status" aria-live="polite">Card 1 of 5</p>
+          </section>
+        </section>
+      </main>
+    </div>
   </body>
 </html>
