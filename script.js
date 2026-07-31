@@ -625,6 +625,36 @@
     stage.addEventListener('lostpointercapture', resetPointer);
 
     render(false);
+
+    /* Autoplay: advance every 4.5s, pause on hover and while hidden. */
+    let autoplayTimer;
+
+    function startAutoplay() {
+      stopAutoplay();
+      autoplayTimer = window.setInterval(() => {
+        show(nextIndex(activeIndex, count));
+      }, 4500);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer !== undefined) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = undefined;
+      }
+    }
+
+    heroStack.addEventListener('mouseenter', stopAutoplay);
+    heroStack.addEventListener('mouseleave', startAutoplay);
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoplay();
+      } else {
+        startAutoplay();
+      }
+    });
+
+    startAutoplay();
   }
 
   initNavigation();
