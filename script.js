@@ -26,7 +26,10 @@
   }
 
   const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
-  let prefersReducedMotion = reducedMotionQuery.matches;
+
+  document.documentElement.classList.add('js');
+
+  /* ---------- Navigation ---------- */
 
   function initNavigation() {
     const header = document.querySelector('.site-header');
@@ -37,13 +40,16 @@
       return;
     }
 
+    const label = toggle.querySelector('.nav-toggle-label');
+
     function setMenu(open, restoreFocus = false) {
-      const label = open ? 'Close navigation' : 'Open navigation';
+      const text = open ? 'Close navigation' : 'Open navigation';
       header.classList.toggle('menu-open', open);
       toggle.setAttribute('aria-expanded', String(open));
-      toggle.textContent = label;
-      toggle.setAttribute('aria-label', label);
-
+      if (label) {
+        label.textContent = text;
+      }
+      toggle.setAttribute('aria-label', text);
       if (restoreFocus) {
         toggle.focus();
       }
@@ -101,7 +107,39 @@
     });
   }
 
-  function initTeamDialog(reducedMotionQuery) {
+  /* ---------- Reveals: one IntersectionObserver ---------- */
+
+  function initReveals() {
+    const items = [...document.querySelectorAll('[data-reveal]')];
+
+    if (!items.length) {
+      return;
+    }
+
+    function reveal(item) {
+      item.classList.add('is-revealed');
+    }
+
+    if (reducedMotionQuery.matches || typeof IntersectionObserver === 'undefined') {
+      items.forEach(reveal);
+      return;
+    }
+
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          reveal(entry.target);
+          observer.unobserve(entry.target);
+        }
+      }
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+
+    items.forEach((item) => observer.observe(item));
+  }
+
+  /* ---------- Team dialog with spring entry/exit ---------- */
+
+  function initTeamDialog() {
     const dialog = document.querySelector('#team-dialog');
     const members = [...document.querySelectorAll('button[data-member]')];
     const dialogShell = dialog?.querySelector('.dialog-shell');
@@ -132,7 +170,7 @@
     const projectSummary = 'Add a short project summary and contribution.';
     let trigger;
     let selectedMember;
-    let pendingOpen;
+    let closeTimer;
 
     function replaceTextChildren(container, tagName, values) {
       const children = values.map((value) => {
@@ -172,19 +210,44 @@
     }
 
     function openDialog() {
-      pendingOpen = undefined;
-
       if (dialog.open) {
         return;
       }
 
+      if (closeTimer !== undefined) {
+        window.clearTimeout(closeTimer);
+        closeTimer = undefined;
+      }
+
+      dialog.classList.remove('closing');
       dialog.showModal();
       document.body.classList.add('dialog-open');
       closeButton.focus();
+
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          dialog.classList.add('is-open');
+        });
+      });
+    }
+
+    function animateClose() {
+      if (!dialog.open) {
+        return;
+      }
+
+      if (reducedMotionQuery.matches) {
+        dialog.close();
+        return;
+      }
+
+      dialog.classList.remove('is-open');
+      dialog.classList.add('closing');
+      closeTimer = window.setTimeout(() => dialog.close(), 160);
     }
 
     function requestOpen(member) {
-      if (pendingOpen !== undefined || dialog.open) {
+      if (dialog.open) {
         return;
       }
 
@@ -197,15 +260,7 @@
       selectedMember = member;
       selectedMember.classList.add('is-selected');
       populate(index);
-
-      if (reducedMotionQuery.matches) {
-        openDialog();
-        return;
-      }
-
-      pendingOpen = window.setTimeout(() => {
-        openDialog();
-      }, 140);
+      openDialog();
     }
 
     members.forEach((member) => {
@@ -214,66 +269,54 @@
       member.addEventListener('click', () => requestOpen(member));
     });
 
-    closeButton.addEventListener('click', () => dialog.close());
+    closeButton.addEventListener('click', () => animateClose());
     dialog.addEventListener('click', (event) => {
       if (event.target !== dialog || event.target.closest('.dialog-shell')) {
         return;
       }
 
-      dialog.close();
+      animateClose();
+    });
+    dialog.addEventListener('cancel', (event) => {
+      event.preventDefault();
+      animateClose();
     });
     dialog.addEventListener('close', () => {
-      if (pendingOpen !== undefined) {
-        window.clearTimeout(pendingOpen);
+      if (closeTimer !== undefined) {
+        window.clearTimeout(closeTimer);
+        closeTimer = undefined;
       }
 
-      pendingOpen = undefined;
+      dialog.classList.remove('is-open', 'closing');
       document.body.classList.remove('dialog-open');
       selectedMember?.classList.remove('is-selected');
       trigger?.focus();
       trigger = undefined;
       selectedMember = undefined;
     });
-    document.addEventListener('keydown', (event) => {
-      if (event.key !== 'Escape' || pendingOpen === undefined || dialog.open) {
-        return;
-      }
-
-      window.clearTimeout(pendingOpen);
-      pendingOpen = undefined;
-      selectedMember?.classList.remove('is-selected');
-      trigger?.focus();
-      trigger = undefined;
-      selectedMember = undefined;
-    });
-    reducedMotionQuery.addEventListener('change', (event) => {
-      if (event.matches && pendingOpen !== undefined) {
-        window.clearTimeout(pendingOpen);
-        pendingOpen = undefined;
-        openDialog();
-      }
-    });
   }
 
-  initNavigation();
-  initTeamDialog(reducedMotionQuery);
+  /* ---------- Pointer parallax + tilt: one RAF scheduler ---------- */
 
-  function initSpatialMotion(reducedMotionQuery) {
+  function initSpatialMotion() {
     const root = document.documentElement;
     const header = document.querySelector('.site-header');
+    const sectionIds = ['home', 'services', 'team', 'contact'];
+    const sections = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((section) => section != null);
+    const navLinks = [...document.querySelectorAll('.site-nav a')];
     const finePointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
     let frameId;
     let targetPointerX = 0;
     let targetPointerY = 0;
-    let targetScroll = 0;
     let currentPointerX = 0;
     let currentPointerY = 0;
-    let currentScroll = 0;
-    let activeSurface;
     let targetTiltX = 0;
     let targetTiltY = 0;
     let currentTiltX = 0;
     let currentTiltY = 0;
+    let activeSurface;
     let pendingPointer;
 
     function clamp(value, minimum, maximum) {
@@ -285,9 +328,8 @@
     }
 
     function setRootVariables() {
-      root.style.setProperty('--pointer-x', currentPointerX.toFixed(3));
-      root.style.setProperty('--pointer-y', currentPointerY.toFixed(3));
-      root.style.setProperty('--scroll-depth', currentScroll.toFixed(3));
+      root.style.setProperty('--px', currentPointerX.toFixed(3));
+      root.style.setProperty('--py', currentPointerY.toFixed(3));
     }
 
     function resetSurface(surface) {
@@ -305,11 +347,8 @@
         return;
       }
 
-      const previousSurface = activeSurface;
-      if (previousSurface) {
-        previousSurface.style.setProperty('--tilt-x', '0deg');
-        previousSurface.style.setProperty('--tilt-y', '0deg');
-        previousSurface.classList.remove('is-tilting');
+      if (activeSurface) {
+        resetSurface(activeSurface);
       }
 
       activeSurface = surface;
@@ -322,7 +361,6 @@
     function hasSettled() {
       return Math.abs(targetPointerX - currentPointerX) <= .001
         && Math.abs(targetPointerY - currentPointerY) <= .001
-        && Math.abs(targetScroll - currentScroll) <= .001
         && Math.abs(targetTiltX - currentTiltX) <= .001
         && Math.abs(targetTiltY - currentTiltY) <= .001;
     }
@@ -345,22 +383,20 @@
           const bounds = pointer.surface.getBoundingClientRect();
           const relativeX = bounds.width ? (pointer.clientX - bounds.left) / bounds.width - .5 : 0;
           const relativeY = bounds.height ? (pointer.clientY - bounds.top) / bounds.height - .5 : 0;
-          targetTiltX = Math.max(-4, Math.min(4, relativeY * -8));
-          targetTiltY = Math.max(-4, Math.min(4, relativeX * 8));
+          targetTiltX = clamp(relativeY * -6, -3, 3);
+          targetTiltY = clamp(relativeX * 6, -3, 3);
           pointer.surface.classList.add('is-tilting');
         }
       }
 
-      currentPointerX += (targetPointerX - currentPointerX) * .14;
-      currentPointerY += (targetPointerY - currentPointerY) * .14;
-      currentScroll += (targetScroll - currentScroll) * .14;
-      currentTiltX += (targetTiltX - currentTiltX) * .14;
-      currentTiltY += (targetTiltY - currentTiltY) * .14;
+      currentPointerX += (targetPointerX - currentPointerX) * .16;
+      currentPointerY += (targetPointerY - currentPointerY) * .16;
+      currentTiltX += (targetTiltX - currentTiltX) * .16;
+      currentTiltY += (targetTiltY - currentTiltY) * .16;
 
       if (hasSettled()) {
         currentPointerX = targetPointerX;
         currentPointerY = targetPointerY;
-        currentScroll = targetScroll;
         currentTiltX = targetTiltX;
         currentTiltY = targetTiltY;
       }
@@ -391,10 +427,8 @@
 
       targetPointerX = 0;
       targetPointerY = 0;
-      targetScroll = 0;
       currentPointerX = 0;
       currentPointerY = 0;
-      currentScroll = 0;
       targetTiltX = 0;
       targetTiltY = 0;
       currentTiltX = 0;
@@ -405,15 +439,30 @@
       setRootVariables();
     }
 
-    function updateScroll() {
-      header?.classList.toggle('is-scrolled', window.scrollY > 24);
+    function updateScrollSpy() {
+      const probe = window.scrollY + 140;
+      let currentId = sections.length ? sections[0].id : '';
 
-      if (!isMotionAllowed()) {
-        return;
+      for (const section of sections) {
+        if (section.getBoundingClientRect().top + window.scrollY <= probe) {
+          currentId = section.id;
+        }
       }
 
-      targetScroll = clamp(window.scrollY / Math.max(window.innerHeight, 1), 0, 1);
-      scheduleRender();
+      navLinks.forEach((link) => {
+        const active = link.getAttribute('href') === `#${currentId}`;
+        link.classList.toggle('is-active', active);
+        if (active) {
+          link.setAttribute('aria-current', 'true');
+        } else {
+          link.removeAttribute('aria-current');
+        }
+      });
+    }
+
+    function handleScroll() {
+      header?.classList.toggle('is-scrolled', window.scrollY > 24);
+      updateScrollSpy();
     }
 
     function handleCapabilityChange() {
@@ -422,13 +471,13 @@
         return;
       }
 
-      updateScroll();
+      setRootVariables();
     }
 
-    root.style.setProperty('--pointer-x', '0');
-    root.style.setProperty('--pointer-y', '0');
-    root.style.setProperty('--scroll-depth', '0');
+    root.style.setProperty('--px', '0');
+    root.style.setProperty('--py', '0');
     handleCapabilityChange();
+    handleScroll();
 
     document.addEventListener('pointermove', (event) => {
       if (!isMotionAllowed() || !event.isPrimary || event.pointerType === 'touch') {
@@ -468,196 +517,123 @@
       }
     });
 
-    window.addEventListener('scroll', updateScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
     finePointerQuery.addEventListener('change', handleCapabilityChange);
     reducedMotionQuery.addEventListener('change', handleCapabilityChange);
 
     return stopSpatialMotion;
   }
 
-  initSpatialMotion(reducedMotionQuery);
-  let refreshAutoplay = () => {};
-  let syncAutoplayControl = () => {};
+  /* ---------- Photo carousel: manual controls, swipe, keyboard ---------- */
 
-  const heroStack = document.querySelector('.hero-stack');
-
-  if (heroStack) {
-    const stack = heroStack.querySelector('.stack');
+  function initCarousel(heroStack) {
+    const stage = heroStack.querySelector('.stage');
+    const slides = [...heroStack.querySelectorAll('.scene-slide')];
     const controls = heroStack.querySelector('.carousel-controls');
-    const cards = [...heroStack.querySelectorAll('.card')];
+    const previous = heroStack.querySelector('[data-carousel-prev]');
+    const next = heroStack.querySelector('[data-carousel-next]');
     const dots = controls ? [...controls.querySelectorAll('[data-dot]')] : [];
-    const carouselToggle = heroStack.querySelector('[data-carousel-toggle]');
     const status = heroStack.querySelector('.carousel-status');
-    const count = cards.length;
+    const counter = heroStack.querySelector('[data-count-current]');
+    const count = slides.length;
 
-    if (stack && controls && carouselToggle && count === 5 && dots.length === count && status) {
-      let activeIndex = 0;
-      let autoplayTimer;
-      let pointerStart;
-      let isUserPaused = false;
-      let isPointerInside = heroStack.matches(':hover');
-      let isFocusWithin = heroStack.contains(document.activeElement);
-      let isDocumentVisible = !document.hidden;
+    if (!stage || !controls || !previous || !next || count !== 5 || dots.length !== count || !status) {
+      return;
+    }
 
-      function render(announce) {
-        cards.forEach((card, index) => {
-          card.dataset.position = String(relativeOffset(index, activeIndex, count));
-          card.setAttribute('aria-hidden', String(index !== activeIndex));
-        });
+    let activeIndex = 0;
+    let pointerStart;
 
-        dots.forEach((dot, index) => {
-          dot.setAttribute('aria-current', String(index === activeIndex));
-        });
-
-        status.setAttribute('aria-live', announce ? 'polite' : 'off');
-        status.textContent = `Card ${activeIndex + 1} of ${count}`;
-      }
-
-      function canAutoplay() {
-        return count > 1 && !prefersReducedMotion && !isUserPaused && isDocumentVisible && !isPointerInside && !isFocusWithin;
-      }
-
-      function clearAutoplay() {
-        if (autoplayTimer !== undefined) {
-          window.clearTimeout(autoplayTimer);
-          autoplayTimer = undefined;
-        }
-      }
-
-      function scheduleAutoplay() {
-        clearAutoplay();
-
-        if (!canAutoplay()) {
-          return;
-        }
-
-        autoplayTimer = window.setTimeout(() => {
-          autoplayTimer = undefined;
-
-          if (!canAutoplay()) {
-            return;
-          }
-
-          activeIndex = nextIndex(activeIndex, count);
-          render(false);
-          scheduleAutoplay();
-        }, 3200);
-      }
-
-      function show(index) {
-        activeIndex = normalizeIndex(index, count);
-        render(true);
-        scheduleAutoplay();
-      }
-
-      function resetPointer() {
-        pointerStart = undefined;
-      }
-
-      refreshAutoplay = scheduleAutoplay;
-      syncAutoplayControl = function syncAutoplayControl() {
-        if (reducedMotionQuery.matches) {
-          carouselToggle.disabled = true;
-          carouselToggle.hidden = true;
-          return;
-        }
-
-        carouselToggle.hidden = false;
-        carouselToggle.disabled = false;
-        carouselToggle.setAttribute('aria-pressed', String(isUserPaused));
-      };
-
-      heroStack.classList.add('is-enhanced');
-      controls.hidden = false;
+    function render(announce) {
+      slides.forEach((slide, index) => {
+        slide.dataset.position = String(relativeOffset(index, activeIndex, count));
+        slide.setAttribute('aria-hidden', String(index !== activeIndex));
+      });
 
       dots.forEach((dot, index) => {
-        dot.disabled = false;
-        dot.addEventListener('click', () => show(index));
+        dot.setAttribute('aria-current', String(index === activeIndex));
       });
 
-      syncAutoplayControl();
-      carouselToggle.addEventListener('click', () => {
-        isUserPaused = !isUserPaused;
-        syncAutoplayControl();
-        scheduleAutoplay();
-      });
+      status.setAttribute('aria-live', announce ? 'polite' : 'off');
+      status.textContent = `Photo ${activeIndex + 1} of ${count}`;
 
-      heroStack.addEventListener('keydown', (event) => {
-        if (!heroStack.contains(document.activeElement)) {
-          return;
-        }
-
-        if (event.key === 'ArrowLeft') {
-          event.preventDefault();
-          show(previousIndex(activeIndex, count));
-        } else if (event.key === 'ArrowRight') {
-          event.preventDefault();
-          show(nextIndex(activeIndex, count));
-        }
-      });
-
-      heroStack.addEventListener('pointerenter', () => {
-        isPointerInside = true;
-        scheduleAutoplay();
-      });
-
-      heroStack.addEventListener('pointerleave', () => {
-        isPointerInside = false;
-        resetPointer();
-        scheduleAutoplay();
-      });
-
-      heroStack.addEventListener('focusin', () => {
-        isFocusWithin = true;
-        scheduleAutoplay();
-      });
-
-      heroStack.addEventListener('focusout', (event) => {
-        isFocusWithin = heroStack.contains(event.relatedTarget);
-        scheduleAutoplay();
-      });
-
-      document.addEventListener('visibilitychange', () => {
-        isDocumentVisible = !document.hidden;
-        scheduleAutoplay();
-      });
-
-      stack.addEventListener('dragstart', (event) => event.preventDefault());
-
-      stack.addEventListener('pointerdown', (event) => {
-        if (!event.isPrimary || event.button !== 0 || event.target.closest?.('button')) {
-          return;
-        }
-
-        pointerStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
-        stack.setPointerCapture(event.pointerId);
-      });
-
-      stack.addEventListener('pointerup', (event) => {
-        if (!pointerStart || pointerStart.id !== event.pointerId) {
-          return;
-        }
-
-        const deltaX = event.clientX - pointerStart.x;
-        const deltaY = event.clientY - pointerStart.y;
-        resetPointer();
-
-        if (Math.abs(deltaX) >= 44 && Math.abs(deltaX) > Math.abs(deltaY)) {
-          show(deltaX < 0 ? nextIndex(activeIndex, count) : previousIndex(activeIndex, count));
-        }
-      });
-
-      stack.addEventListener('pointercancel', resetPointer);
-      stack.addEventListener('lostpointercapture', resetPointer);
-
-      render(false);
-      scheduleAutoplay();
+      if (counter) {
+        counter.textContent = String(activeIndex + 1).padStart(2, '0');
+      }
     }
+
+    function show(index) {
+      activeIndex = normalizeIndex(index, count);
+      render(true);
+    }
+
+    function resetPointer() {
+      pointerStart = undefined;
+    }
+
+    heroStack.classList.add('is-enhanced');
+    controls.hidden = false;
+
+    dots.forEach((dot, index) => {
+      dot.disabled = false;
+      dot.addEventListener('click', () => show(index));
+    });
+
+    previous.addEventListener('click', () => show(previousIndex(activeIndex, count)));
+    next.addEventListener('click', () => show(nextIndex(activeIndex, count)));
+
+    heroStack.addEventListener('keydown', (event) => {
+      if (!heroStack.contains(document.activeElement)) {
+        return;
+      }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        show(previousIndex(activeIndex, count));
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        show(nextIndex(activeIndex, count));
+      }
+    });
+
+    stage.addEventListener('dragstart', (event) => event.preventDefault());
+
+    stage.addEventListener('pointerdown', (event) => {
+      if (!event.isPrimary || event.button !== 0 || event.target.closest?.('button')) {
+        return;
+      }
+
+      pointerStart = { id: event.pointerId, x: event.clientX, y: event.clientY };
+      stage.setPointerCapture(event.pointerId);
+    });
+
+    stage.addEventListener('pointerup', (event) => {
+      if (!pointerStart || pointerStart.id !== event.pointerId) {
+        return;
+      }
+
+      const deltaX = event.clientX - pointerStart.x;
+      const deltaY = event.clientY - pointerStart.y;
+      resetPointer();
+
+      if (Math.abs(deltaX) >= 44 && Math.abs(deltaX) > Math.abs(deltaY)) {
+        show(deltaX < 0 ? nextIndex(activeIndex, count) : previousIndex(activeIndex, count));
+      }
+    });
+
+    stage.addEventListener('pointercancel', resetPointer);
+    stage.addEventListener('lostpointercapture', resetPointer);
+
+    render(false);
   }
 
-  reducedMotionQuery.addEventListener('change', (event) => {
-    prefersReducedMotion = event.matches;
-    syncAutoplayControl();
-    refreshAutoplay();
-  });
+  initNavigation();
+  initReveals();
+  initTeamDialog();
+  initSpatialMotion();
+
+  const heroStack = document.querySelector('.hero-scene');
+  if (heroStack) {
+    initCarousel(heroStack);
+  }
 })();

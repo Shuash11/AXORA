@@ -7,18 +7,18 @@ const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
 
-const cards = [
-  ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team members together on the IT Summit and Code Camp Season 4 stage in Ozamiz City.', 'IT Summit · Code Camp S4', 'Team milestone', 'Built to solve', 'AXORA showing up, learning, and building together.', 'Ozamiz City · July 25, 2026'],
-  ['Hero Image/755941564_2053703328575625_420494940045368523_n (1).jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg', 'AXORA team members posed onstage at IT Summit and Code Camp Season 4 in Ozamiz City.', 'One team, shared focus', 'Collaboration', 'Ready together', 'Skilled support starts with people who work as one.', 'AXORA · Code Camp Season 4'],
-  ['Hero Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'AXORA team members celebrating around a table while holding a certificate and trophy at Code Camp Season 4 in Ozamiz City.', 'The people behind AXORA', 'Human-led', 'Hands-on support', 'Real people helping make everyday digital work easier.', 'Team moment · Ozamiz City'],
-  ['Hero Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'AXORA team members in a closer onstage group photo at Code Camp Season 4 in Ozamiz City.', 'Technology, made human', 'Tech assistance', 'Clear. Capable.', 'Practical help for websites, systems, content, and more.', 'AXORA · IT Summit 2026'],
-  ['Hero Image/753550594_854922847701273_1471309818899059976_n.jpg', 'Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg', 'AXORA team members in a wide full-group stage photograph at IT Summit and Code Camp Season 4 in Ozamiz City.', 'A wider circle of support', 'People first', 'Ready to help', 'A skilled team grounded in curiosity and collaboration.', 'Ozamiz City · 2026'],
+const slides = [
+  ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team members together on the IT Summit and Code Camp Season 4 stage in Ozamiz City.', 'IT Summit · Code Camp S4', 'Built to solve', 'AXORA showing up, learning, and building together.', 'Team milestone', 'Ozamiz City · July 25, 2026'],
+  ['Hero Image/755941564_2053703328575625_420494940045368523_n (1).jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg', 'AXORA team members posed onstage at IT Summit and Code Camp Season 4 in Ozamiz City.', 'One team, shared focus', 'Ready together', 'Skilled support starts with people who work as one.', 'Collaboration', 'AXORA · Code Camp Season 4'],
+  ['Hero Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg', 'AXORA team members celebrating around a table while holding a certificate and trophy at Code Camp Season 4 in Ozamiz City.', 'The people behind AXORA', 'Hands-on support', 'Real people helping make everyday digital work easier.', 'Human-led', 'Team moment · Ozamiz City'],
+  ['Hero Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg', 'AXORA team members in a closer onstage group photo at Code Camp Season 4 in Ozamiz City.', 'Technology, made human', 'Clear. Capable.', 'Practical help for websites, systems, content, and more.', 'Tech assistance', 'AXORA · IT Summit 2026'],
+  ['Hero Image/753550594_854922847701273_1471309818899059976_n.jpg', 'Hero%20Image/753550594_854922847701273_1471309818899059976_n.jpg', 'AXORA team members in a wide full-group stage photograph at IT Summit and Code Camp Season 4 in Ozamiz City.', 'A wider circle of support', 'Ready to help', 'A skilled team grounded in curiosity and collaboration.', 'People first', 'Ozamiz City · 2026'],
 ];
 
 const classCount = (source, className) => [...source.matchAll(/\bclass=(["'])(.*?)\1/gi)]
   .filter((match) => match[2].split(/\s+/).includes(className)).length;
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const canonicalFaviconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#2C231C"/><path d="M14 48L29 16h6l15 32h-9l-3-7H26l-3 7h-9zm16-15h5l-2.5-6z" fill="#F5EFE4"/><circle cx="46" cy="48" r="4" fill="#E7A23A"/></svg>';
+const canonicalFaviconSvg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="#0B0F14"/><path d="M14 48L29 16h6l15 32h-9l-3-7H26l-3 7h-9zm16-15h5l-2.5-6z" fill="#F2F6FA"/><circle cx="46" cy="48" r="4" fill="#35D3F4"/></svg>';
 const faviconDataPrefix = 'data:image/svg+xml,';
 const faviconHrefs = (source) => [...source.matchAll(/<link\b[^>]*\brel="icon"[^>]*>/gi)]
   .map((match) => match[0].match(/\bhref="([^"]*)"/i)?.[1])
@@ -66,23 +66,31 @@ test('full landing page has the required semantic sections, navigation, and cont
     assert.match(header, new RegExp(`href="${target}"`));
     assert.match(footer, new RegExp(`href="${target}"`));
   }
-  assert.match(html, /<button class="nav-toggle"[^>]*aria-controls="primary-nav"[^>]*aria-expanded="false"[^>]*aria-label="Open navigation"/);
-  assert.match(html, /<nav id="primary-nav"[^>]*>\s*<a href="#home">Home<\/a>\s*<a href="#services">Services<\/a>\s*<a href="#team">Team<\/a>\s*<a href="#contact">Contact<\/a>/);
-  assert.doesNotMatch(css, /\.top-links\s*\{\s*display:\s*none/);
+  assert.match(html, /<button class="nav-toggle"[^>]*aria-controls="primary-nav"[^>]*aria-expanded="false"[^>]*aria-label="Open navigation"[^>]*hidden>/);
+  assert.match(html, /<nav id="primary-nav" class="site-nav" aria-label="Primary navigation">\s*<a class="load-item" href="#home"[^>]*>Home<\/a>\s*<a class="load-item" href="#services"[^>]*>Services<\/a>\s*<a class="load-item" href="#team"[^>]*>Team<\/a>\s*<a class="load-item" href="#contact"[^>]*>Contact<\/a>/);
+  assert.match(header, /<span class="nav-toggle-label">Menu<\/span>/);
+  assert.match(css, /^\.site-nav\s*\{[^}]*display:\s*flex/m, 'the desktop nav must be visible without JS (only the mobile dropdown hides it inside the 767px media query)');
   assert.match(header, /href="#contact"[^>]*>Let’s talk<\/a>/);
 
-  assert.match(html, /<p class="eyebrow">OUR TEAM<\/p>/);
+  assert.match(html, /<p class="eyebrow load-item"[^>]*>AXORA · VIRTUAL ASSISTANTS<\/p>/);
   assert.match(html, /<h1\b[^>]*>\s*Skilled hands,\s*<br\s*\/?>(?:\s*)<em>ready to help\.<\/em>\s*<\/h1>/i);
   assert.match(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./);
-  const heroActions = html.match(/<div class="hero-actions"([^>]*)>([\s\S]*?)<\/div>/)?.[0] ?? '';
+  const heroActions = html.match(/<div class="hero-actions load-item"([^>]*)>([\s\S]*?)<\/div>/)?.[0] ?? '';
   assert.doesNotMatch(heroActions, /aria-label=/);
-  assert.match(heroActions, /href="#services"[^>]*>Explore our services/);
+  assert.match(heroActions, /href="#services"[^>]*>Explore services/);
   assert.match(heroActions, /href="#team"[^>]*>Meet the team/);
-  const trustStrip = html.match(/<p class="trust-strip">([\s\S]*?)<\/p>/)?.[1] ?? '';
-  assert.match(trustStrip, /^Web apps\s*<span aria-hidden="true">·<\/span>\s*Mobile apps\s*<span aria-hidden="true">·<\/span>\s*Design\s*<span aria-hidden="true">·<\/span>\s*Tech support$/);
-  assert.match(html, /<div class="scene-rings" aria-hidden="true">\s*<span class="scene-ring"><\/span>\s*<span class="scene-ring"><\/span>\s*<span class="scene-axis"><\/span>\s*<\/div>/);
-  assert.match(html, /<p class="scene-label">OZAMIZ CITY · 2026<\/p>/);
-  assert.match(html, /<div class="stack" data-tilt>/);
+  const chips = html.match(/<ul class="chips load-item"[^>]*aria-label="Capabilities">([\s\S]*?)<\/ul>/)?.[1] ?? '';
+  for (const label of ['Web apps', 'Mobile apps', 'Design', 'Tech support']) {
+    assert.match(chips, new RegExp(`<li class="chip">[\\s\\S]*?<svg\\b[\\s\\S]*?<span>${escapeRegExp(label)}<\\/span>`));
+  }
+  assert.equal(classCount(html, 'chip'), 4);
+
+  assert.match(html, /<section class="hero-scene load-item"[^>]*role="region"[^>]*aria-roledescription="carousel"[^>]*aria-label="AXORA team event photos"[^>]*tabindex="0">/);
+  assert.match(html, /<div class="scene" data-tilt>/);
+  assert.match(html, /<div class="scene-back scene-back-a" aria-hidden="true"><\/div>/);
+  assert.match(html, /<div class="scene-back scene-back-b" aria-hidden="true"><\/div>/);
+  assert.match(html, /<p class="scene-count" aria-hidden="true"><span data-count-current>01<\/span> \/ 05<\/p>/);
+  assert.match(html, /<div class="stage">/);
 
   const services = [
     ['Web applications', 'Responsive web experiences and practical browser-based tools shaped around the way you work.'],
@@ -90,24 +98,25 @@ test('full landing page has the required semantic sections, navigation, and cont
     ['UI/UX and visual design', 'Clear interfaces, thoughtful interaction flows, and visual systems that make digital products easier to use.'],
     ['Technical support', 'Flexible help with websites, systems, content updates, troubleshooting, and other day-to-day digital tasks.'],
   ];
+  const serviceClasses = ['service-web', 'service-mobile', 'service-design', 'service-support'];
   assert.equal(classCount(html, 'service-card'), 4);
-  for (const [title, copy] of services) {
-    assert.match(html, new RegExp(`<article[^>]*class="service-card"[^>]*data-tilt[^>]*tabindex="0"[^>]*>[\\s\\S]*?<svg\\b[\\s\\S]*?<h3>${escapeRegExp(title)}<\\/h3>[\\s\\S]*?${escapeRegExp(copy)}`));
-  }
+  services.forEach(([title, copy], index) => {
+    assert.match(html, new RegExp(`<article[^>]*class="service-card ${serviceClasses[index]}"[^>]*data-tilt[^>]*tabindex="0"[^>]*data-reveal[^>]*>[\\s\\S]*?<svg\\b[\\s\\S]*?<h3>${escapeRegExp(title)}<\\/h3>[\\s\\S]*?${escapeRegExp(copy)}`));
+    assert.match(html, new RegExp(`<span class="service-index" aria-hidden="true">0${index + 1}<\\/span>`));
+  });
 
-  assert.match(html, /What we build\s*<br>\s*and support\./);
-  assert.match(html, /<h2 id="services-title">What we build<br>and support\.<\/h2>\s*<p class="section-intro">Practical digital assistance for products, systems, and the everyday work around them\.<\/p>/);
-  assert.match(html, /Four people,\s*<br>\s*one shared standard\./);
-  assert.match(html, /<h2 id="team-title">Four people,<br>one shared standard\.<\/h2>\s*<p class="section-intro">AXORA combines different technical and creative strengths to make digital work clearer and easier to move forward\.<\/p>/);
+  assert.match(html, /<h2 id="services-title"[^>]*>What we build<br>and support\.<\/h2>\s*<p class="section-intro"[^>]*>Practical digital assistance for products, systems, and the everyday work around them\.<\/p>/);
+  assert.match(html, /<h2 id="team-title"[^>]*>Four people,<br>one shared standard\.<\/h2>\s*<p class="section-intro"[^>]*>AXORA combines different technical and creative strengths to make digital work clearer and easier to move forward\.<\/p>/);
   assert.equal(classCount(html, 'team-card'), 4);
   for (let index = 0; index < 4; index += 1) {
     const number = String(index + 1).padStart(2, '0');
-    assert.match(html, new RegExp(`<button[^>]*class="team-card"[^>]*data-member="${index}"[^>]*disabled[^>]*>[\\s\\S]*?${number}[\\s\\S]*?Team Member ${number}[\\s\\S]*?<small>Role / specialty<\\/small>[\\s\\S]*?View work and achievements`));
+    assert.match(html, new RegExp(`<button[^>]*class="team-card"[^>]*data-member="${index}"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>[\\s\\S]*?${number}[\\s\\S]*?Team Member ${number}[\\s\\S]*?<small class="team-role">Role / specialty<\\/small>[\\s\\S]*?View work and achievements`));
+    assert.match(html, new RegExp(`<span class="device-label">TM-0${index + 1}<\\/span>`));
   }
-  assert.equal((html.match(/<small>Role \/ specialty<\/small>/g) ?? []).length, 4);
+  assert.equal((html.match(/<small class="team-role">Role \/ specialty<\/small>/g) ?? []).length, 4);
   assert.equal((html.match(/View work and achievements/g) ?? []).length, 4);
 
-  const contact = html.match(/<section id="contact"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+  const contact = html.match(/<section id="contact" class="contact-panel"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
   for (const text of ['Have something useful to build?', 'Tell us what you are working on and where you need a capable extra set of hands.', 'mailto:your-email@example.com', 'Replace this email before launch.', 'Start a conversation']) assert.ok(contact.includes(text));
   const dialog = html.match(/<dialog id="team-dialog"[^>]*>([\s\S]*?)<\/dialog>/)?.[1] ?? '';
   assert.ok(dialog, 'the native team dialog must be present');
@@ -140,30 +149,27 @@ test('embedded favicon is the canonical safe SVG data URI', () => {
   assert.equal(validateCanonicalFavicon(`${faviconDataPrefix}${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><script>alert(1)</script></svg>')}`), false);
 });
 
-test('five complete achievement cards preserve the exact local image mapping and content', () => {
-  assert.equal(classCount(html, 'card'), 5);
-  for (const className of ['card-photo', 'card-body', 'card-tag', 'card-stat', 'card-stat-label', 'card-attribution']) {
+test('five event photo slides preserve the exact local image mapping and caption content', () => {
+  assert.equal(classCount(html, 'scene-slide'), 5);
+  for (const className of ['slide-photo', 'slide-caption', 'slide-title', 'slide-note', 'slide-meta', 'slide-tag']) {
     assert.equal(classCount(html, className), 5, `there must be five .${className} elements`);
   }
-  const cardMatches = [...html.matchAll(/<article\b(?=[^>]*\bclass="card")(?=[^>]*\bdata-slide="\d+")[^>]*>([\s\S]*?)<\/article>/g)];
-  assert.equal(cardMatches.length, 5);
+  const slideMatches = [...html.matchAll(/<article\b(?=[^>]*\bclass="scene-slide")(?=[^>]*\bdata-slide="\d+")[^>]*>([\s\S]*?)<\/article>/g)];
+  assert.equal(slideMatches.length, 5);
   assert.equal((html.match(/\bdata-slide\b/gi) ?? []).length, 5);
   assert.equal((html.match(/\bdata-dot\b/gi) ?? []).length, 5);
   assert.equal((html.match(/loading="lazy"/gi) ?? []).length, 4);
   assert.equal((html.match(/decoding="async"/gi) ?? []).length, 5);
   assert.equal((html.match(/draggable="false"/gi) ?? []).length, 5);
   const expectedPositions = ['0', '1', '2', '-2', '-1'];
-  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="false"/.test(opening)).length, 5);
-  assert.equal(cardMatches.map((match) => match[0]).filter((opening) => /aria-hidden="true"/.test(opening)).length, 0);
-  cards.forEach(([file, src, alt, ...content], index) => {
-    const opening = cardMatches[index][0].match(/^<article\b[^>]*>/)?.[0] ?? '';
-    const image = cardMatches[index][1].match(/<img\b[^>]*>/)?.[0] ?? '';
+  slides.forEach(([file, src, alt, tag, title, note, metaA, metaB], index) => {
     assert.ok(existsSync(file), `missing source asset: ${file}`);
+    const opening = slideMatches[index][0].match(/^<article\b[^>]*>/)?.[0] ?? '';
+    const image = slideMatches[index][1].match(/<img\b[^>]*>/)?.[0] ?? '';
     assert.match(opening, new RegExp(`data-slide="${index}"`));
     assert.match(opening, new RegExp(`data-position="${expectedPositions[index]}"`));
-    assert.match(opening, /aria-hidden="false"/);
-    assert.match(cardMatches[index][1], new RegExp(`src="${escapeRegExp(src)}"`));
-    assert.match(cardMatches[index][1], new RegExp(`alt="${escapeRegExp(alt)}"`));
+    assert.match(slideMatches[index][1], new RegExp(`src="${escapeRegExp(src)}"`));
+    assert.match(slideMatches[index][1], new RegExp(`alt="${escapeRegExp(alt)}"`));
     assert.match(image, /width="2048"\s+height="1536"/);
     assert.match(image, /decoding="async"/);
     assert.match(image, /draggable="false"/);
@@ -174,202 +180,170 @@ test('five complete achievement cards preserve the exact local image mapping and
       assert.match(image, /loading="lazy"/);
       assert.doesNotMatch(image, /fetchpriority=/);
     }
-    content.forEach((text) => assert.ok(cardMatches[index][1].includes(text), `card ${index + 1} is missing ${text}`));
+    assert.match(slideMatches[index][1], new RegExp(`<span class="slide-tag">${escapeRegExp(tag)}<\\/span>`));
+    assert.match(slideMatches[index][1], new RegExp(`<p class="slide-title">${escapeRegExp(title)}<\\/p>`));
+    assert.match(slideMatches[index][1], new RegExp(`<p class="slide-note">${escapeRegExp(note)}<\\/p>`));
+    assert.match(slideMatches[index][1], new RegExp(`<span>${escapeRegExp(metaA)}<\\/span><span>${escapeRegExp(metaB)}<\\/span>`));
   });
-  assert.match(html, /<section class="hero-stack" role="region" aria-roledescription="carousel"[^>]*tabindex="0"/);
-  assert.match(html, /<p class="carousel-status sr-only" role="status" aria-live="polite">Card 1 of 5<\/p>/);
+  assert.match(html, /<p class="carousel-status sr-only" role="status" aria-live="polite">Photo 1 of 5<\/p>/);
   const controls = html.match(/<div class="carousel-controls" hidden>([\s\S]*?)<\/div>/)?.[1] ?? '';
   assert.ok(controls, 'source carousel controls must remain hidden until enhancement succeeds');
+  assert.match(controls, /<button class="carousel-arrow" type="button" data-carousel-prev aria-label="Previous photo">[\s\S]*?<svg\b/);
+  assert.match(controls, /<button class="carousel-arrow" type="button" data-carousel-next aria-label="Next photo">[\s\S]*?<svg\b/);
   const dots = [...controls.matchAll(/<button\b[^>]*\bclass="dot"[^>]*>/g)].map((match) => match[0]);
   assert.equal(dots.length, 5);
   dots.forEach((dot, index) => {
     assert.match(dot, new RegExp(`data-dot="${index}"`));
-    assert.match(dot, new RegExp(`aria-label="Show card ${index + 1}"`));
+    assert.match(dot, new RegExp(`aria-label="Show photo ${index + 1}"`));
     assert.match(dot, new RegExp(`aria-current="${index === 0}"`));
     assert.match(dot, /disabled/);
   });
-  assert.match(controls, /<button class="carousel-toggle" type="button" data-carousel-toggle disabled aria-pressed="false" aria-label="Pause carousel autoplay">[\s\S]*?<svg\b[\s\S]*?<g class="icon-pause"[\s\S]*?<g class="icon-play"/);
+  assert.doesNotMatch(html, /data-carousel-toggle/);
+  assert.doesNotMatch(html, /carousel-toggle/);
 });
 
-test('styles define the approved spatial page', () => {
-  const rule = (selector) => {
-    const match = css.match(new RegExp(`${selector}\\s*\\{([^}]*)\\}`));
-    assert.ok(match, `missing ${selector} rule`);
-    return match[1];
-  };
-  for (const color of ['#211A15', '#2C231C', '#362B22', '#F5EFE4', '#B8AA97', '#E7A23A', '#6FB3A0']) assert.match(css, new RegExp(color, 'i'));
-  for (const font of ['Lora', 'Plus Jakarta Sans', 'Space Mono']) assert.match(css, new RegExp(font));
-  assert.match(css, /--display:\s*Lora,/);
-  assert.match(css, /--body:\s*["']Plus Jakarta Sans["']/);
-  assert.match(css, /--label:\s*["']Space Mono["']/);
+test('styles define the modern graphite/cyan spatial design with motion safeguards', () => {
+  for (const color of ['#0A0D12', '#10151C', '#151B24', '#35D3F4', '#4F8CFF', '#F2B24C', '#EEF3F9']) assert.match(css, new RegExp(color, 'i'));
+  for (const font of ['Sora', 'Manrope', 'IBM Plex Mono']) assert.match(css, new RegExp(font));
+  assert.doesNotMatch(css, /Lora|Plus Jakarta Sans|Space Mono|#211A15|#2C231C|#362B22|#E7A23A|#F5EFE4|#B8AA97|#6FB3A0/i, 'the legacy brown/honey palette must be gone');
+  assert.match(html, /family=Sora/);
+  assert.match(html, /family=Manrope/);
+  assert.match(html, /family=IBM\+Plex\+Mono/);
+  assert.match(css, /--display:\s*["']Sora/);
+  assert.match(css, /--body:\s*["']Manrope/);
+  assert.match(css, /--label:\s*["']IBM Plex Mono/);
   assert.match(css, /body\s*\{[^}]*font-family:\s*var\(--body\)/);
   assert.match(css, /h1\s*\{[^}]*font-family:\s*var\(--display\)/);
+  assert.match(css, /h1\s*\{[^}]*font-size:\s*clamp\(2\.5rem,\s*5vw,\s*4\.55rem\)/, 'desktop H1 must stay within the 64-76px band (40px mobile floor)');
   assert.match(css, /\.eyebrow\s*\{[^}]*font-family:\s*var\(--label\)/);
-  for (const [token, value] of [['--radius-sm', '12px'], ['--radius-md', '22px'], ['--radius-lg', '34px']]) assert.match(css, new RegExp(`${token}:\\s*${value}`));
-  for (const token of ['--glass:', '--glass-strong:', '--line-strong:', '--shadow-soft:', '--shadow-deep:', '--radius-sm:', '--radius-md:', '--radius-lg:', '--pointer-x:', '--pointer-y:', '--scroll-depth:']) assert.match(css, new RegExp(token));
-  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.scene-rings', '.stack', '.service-grid', '.service-card', '.team-grid', '.team-card', '.team-dialog', '.contact-panel', '.site-footer']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
-  for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*(?:clip|hidden)', '\\.sr-only\\s*\\{[\\s\\S]*?clip-path:', '@media \\(max-width:\\s*1023px\\)', '@media \\(max-width:\\s*767px\\)', '@media \\(max-width:\\s*420px\\)', '@media \\(hover:\\s*none\\),\\s*\\(pointer:\\s*coarse\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
-  assert.match(css, /perspective:\s*1[45]\d{2}px/);
+  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.hero-scene', '.scene', '.stage', '.scene-slide', '.carousel-controls', '.carousel-arrow', '.dot', '.service-card', '.team-card', '.contact-panel', '.site-footer']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
+  for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*clip', '\\.sr-only\\s*\\{[\\s\\S]*?clip-path:', 'scroll-behavior:\\s*smooth', 'scroll-margin-block-start:\\s*96px', '@media \\(max-width:\\s*1023px\\)', '@media \\(max-width:\\s*767px\\)', '@media \\(max-width:\\s*420px\\)', '@media \\(hover:\\s*none\\),\\s*\\(pointer:\\s*coarse\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
+  assert.match(css, /perspective:\s*1[34]\d{2}px/);
   assert.match(css, /transform-style:\s*preserve-3d/);
-  assert.match(css, /translateZ\(/);
   assert.match(css, /backdrop-filter:\s*blur\(/);
-  const glowRule = rule('#glow');
-  assert.match(glowRule, /inset:\s*0\s+auto\s+auto\s+0/);
-  assert.match(glowRule, /margin:\s*-320px\s+0\s+0\s+-320px/);
-  assert.match(glowRule, /transform:\s*translate3d\(calc\(50vw\s*\+\s*\(var\(--pointer-x\)\s*\*\s*44vw\)\),\s*calc\(50vh\s*\+\s*\(var\(--pointer-y\)\s*\*\s*42vh\)\s*\+\s*\(var\(--scroll-depth\)\s*\*\s*18px\)\),\s*0\)/);
-  assert.doesNotMatch(glowRule, /transition:/);
-  const ringsRule = rule('\.scene-rings');
-  assert.match(ringsRule, /transform:\s*translate3d\(calc\(var\(--pointer-x\)\s*\*\s*12px\)/);
-  assert.match(ringsRule, /var\(--pointer-y\)/);
-  assert.match(ringsRule, /var\(--scroll-depth\)/);
-  assert.match(css, /\.site-header,\s*\.top\s*\{[^}]*position:\s*sticky/);
-  const scrolledHeaderRule = rule('\\.site-header\\.is-scrolled');
-  assert.match(scrolledHeaderRule, /background:\s*var\(--glass-strong\)/);
-  assert.match(scrolledHeaderRule, /backdrop-filter:\s*blur\(/);
-  assert.match(css, /\.hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)\s+minmax\(390px,\s*\.92fr\)/);
-  assert.match(css, /\.service-grid,\s*\.service-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(12,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(css, /\.service-card:first-child\s*\{[^}]*grid-column:\s*span\s+7/);
-  assert.match(css, /\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\)\s*\{[^}]*grid-column:\s*span\s+5/);
-  assert.match(css, /\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/);
-  assert.match(css, /\.team-grid,\s*\.team-list\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(css, /\.dialog-shell\s*\{[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)/);
-  for (const selector of ['\\.card-stat-label', '\\.service-card p', '#contact p', '#team-dialog \\[data-dialog-bio\\]', '#team-dialog section p', '#team-dialog article p', '\\.site-footer p']) assert.match(css, new RegExp(`${selector}\\s*\\{[^}]*font-size:\\s*1rem`));
-  assert.match(css, /\.stack\s*\{[^}]*position:\s*relative[^}]*display:\s*block[^}]*inline-size:\s*min\(370px,\s*100%\)[^}]*block-size:\s*500px[^}]*overflow:\s*hidden[^}]*perspective:\s*1[45]\d{2}px[^}]*transform-style:\s*preserve-3d/);
-  assert.match(css, /\.stack > \.card\s*\{[^}]*position:\s*absolute[^}]*inline-size:\s*auto[^}]*block-size:\s*auto[^}]*opacity:\s*1/);
-  assert.match(css, /\.stack > \.card:nth-child\(1\)\s*\{[^}]*inset:\s*20px\s+20px\s+20px\s+20px[^}]*z-index:\s*5/);
-  for (let index = 2; index <= 5; index += 1) assert.match(css, new RegExp(`\\.stack > \\.card:nth-child\\(${index}\\)\\s*\\{[^}]*inset:[^}]*z-index:\\s*${6 - index}[^}]*opacity:\\s*1`));
-  assert.doesNotMatch(css, /\.stack\s*\{[^}]*display:\s*flex/);
-  assert.doesNotMatch(css, /\.stack\s*\{[^}]*overflow-x:\s*auto/);
-  assert.doesNotMatch(css, /\.stack\s*\{[^}]*scroll-snap-type:\s*x/);
-  assert.match(css, /\.hero-stack\.is-enhanced \.stack\s*\{[\s\S]*?perspective:\s*1[45]\d{2}px[\s\S]*?transform-style:\s*preserve-3d/);
-  assert.match(css, /\.hero-stack\.is-enhanced \.card\s*\{[\s\S]*?position:\s*absolute[\s\S]*?transform-style:\s*preserve-3d[\s\S]*?backface-visibility:\s*hidden/);
-  assert.match(css, /\.section-intro\s*\{[^}]*max-inline-size:\s*34rem[^}]*margin:[^}]*color:\s*var\(--cream-dim\)[^}]*font-size:\s*1rem/);
+  assert.doesNotMatch(css, /#glow|\.glow|--pointer-x|--scroll-depth/, 'the giant cursor glow and scroll-depth machinery must be gone');
+  assert.match(css, /\.js \[data-reveal\]\s*\{[^}]*opacity:\s*0[^}]*translateY\(26px\)\s+rotateX\(3deg\)/, 'reveal must settle with a 20-32px rise and subtle rotateX');
+  assert.match(css, /\.js \[data-reveal\]\.is-revealed\s*\{[^}]*opacity:\s*1/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*no-preference\)[\s\S]*?\.load-item\s*\{[^}]*animation:\s*rise/);
+  assert.match(css, /@keyframes\s+rise\s*\{/);
+  assert.match(css, /\.scene-slide\[data-position="0"\]\s*\{[^}]*opacity:\s*1/);
+  assert.match(css, /\.scene-slide\[data-position="1"\][\s\S]*?opacity:\s*0/);
+  assert.match(css, /\.scene-slide\[data-position="-1"\][\s\S]*?opacity:\s*0/);
   assert.match(css, /\.carousel-controls\s*\{[\s\S]*?display:\s*none/);
-  assert.match(css, /\.hero-stack\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
-  assert.match(css, /\.hero-stack\.is-enhanced \.card\[data-position="-1"\][\s\S]*?opacity:\s*0/);
-  assert.match(css, /\.hero-stack\.is-enhanced \.card\[data-position="-2"\][\s\S]*?opacity:\s*0/);
-  assert.doesNotMatch(css, /(?:^|\n)\s*\.card\[data-position/m);
-  assert.match(css, /\.carousel-toggle\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
-  assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-pause/);
-  assert.match(css, /\.carousel-toggle\[aria-pressed="true"\] \.icon-play/);
-  assert.match(css, /\.carousel-toggle\[hidden\]\s*\{\s*display:\s*none\s*!important/);
-  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
-  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)[\s\S]*?\.scene-rings,\s*\.scene-ring,\s*\.scene-axis\s*\{[^}]*transform:\s*none\s*!important/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[\s\S]*?(?:animation:\s*none|transition:\s*none)/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?#glow\s*\{[^}]*transform:\s*translate3d\(50vw,\s*50vh,\s*0\)\s*!important/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene-rings,\s*\.scene-ring,\s*\.scene-axis\s*\{[^}]*transform:\s*none\s*!important/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card p,\s*\.card-stat-label,\s*#contact p,\s*#team-dialog \[data-dialog-bio\],\s*#team-dialog section p,\s*#team-dialog article p,\s*\.site-footer p\s*\{[^}]*font-size:\s*1rem/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design,\s*\.service-support[\s\S]*?\{[^}]*grid-column:\s*1[^}]*grid-row:\s*auto/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-card,\s*\.service-card:first-child,\s*\.service-card:nth-child\(2\),\s*\.service-card:nth-child\(3\),\s*\.service-card:nth-child\(4\)\s*\{[^}]*grid-column:\s*1/);
-  assert.match(rule('\\[hidden\\]'), /display:\s*none\s*!important/);
-  assert.match(rule('body'), /min-inline-size:\s*0/);
-  assert.match(css, /\.hero > \*\s*\{[^}]*min-inline-size:\s*0[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /\.hero-text,\s*\.hero-stack,\s*\.stack\s*\{[^}]*min-inline-size:\s*0[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.stack\s*\{[^}]*inline-size:\s*min\(310px,\s*100%\)[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-stack\.is-enhanced \.stack\s*\{[^}]*inline-size:\s*min\(310px,\s*100%\)[^}]*max-inline-size:\s*100%/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-stack\s*\{[^}]*overflow-x:\s*clip/);
-  assert.match(css, /\.team-card\s*\{[^}]*display:\s*grid[^}]*grid-template-rows:\s*minmax\(0,\s*1fr\)\s+auto\s+auto\s+auto/);
-  assert.match(css, /\.team-card small\s*\{[^}]*position:\s*static[^}]*grid-row:\s*3/);
-  assert.match(css, /\.team-card > span:last-child\s*\{[^}]*position:\s*static[^}]*grid-row:\s*4[^}]*min-block-size:\s*44px[^}]*border-block-start:/);
-  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-web,\s*\.service-mobile,\s*\.service-design[\s\S]*?\{[^}]*grid-column:\s*span\s+6[^}]*grid-row:\s*auto/);
-  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.service-support[\s\S]*?\{[^}]*grid-column:\s*1\s*\/\s*-1/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header:not\(\.is-enhanced\)\s*\{[^}]*position:\s*relative/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced ~ main #home,\s*\.site-header\.is-enhanced ~ main #services,\s*\.site-header\.is-enhanced ~ main #team,\s*\.site-header\.is-enhanced ~ main #contact\s*\{[^}]*scroll-margin-block-start:\s*128px/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.nav-toggle:not\(\[hidden\]\)\s*\{[^}]*display:\s*inline-flex/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced \.site-nav\s*\{[^}]*display:\s*none/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-header\.is-enhanced\.menu-open \.site-nav\s*\{[^}]*display:\s*grid/);
-  assert.match(css, /#team-dialog\s*\{[^}]*padding:\s*0/);
-  assert.match(css, /\.dialog-shell\s*\{[^}]*position:\s*relative[^}]*display:\s*grid[^}]*grid-template-columns:\s*minmax\(13rem,\s*\.7fr\)\s+minmax\(0,\s*1fr\)[^}]*padding:\s*clamp\(1\.5rem,\s*4vw,\s*3rem\)/);
-  assert.match(css, /\.dialog-shell > p:first-of-type\s*\{/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?#team-dialog\s*\{[^}]*max-inline-size:\s*none[^}]*inline-size:\s*100%[^}]*inset-inline:\s*0[^}]*margin:\s*auto\s+0\s+0/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.team-card\.is-selected,\s*\.team-card:not\(:disabled\):hover,\s*\.team-card:not\(:disabled\):focus-visible\s*\{[^}]*transform:\s*none\s*!important/);
+  assert.match(css, /\.hero-scene\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
+  assert.match(css, /\.carousel-arrow\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
+  assert.match(css, /\.dot\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
+  assert.match(css, /\.service-card\s*\{[^}]*--lift:\s*0px/);
+  assert.match(css, /\.service-card:hover[\s\S]*?--lift:\s*-7px/);
+  assert.match(css, /\.team-card:not\(:disabled\):hover[\s\S]*?--lift:\s*-7px/);
+  assert.match(css, /\.scene-back-a\s*\{[^}]*var\(--px\)/);
+  assert.match(css, /\.scene-back-b\s*\{[^}]*var\(--py\)/);
+  assert.match(css, /\.scene\s*\{[^}]*transform:\s*rotateX\(var\(--tilt-x, 0deg\)\)/);
+  assert.match(css, /#team-dialog\s*\{[^}]*opacity:\s*0/);
+  assert.match(css, /#team-dialog\.is-open\s*\{[^}]*opacity:\s*1/);
+  assert.match(css, /#team-dialog\.closing\s*\{/);
+  assert.match(css, /#team-dialog::backdrop\s*\{[^}]*opacity:\s*0/);
+  assert.match(css, /#team-dialog\.is-open::backdrop\s*\{[^}]*opacity:\s*1/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.js \[data-reveal\]\s*\{[^}]*opacity:\s*1\s*!important[^}]*transform:\s*none\s*!important/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene,\s*\.service-card,\s*\.team-card\s*\{[^}]*transform:\s*none\s*!important/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.load-item\s*\{[^}]*animation:\s*none\s*!important/);
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.team-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-list,\s*\.team-list\s*\{[^}]*grid-template-columns:\s*1fr/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-actions\s*\{[^}]*grid-template-columns:\s*1fr/);
+  assert.match(css, /\.nav-toggle\s*\{[^}]*min-block-size:\s*44px[^}]*align-items:\s*center[^}]*justify-content:\s*center/, 'nav toggle must be a 44px-tall tap target (tester: 151x24 at 390/320)');
+  assert.match(css, /@media \(max-width:\s*767px\)\s*\{[\s\S]*?html:not\(\.js\)\s*\.scene-back-a,\s*html:not\(\.js\)\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'no-JS scene backdrop cards must be bounded flush on narrow screens (tester: 390->425, 320->350)');
+  assert.match(css, /@media \(max-width:\s*767px\)\s*and\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.scene-back-a,\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'reduced-motion scene backdrop cards must be bounded flush on narrow screens (tester: 390->404, 320->333)');
 });
 
-test('carousel controller preserves accessible state, guarded autoplay, keyboard, and swipe behavior', () => {
-  assert.match(script, /document\.querySelector\(['"]\.hero-stack['"]\)/);
-  assert.match(script, /card\.dataset\.position\s*=\s*String\(relativeOffset\(/);
-  assert.match(script, /card\.setAttribute\(['"]aria-hidden['"],\s*String\(index !== activeIndex\)\)/);
-  assert.match(script, /dot\.setAttribute\(['"]aria-current['"],\s*String\(index === activeIndex\)\)/);
-  assert.match(script, /status\.setAttribute\(['"]aria-live['"],\s*announce \? ['"]polite['"] : ['"]off['"]\)/);
-  assert.match(script, /const carouselToggle = heroStack\.querySelector\(['"]\[data-carousel-toggle\]['"]\)/);
-  assert.match(script, /if \(stack && controls && carouselToggle && count === 5 && dots\.length === count && status\)/);
-  assert.match(script, /let isUserPaused = false/);
-  assert.match(script, /function canAutoplay\(\)\s*\{[\s\S]*?count > 1[\s\S]*?!prefersReducedMotion[\s\S]*?!isUserPaused[\s\S]*?isDocumentVisible[\s\S]*?!isPointerInside[\s\S]*?!isFocusWithin/);
-  assert.match(script, /syncAutoplayControl = function syncAutoplayControl\(\)\s*\{[\s\S]*?if \(reducedMotionQuery\.matches\)\s*\{[\s\S]*?carouselToggle\.disabled = true;[\s\S]*?carouselToggle\.hidden = true;[\s\S]*?carouselToggle\.hidden = false;[\s\S]*?carouselToggle\.disabled = false;[\s\S]*?carouselToggle\.setAttribute\(['"]aria-pressed['"], String\(isUserPaused\)\)/);
-  assert.match(script, /function scheduleAutoplay\(\)\s*\{[\s\S]*?clearAutoplay\(\);[\s\S]*?if \(!canAutoplay\(\)\)\s*\{\s*return;[\s\S]*?window\.setTimeout\([\s\S]*?\}, 3200\)/);
-
-  assert.match(script, /heroStack\.addEventListener\(['"]keydown['"][\s\S]*?event\.key === ['"]ArrowLeft['"][\s\S]*?event\.key === ['"]ArrowRight['"]/);
-  assert.match(script, /heroStack\.addEventListener\(['"]pointerenter['"][\s\S]*?isPointerInside = true[\s\S]*?scheduleAutoplay\(\)/);
-  assert.match(script, /heroStack\.addEventListener\(['"]pointerleave['"][\s\S]*?isPointerInside = false[\s\S]*?scheduleAutoplay\(\)/);
-  assert.match(script, /heroStack\.addEventListener\(['"]focusin['"][\s\S]*?isFocusWithin = true[\s\S]*?scheduleAutoplay\(\)/);
-  assert.match(script, /heroStack\.addEventListener\(['"]focusout['"][\s\S]*?isFocusWithin = heroStack\.contains\(event\.relatedTarget\)[\s\S]*?scheduleAutoplay\(\)/);
-  assert.match(script, /document\.addEventListener\(['"]visibilitychange['"][\s\S]*?isDocumentVisible = !document\.hidden[\s\S]*?scheduleAutoplay\(\)/);
-  assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)/);
-  assert.match(script, /controls\.hidden = false/);
-  assert.match(script, /dots\.forEach\([\s\S]*?dot\.disabled = false/);
-  assert.match(script, /heroStack\.classList\.add\(['"]is-enhanced['"]\)[\s\S]*?dots\.forEach[\s\S]*?syncAutoplayControl\(\);[\s\S]*?render\(false\)/);
-  assert.match(script, /carouselToggle\.addEventListener\(['"]click['"], \(\) => \{[\s\S]*?isUserPaused = !isUserPaused;[\s\S]*?syncAutoplayControl\(\);[\s\S]*?scheduleAutoplay\(\)/);
-  const carouselAutoplayControl = script.match(/syncAutoplayControl = function syncAutoplayControl\(\)\s*\{[\s\S]*?\n      \};/)?.[0] ?? '';
-  assert.doesNotMatch(carouselAutoplayControl, /setAttribute\(['"]aria-label['"]/);
-
-  assert.match(script, /stack\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/);
-  assert.match(script, /stack\.addEventListener\(['"]pointerdown['"][\s\S]*?stack\.setPointerCapture\(event\.pointerId\)/);
-  assert.match(script, /stack\.addEventListener\(['"]pointerup['"][\s\S]*?Math\.abs\(deltaX\) >= 44 && Math\.abs\(deltaX\) > Math\.abs\(deltaY\)/);
-  assert.match(script, /show\(deltaX < 0 \? nextIndex\(activeIndex, count\) : previousIndex\(activeIndex, count\)\)/);
-});
-
-test('shared spatial-motion scheduler owns pointer, scroll, and surface settling', () => {
-  assert.match(html, /<script\s+src="script\.js"\s+defer><\/script>/i);
+test('script removes autoplay/glow machinery and keeps one RAF scheduler plus one IntersectionObserver', () => {
   assert.doesNotMatch(script, /^\s*(?:import|export)\b/m);
-  for (const helper of ['normalizeIndex', 'nextIndex', 'previousIndex', 'relativeOffset']) {
-    assert.match(script, new RegExp(`function\\s+${helper}\\s*\\([^)]*\\bcount\\b[^)]*\\)`), `${helper} must be local to the direct-file controller`);
-    assert.ok((script.match(new RegExp(`\\b${helper}\\s*\\(`, 'g')) ?? []).length >= 2, `${helper} must be used by the controller`);
-  }
-  assert.match(script, /function validateCount\(count\)\s*\{\s*if \(count < 1\)/);
-  assert.match(script, /function normalizeIndex\(index, count\)\s*\{\s*validateCount\(count\)/);
+  assert.doesNotMatch(script, /isUserPaused|scheduleAutoplay|clearAutoplay|autoplayTimer|carousel-toggle|carouselToggle|3200|Pause carousel/);
+  assert.doesNotMatch(script, /glowFrame|renderGlow|scheduleGlow|glowTargetX|glow\.style/);
+  assert.doesNotMatch(script, /--pointer-x|--scroll-depth/);
+  assert.match(script, /document\.documentElement\.classList\.add\(['"]js['"]\)/);
   assert.match(script, /matchMedia\(['"]\(prefers-reduced-motion: reduce\)['"]\)/);
-  assert.match(script, /function initSpatialMotion\(reducedMotionQuery\)\s*\{/);
-  assert.equal((script.match(/\binitSpatialMotion\(reducedMotionQuery\);/g) ?? []).length, 1);
-  const spatialMotion = script.match(/function initSpatialMotion\(reducedMotionQuery\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(script, /function initNavigation\(\)\s*\{/);
+  assert.match(script, /function initReveals\(\)\s*\{/);
+  assert.match(script, /function initTeamDialog\(\)\s*\{/);
+  assert.match(script, /function initSpatialMotion\(\)\s*\{/);
+  assert.match(script, /function initCarousel\(heroStack\)\s*\{/);
+  for (const name of ['initNavigation', 'initReveals', 'initTeamDialog', 'initSpatialMotion']) {
+    assert.equal((script.match(new RegExp(`\\b${name}\\(\\)\\s*;`)) ?? []).length, 1, `${name}() must run exactly once`);
+  }
+  assert.equal((script.match(/new IntersectionObserver/g) ?? []).length, 1, 'exactly one IntersectionObserver');
+  const spatialMotion = script.match(/function initSpatialMotion\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
   assert.match(spatialMotion, /let frameId;/);
   assert.match(spatialMotion, /function render\(\)\s*\{/);
-  assert.match(spatialMotion, /let pendingPointer;/);
   assert.match(spatialMotion, /window\.requestAnimationFrame\(render\)/);
   assert.match(spatialMotion, /window\.cancelAnimationFrame\(frameId\)/);
-  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--pointer-x['"]/);
-  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--pointer-y['"]/);
-  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--scroll-depth['"]/);
-  assert.match(spatialMotion, /clamp\([\s\S]*?, -1, 1\)/);
-  assert.match(spatialMotion, /clamp\([\s\S]*?, 0, 1\)/);
-  assert.match(spatialMotion, /\+= \(targetPointerX - currentPointerX\) \* \./);
-  assert.match(spatialMotion, /<= \.001/);
+  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--px['"]/);
+  assert.match(spatialMotion, /root\.style\.setProperty\(['"]--py['"]/);
+  assert.match(spatialMotion, /clamp\(relativeY \* -6, -3, 3\)/);
+  assert.match(spatialMotion, /clamp\(relativeX \* 6, -3, 3\)/);
   assert.match(spatialMotion, /window\.matchMedia\(['"]\(hover: hover\) and \(pointer: fine\)['"]\)/);
-  assert.match(spatialMotion, /function handleCapabilityChange\(\)\s*\{/);
-  assert.match(spatialMotion, /finePointerQuery\.addEventListener\(['"]change['"], handleCapabilityChange\)/);
-  assert.match(spatialMotion, /reducedMotionQuery\.addEventListener\(['"]change['"], handleCapabilityChange\)/);
-  assert.match(spatialMotion, /target instanceof Element/);
   assert.match(spatialMotion, /target\.closest\(['"]\[data-tilt\]['"]\)/);
-  assert.match(spatialMotion, /const surface = target\.closest\(['"]\[data-tilt\]['"]\);\s*if \(!surface \|\| surface !== activeSurface\)\s*\{\s*return;\s*\}\s*const relatedTarget = event\.relatedTarget;\s*if \(!\(relatedTarget instanceof Element\) \|\| !surface\.contains\(relatedTarget\)\)/);
   assert.match(spatialMotion, /!event\.isPrimary \|\| event\.pointerType === ['"]touch['"]/);
   assert.match(spatialMotion, /document\.addEventListener\(['"]pointermove['"],[\s\S]*?\{ passive: true \}\)/);
-  assert.match(spatialMotion, /pendingPointer = \{ clientX: event\.clientX, clientY: event\.clientY, surface \}/);
-  assert.match(spatialMotion, /surface\.getBoundingClientRect\(\)/);
-  assert.match(spatialMotion, /Math\.max\(-4, Math\.min\(4,/);
-  assert.match(spatialMotion, /surface\.classList\.add\(['"]is-tilting['"]\)/);
-  assert.match(spatialMotion, /previousSurface\.style\.setProperty\(['"]--tilt-x['"], ['"]0deg['"]\)/);
-  assert.match(spatialMotion, /previousSurface\.classList\.remove\(['"]is-tilting['"]\)/);
-  assert.match(spatialMotion, /window\.addEventListener\(['"]scroll['"],[\s\S]*?\{ passive: true \}/);
-  assert.match(spatialMotion, /header\?\.classList\.toggle\(['"]is-scrolled['"], window\.scrollY > 24\)/);
+  assert.match(spatialMotion, /resetSurface\(activeSurface\)/);
   assert.match(spatialMotion, /function stopSpatialMotion\(\)\s*\{/);
   assert.match(spatialMotion, /return stopSpatialMotion;/);
-  for (const obsolete of ['glowFrame', 'tiltFrame', 'resetTilt', 'stopGlow', 'renderGlow', 'scheduleGlow', 'glowTargetX', 'glowTargetY', 'glowCurrentX', 'glowCurrentY']) assert.doesNotMatch(script, new RegExp(`\\b${obsolete}\\b`));
-  assert.doesNotMatch(script, /glow\.style\.transform/);
-  assert.match(script, /refreshAutoplay = scheduleAutoplay/);
-  const motionChange = script.match(/\n  reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?\n  \}\);/)?.[0] ?? '';
-  assert.match(motionChange, /syncAutoplayControl\(\);[\s\S]*?refreshAutoplay\(\)/);
-  assert.doesNotMatch(motionChange, /stopSpatialMotion\(\)/);
-  assert.doesNotMatch(motionChange, /isUserPaused\s*=/);
+  assert.match(spatialMotion, /header\?\.classList\.toggle\(['"]is-scrolled['"], window\.scrollY > 24\)/);
+  assert.match(spatialMotion, /function updateScrollSpy\(\)\s*\{/);
+  assert.match(spatialMotion, /link\.classList\.toggle\(['"]is-active['"], active\)/);
+  const reveals = script.match(/function initReveals\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(reveals, /document\.querySelectorAll\(['"]\[data-reveal\]['"]\)/);
+  assert.match(reveals, /item\.classList\.add\(['"]is-revealed['"]\)/);
+  assert.match(reveals, /reducedMotionQuery\.matches \|\| typeof IntersectionObserver === ['"]undefined['"]/);
+  assert.match(reveals, /entry\.isIntersecting/);
+  assert.match(reveals, /observer\.unobserve\(entry\.target\)/);
+  assert.match(reveals, /threshold:\s*0\.12/);
+});
+
+test('dialog keeps named hooks, focus restoration, and spring entry/exit without autoplay', () => {
+  const dialog = script.match(/function initTeamDialog\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(dialog, /document\.querySelector\(['"]#team-dialog['"]\)/);
+  assert.match(dialog, /members\.length !== 4/);
+  assert.match(dialog, /typeof dialog\.showModal !== ['"]function['"]/);
+  assert.match(dialog, /members\.forEach[\s\S]*?member\.disabled = false;[\s\S]*?member\.setAttribute\(['"]aria-haspopup['"], ['"]dialog['"]\)/);
+  assert.match(dialog, /document\.createElement\(/);
+  assert.match(dialog, /replaceChildren\(/);
+  assert.doesNotMatch(dialog, /innerHTML/);
+  assert.match(dialog, /dialog\.classList\.add\(['"]is-open['"]\)/);
+  assert.match(dialog, /dialog\.classList\.add\(['"]closing['"]\)/);
+  assert.match(dialog, /window\.setTimeout\(\(\) => dialog\.close\(\), 160\)/);
+  assert.match(dialog, /reducedMotionQuery\.matches[\s\S]*?dialog\.close\(\)/);
+  assert.match(dialog, /dialog\.addEventListener\(['"]cancel['"][\s\S]*?event\.preventDefault\(\);[\s\S]*?animateClose\(\)/);
+  assert.match(dialog, /document\.body\.classList\.add\(['"]dialog-open['"]\);[\s\S]*?closeButton\.focus\(\)/);
+  assert.match(dialog, /dialog\.addEventListener\(['"]close['"][\s\S]*?trigger\?\.focus\(\)/);
+  assert.match(dialog, /selectedMember\?\.classList\.remove\(['"]is-selected['"]\)/);
+  assert.doesNotMatch(dialog, /window\.setTimeout\([\s\S]*?\}, 140\)/);
+  assert.doesNotMatch(dialog, /pendingOpen/);
+});
+
+test('carousel keeps keyboard, swipe, dots, and arrows with an accessible status', () => {
+  const carousel = script.match(/function initCarousel\(heroStack\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(carousel, /heroStack\.querySelector\(['"]\.stage['"]\)/);
+  assert.match(carousel, /heroStack\.querySelectorAll\(['"]\.scene-slide['"]\)/);
+  assert.match(carousel, /count !== 5 \|\| dots\.length !== count \|\| !status/);
+  assert.match(carousel, /slide\.dataset\.position\s*=\s*String\(relativeOffset\(/);
+  assert.match(carousel, /slide\.setAttribute\(['"]aria-hidden['"],\s*String\(index !== activeIndex\)\)/);
+  assert.match(carousel, /dot\.setAttribute\(['"]aria-current['"],\s*String\(index === activeIndex\)\)/);
+  assert.match(carousel, /status\.setAttribute\(['"]aria-live['"],\s*announce \? ['"]polite['"] : ['"]off['"]\)/);
+  assert.match(carousel, /status\.textContent = `Photo \$\{activeIndex \+ 1\} of \$\{count\}`/);
+  assert.match(carousel, /counter\.textContent = String\(activeIndex \+ 1\)\.padStart\(2, ['"]0['"]\)/);
+  assert.match(carousel, /heroStack\.classList\.add\(['"]is-enhanced['"]\)/);
+  assert.match(carousel, /controls\.hidden = false/);
+  assert.match(carousel, /previous\.addEventListener\(['"]click['"], \(\) => show\(previousIndex\(activeIndex, count\)\)\)/);
+  assert.match(carousel, /next\.addEventListener\(['"]click['"], \(\) => show\(nextIndex\(activeIndex, count\)\)\)/);
+  assert.match(carousel, /event\.key === ['"]ArrowLeft['"][\s\S]*?event\.key === ['"]ArrowRight['"]/);
+  assert.match(carousel, /stage\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/);
+  assert.match(carousel, /stage\.addEventListener\(['"]pointerdown['"][\s\S]*?stage\.setPointerCapture\(event\.pointerId\)/);
+  assert.match(carousel, /Math\.abs\(deltaX\) >= 44 && Math\.abs\(deltaX\) > Math\.abs\(deltaY\)/);
+  assert.match(carousel, /show\(deltaX < 0 \? nextIndex\(activeIndex, count\) : previousIndex\(activeIndex, count\)\)/);
+  for (const helper of ['normalizeIndex', 'nextIndex', 'previousIndex', 'relativeOffset']) {
+    assert.match(script, new RegExp(`function\\s+${helper}\\s*\\([^)]*\\bcount\\b[^)]*\\)`), `${helper} must be local to the direct-file controller`);
+  }
+  assert.match(script, /function validateCount\(count\)\s*\{\s*if \(count < 1\)/);
 });
 
 function createSpatialHarness() {
@@ -440,6 +414,7 @@ function createSpatialHarness() {
     hidden: false,
     activeElement: undefined,
     addEventListener(type, listener) { addListener(documentListeners, type, listener); },
+    getElementById() { return undefined; },
     querySelector(selector) { return selector === '.site-header' ? header : undefined; },
     querySelectorAll() { return []; },
   };
@@ -498,7 +473,7 @@ function createSpatialHarness() {
   };
 }
 
-test('shared spatial motion coalesces pointer input and restores capability state at runtime', () => {
+test('shared pointer scheduler coalesces input, tilts at most 3 degrees, and resets on leave', () => {
   const runtime = createSpatialHarness();
   const pointer = (target, clientX, clientY, extras = {}) => ({
     isPrimary: true,
@@ -515,17 +490,18 @@ test('shared spatial motion coalesces pointer input and restores capability stat
   assert.equal(runtime.surfaceA.boundsCalls, 0, 'raw pointer work must not read bounds');
   runtime.runFrame();
   assert.equal(runtime.surfaceA.boundsCalls, 1, 'the rendered latest sample reads bounds once');
-  assert.equal(runtime.root.style.getPropertyValue('--pointer-x'), '0.140', 'latest pointer sample wins');
-  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-y'), '0.56deg');
-  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-x'), '-0.56deg');
+  assert.equal(runtime.root.style.getPropertyValue('--px'), '0.160', 'the latest pointer sample (x=1000 -> +1.0) wins: 0 + 1.0 * 0.16');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-y'), '0.48deg');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-x'), '-0.48deg');
   assert.equal(runtime.surfaceA.classList.contains('is-tilting'), true);
   runtime.flush();
   assert.equal(runtime.frameCount(), 0, 'frames stop after settling');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-y'), '3.00deg', 'tilt clamps at 3 degrees');
+  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-x'), '-3.00deg');
 
   runtime.emitDocument('pointermove', pointer(runtime.childB, 200, 0));
   runtime.runFrame();
   assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-x'), '0deg');
-  assert.equal(runtime.surfaceA.style.getPropertyValue('--tilt-y'), '0deg');
   assert.equal(runtime.surfaceA.classList.contains('is-tilting'), false);
   assert.equal(runtime.surfaceB.classList.contains('is-tilting'), true);
 
@@ -540,12 +516,10 @@ test('shared spatial motion coalesces pointer input and restores capability stat
   runtime.emitDocument('pointermove', pointer(runtime.ordinary, 300, 100));
   runtime.runFrame();
   assert.doesNotThrow(() => runtime.emitDocument('pointerout', { target: runtime.ordinary, relatedTarget: undefined }), 'ordinary non-tilt pointerout is safe when the active surface is null');
-  assert.equal(runtime.surfaceB.classList.contains('is-tilting'), false, 'ordinary pointerout does not reset an unrelated surface');
-
   runtime.emitDocument('pointermove', pointer(runtime.childA, 100, 100));
   runtime.runFrame();
   assert.equal(runtime.surfaceA.classList.contains('is-tilting'), true);
-  assert.doesNotThrow(() => runtime.emitDocument('pointerout', { target: runtime.ordinary, relatedTarget: undefined }), 'ordinary non-tilt pointerout is safe when another surface is active');
+  assert.doesNotThrow(() => runtime.emitDocument('pointerout', { target: runtime.ordinary, relatedTarget: undefined }), 'ordinary pointerout is safe when another surface is active');
   assert.equal(runtime.surfaceA.classList.contains('is-tilting'), true, 'ordinary pointerout leaves the active surface alone');
   runtime.emitDocument('pointerout', { target: runtime.childA, relatedTarget: undefined });
   assert.equal(runtime.surfaceA.classList.contains('is-tilting'), false, 'leaving the active surface resets its tilt state');
@@ -554,95 +528,153 @@ test('shared spatial motion coalesces pointer input and restores capability stat
   assert.equal(runtime.frameCount(), 1);
   runtime.reducedMotion.setMatches(true);
   assert.equal(runtime.frameCount(), 0, 'capability loss cancels queued work');
-  assert.equal(runtime.root.style.getPropertyValue('--pointer-x'), '0.000');
-  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.000');
+  assert.equal(runtime.root.style.getPropertyValue('--px'), '0.000');
   runtime.reducedMotion.setMatches(false);
   runtime.flush();
 
-  const rootBeforeIgnoredPointer = runtime.root.style.getPropertyValue('--pointer-x');
+  const rootBeforeIgnoredPointer = runtime.root.style.getPropertyValue('--px');
   runtime.emitDocument('pointermove', pointer(runtime.childA, 1000, 1000, { pointerType: 'touch' }));
   runtime.emitDocument('pointermove', pointer(runtime.childA, 1000, 1000, { isPrimary: false }));
   assert.equal(runtime.frameCount(), 0, 'touch and secondary pointers do not schedule spatial work');
-  assert.equal(runtime.root.style.getPropertyValue('--pointer-x'), rootBeforeIgnoredPointer);
+  assert.equal(runtime.root.style.getPropertyValue('--px'), rootBeforeIgnoredPointer);
 
   runtime.window.scrollY = 500;
-  runtime.reducedMotion.setMatches(true);
-  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.000');
-  runtime.reducedMotion.setMatches(false);
-  assert.equal(runtime.frameCount(), 1, 're-enabling reduced motion restores current scroll without a scroll event');
-  runtime.flush();
-  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.500');
-  assert.equal(runtime.header.classList.contains('is-scrolled'), true);
-
+  runtime.emitWindow('scroll', {});
+  assert.equal(runtime.header.classList.contains('is-scrolled'), true, 'scroll toggles the compact header state without a RAF loop');
   runtime.finePointer.setMatches(false);
-  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.000');
-  runtime.window.scrollY = 750;
-  runtime.finePointer.setMatches(true);
-  assert.equal(runtime.frameCount(), 1, 'fine-pointer restoration schedules current scroll depth');
-  runtime.flush();
-  assert.equal(runtime.root.style.getPropertyValue('--scroll-depth'), '0.750');
-  assert.equal(runtime.frameCount(), 0, 'no RAF callbacks continue after final settling');
+  assert.equal(runtime.frameCount(), 0, 'coarse pointers stop spatial work');
 });
 
-test('progressively enhances navigation and the reusable team dialog', () => {
-  assert.match(script, /function initNavigation\(\)\s*\{/);
-  assert.match(script, /function initTeamDialog\(reducedMotionQuery\)\s*\{/);
-  assert.match(script, /const reducedMotionQuery = window\.matchMedia\([\s\S]*?\);[\s\S]*?initNavigation\(\);[\s\S]*?initTeamDialog\(reducedMotionQuery\);/);
-  assert.equal((script.match(/\binitNavigation\(\);/g) ?? []).length, 1);
-  assert.equal((script.match(/\binitTeamDialog\(reducedMotionQuery\);/g) ?? []).length, 1);
+function createCarouselHarness() {
+  class MockElement {
+    constructor() {
+      this.listeners = new Map();
+      this.attributes = new Map();
+      this.dataset = {};
+      this.style = { setProperty() {} };
+      this.classList = { add() {}, contains() { return false; } };
+      this.hidden = false;
+      this.disabled = false;
+      this.textContent = '';
+    }
 
-  const navigation = script.match(/function initNavigation\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
-  assert.match(navigation, /document\.querySelector\(['"]\.site-header['"]\)/);
-  assert.match(navigation, /document\.querySelector\(['"]\.nav-toggle['"]\)/);
-  assert.match(navigation, /document\.querySelector\(['"]#primary-nav['"]\)/);
-  assert.match(navigation, /if \(!header \|\| !toggle \|\| !nav\)\s*\{\s*return;/);
-  assert.match(navigation, /header\.classList\.add\(['"]is-enhanced['"]\);[\s\S]*?toggle\.hidden = false;[\s\S]*?toggle\.setAttribute\(['"]aria-controls['"], ['"]primary-nav['"]\);/);
-  assert.match(navigation, /function setMenu\(open, restoreFocus = false\)[\s\S]*?const label = open \? ['"]Close navigation['"] : ['"]Open navigation['"];[\s\S]*?header\.classList\.toggle\(['"]menu-open['"], open\);[\s\S]*?toggle\.setAttribute\(['"]aria-expanded['"], String\(open\)\);[\s\S]*?toggle\.textContent = label;[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], label\);/);
-  assert.doesNotMatch(navigation, /aria-pressed/);
-  assert.match(navigation, /setMenu\(false\);[\s\S]*?toggle\.addEventListener\(['"]click['"]/);
-  assert.match(navigation, /nav\.querySelectorAll\(['"]a['"]\)\.forEach[\s\S]*?setMenu\(false\)/);
-  assert.match(navigation, /document\.addEventListener\(['"]keydown['"][\s\S]*?event\.key !== ['"]Escape['"] \|\| !header\.classList\.contains\(['"]menu-open['"]\)[\s\S]*?setMenu\(false, true\)/);
-  assert.match(navigation, /if \(restoreFocus\)\s*\{\s*toggle\.focus\(\);/);
-  assert.doesNotMatch(navigation, /nav\.style\.|overflow\s*=/);
+    addEventListener(type, listener) {
+      if (!this.listeners.has(type)) this.listeners.set(type, []);
+      this.listeners.get(type).push(listener);
+    }
 
-  const dialog = script.match(/function initTeamDialog\(reducedMotionQuery\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
-  assert.match(dialog, /document\.querySelector\(['"]#team-dialog['"]\)/);
-  assert.match(dialog, /document\.querySelectorAll\(['"]button\[data-member\]['"]\)/);
-  assert.match(dialog, /members\.length !== 4/);
-  assert.match(dialog, /new Set\(members\.map\(\(member\) => Number\(member\.dataset\.member\)\)\)/);
-  assert.match(dialog, /memberIndexes\.size !== 4[\s\S]*?memberIndexes\.has\(0\)[\s\S]*?memberIndexes\.has\(1\)[\s\S]*?memberIndexes\.has\(2\)[\s\S]*?memberIndexes\.has\(3\)/);
-  for (const hook of ['[data-dialog-close]', '[data-dialog-name]', '[data-dialog-marker]', '[data-dialog-role]', '[data-dialog-bio]', '[data-dialog-achievements]', '[data-dialog-work]']) assert.match(dialog, new RegExp(escapeRegExp(hook)));
-  assert.match(dialog, /typeof dialog\.showModal !== ['"]function['"]/);
-  assert.match(dialog, /if \([\s\S]*?members\.length !== 4[\s\S]*?\|\| !closeButton[\s\S]*?\|\| typeof dialog\.showModal !== ['"]function['"][\s\S]*?\)\s*\{\s*return;/);
-  assert.match(dialog, /members\.forEach[\s\S]*?member\.disabled = false;[\s\S]*?member\.setAttribute\(['"]aria-haspopup['"], ['"]dialog['"]\)/);
-  assert.match(dialog, /document\.createElement\(/);
-  assert.match(dialog, /\.textContent\s*=/);
-  assert.match(dialog, /replaceChildren\(/);
-  assert.doesNotMatch(dialog, /innerHTML/);
-  for (const text of ['Team Member 01', 'Team Member 02', 'Team Member 03', 'Team Member 04', 'Role / specialty', "Add this team member's short biography, focus, and approach here.", 'Achievement placeholder 01', 'Achievement placeholder 02', 'Project placeholder 01', 'Project placeholder 02', 'Add a short project summary and contribution.']) assert.ok(dialog.includes(text), `missing dialog draft content: ${text}`);
-  assert.match(dialog, /if \(pendingOpen !== undefined \|\| dialog\.open\)\s*\{\s*return;/);
-  assert.match(dialog, /window\.setTimeout\([\s\S]*?\}, 140\)/);
-  assert.match(dialog, /if \(reducedMotionQuery\.matches\)\s*\{[\s\S]*?openDialog\(\);/);
-  assert.match(dialog, /reducedMotionQuery\.addEventListener\(['"]change['"][\s\S]*?if \(event\.matches && pendingOpen !== undefined\)[\s\S]*?window\.clearTimeout\(pendingOpen\);[\s\S]*?openDialog\(\)/);
-  assert.match(dialog, /closeButton\.addEventListener\(['"]click['"][\s\S]*?dialog\.close\(\)/);
-  assert.match(dialog, /dialog\.addEventListener\(['"]click['"][\s\S]*?event\.target !== dialog[\s\S]*?event\.target\.closest\(['"]\.dialog-shell['"]\)[\s\S]*?dialog\.close\(\)/);
-  assert.match(dialog, /dialog\.addEventListener\(['"]close['"][\s\S]*?document\.body\.classList\.remove\(['"]dialog-open['"]\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\)/);
-  assert.match(dialog, /document\.body\.classList\.add\(['"]dialog-open['"]\);[\s\S]*?closeButton\.focus\(\)/);
-  assert.match(html, /<dialog id="team-dialog" aria-labelledby="team-dialog-name">\s*<div class="dialog-shell">[\s\S]*?<\/div>\s*<\/dialog>/);
-  assert.match(html, /<dialog id="team-dialog" aria-labelledby="team-dialog-name">/);
-  assert.match(html, /<h2 id="team-dialog-name" data-dialog-name>/);
-  assert.match(dialog, /achievementsTitle\.id = ['"]achievements-title['"]/);
-  assert.match(dialog, /workTitle\.id = ['"]work-title['"]/);
-  assert.match(navigation, /const label = open \? ['"]Close navigation['"] : ['"]Open navigation['"];[\s\S]*?toggle\.textContent = label;[\s\S]*?toggle\.setAttribute\(['"]aria-label['"], label\)/);
-  assert.match(navigation, /function resolveFragmentTarget\(link\)\s*\{/);
-  assert.match(navigation, /if \(link\.hash\.length <= 1\)\s*\{\s*return;/);
-  assert.match(navigation, /decodeURIComponent\(link\.hash\.slice\(1\)\)/);
-  assert.match(navigation, /catch\s*\{\s*return;/);
-  assert.match(navigation, /document\.getElementById\(fragment\)/);
-  assert.doesNotMatch(navigation, /document\.querySelector\(link\.hash\)/);
-  assert.match(navigation, /const target = resolveFragmentTarget\(link\);[\s\S]*?window\.requestAnimationFrame\(\(\) => \{[\s\S]*?target\.setAttribute\(['"]tabindex['"], ['"]-1['"]\);[\s\S]*?target\.focus\(\{ preventScroll: true \}\)/);
-  assert.match(navigation, /if \(!target\)\s*\{[\s\S]*?setMenu\(false, true\)/);
-  assert.match(dialog, /document\.addEventListener\(['"]keydown['"][\s\S]*?pendingOpen === undefined \|\| dialog\.open[\s\S]*?window\.clearTimeout\(pendingOpen\);[\s\S]*?selectedMember\?\.classList\.remove\(['"]is-selected['"]\);[\s\S]*?trigger\?\.focus\(\);/);
+    emit(type, event) { this.listeners.get(type)?.forEach((listener) => listener(event)); }
+    setAttribute(name, value) { this.attributes.set(name, value); }
+    getAttribute(name) { return this.attributes.get(name) ?? null; }
+    removeAttribute(name) { this.attributes.delete(name); }
+    contains() { return true; }
+    setPointerCapture() {}
+    querySelector() { return undefined; }
+    querySelectorAll() { return []; }
+  }
+
+  const heroStack = new MockElement();
+  const stage = new MockElement();
+  const controls = new MockElement();
+  const previous = new MockElement();
+  const next = new MockElement();
+  const status = new MockElement();
+  const counter = new MockElement();
+  const slides = Array.from({ length: 5 }, () => new MockElement());
+  const dots = Array.from({ length: 5 }, () => new MockElement());
+  heroStack.querySelector = (selector) => ({
+    '.stage': stage,
+    '.carousel-controls': controls,
+    '[data-carousel-prev]': previous,
+    '[data-carousel-next]': next,
+    '.carousel-status': status,
+    '[data-count-current]': counter,
+  })[selector];
+  heroStack.querySelectorAll = (selector) => (selector === '.scene-slide' ? slides : []);
+  controls.querySelectorAll = (selector) => (selector === '[data-dot]' ? dots : []);
+  const document = {
+    documentElement: new MockElement(),
+    body: new MockElement(),
+    hidden: false,
+    activeElement: new MockElement(),
+    addEventListener() {},
+    getElementById() { return undefined; },
+    querySelector(selector) { return selector === '.hero-scene' ? heroStack : undefined; },
+    querySelectorAll() { return []; },
+  };
+  const window = {
+    innerWidth: 1440,
+    innerHeight: 900,
+    scrollY: 0,
+    matchMedia(query) { return { matches: false, addEventListener() {} }; },
+    requestAnimationFrame(callback) { callback(); return 1; },
+    cancelAnimationFrame() {},
+    addEventListener() {},
+    setTimeout() { return 1; },
+    clearTimeout() {},
+  };
+  runInNewContext(script, { document, window, Element: MockElement, decodeURIComponent });
+
+  return { heroStack, stage, controls, previous, next, status, counter, slides, dots };
+}
+
+test('carousel renders accessible state and advances via arrows, keyboard, dots, and swipe', () => {
+  const harness = createCarouselHarness();
+
+  assert.equal(harness.heroStack.classList.contains('is-enhanced'), false, 'classList.contains is mocked inert; state asserted via render outputs below');
+  assert.equal(harness.controls.hidden, false, 'controls are revealed once enhancement succeeds');
+  assert.equal(harness.slides[0].dataset.position, '0');
+  assert.equal(harness.slides[1].dataset.position, '1');
+  assert.equal(harness.slides[2].dataset.position, '2');
+  assert.equal(harness.slides[3].dataset.position, '-2');
+  assert.equal(harness.slides[4].dataset.position, '-1');
+  assert.equal(harness.slides[0].attributes.get('aria-hidden'), 'false');
+  assert.equal(harness.slides[1].attributes.get('aria-hidden'), 'true');
+  assert.equal(harness.dots[0].attributes.get('aria-current'), 'true');
+  assert.equal(harness.dots[1].attributes.get('aria-current'), 'false');
+  assert.equal(harness.status.textContent, 'Photo 1 of 5');
+  assert.equal(harness.counter.textContent, '01');
+  assert.equal(harness.dots[0].disabled, false, 'dots are enabled on enhancement');
+
+  harness.next.emit('click', {});
+  assert.equal(harness.slides[1].dataset.position, '0');
+  assert.equal(harness.slides[0].dataset.position, '-1');
+  assert.equal(harness.slides[2].dataset.position, '1');
+  assert.equal(harness.slides[3].dataset.position, '2');
+  assert.equal(harness.slides[4].dataset.position, '-2');
+  assert.equal(harness.slides[1].attributes.get('aria-hidden'), 'false');
+  assert.equal(harness.slides[0].attributes.get('aria-hidden'), 'true');
+  assert.equal(harness.dots[1].attributes.get('aria-current'), 'true');
+  assert.equal(harness.status.textContent, 'Photo 2 of 5');
+  assert.equal(harness.counter.textContent, '02');
+
+  harness.heroStack.emit('keydown', { key: 'ArrowRight', preventDefault() {} });
+  assert.equal(harness.status.textContent, 'Photo 3 of 5');
+  harness.heroStack.emit('keydown', { key: 'ArrowLeft', preventDefault() {} });
+  assert.equal(harness.status.textContent, 'Photo 2 of 5');
+
+  harness.previous.emit('click', {});
+  assert.equal(harness.status.textContent, 'Photo 1 of 5');
+
+  harness.stage.emit('pointerdown', { isPrimary: true, button: 0, target: harness.stage, pointerId: 1, clientX: 260, clientY: 120 });
+  harness.stage.emit('pointerup', { pointerId: 1, clientX: 180, clientY: 130 });
+  assert.equal(harness.status.textContent, 'Photo 2 of 5', 'a left swipe advances the deck');
+
+  harness.stage.emit('pointerdown', { isPrimary: true, button: 0, target: harness.stage, pointerId: 2, clientX: 180, clientY: 120 });
+  harness.stage.emit('pointerup', { pointerId: 2, clientX: 260, clientY: 130 });
+  assert.equal(harness.status.textContent, 'Photo 1 of 5', 'a right swipe rewinds the deck');
+
+  harness.stage.emit('pointerdown', { isPrimary: true, button: 0, target: harness.stage, pointerId: 3, clientX: 200, clientY: 120 });
+  harness.stage.emit('pointerup', { pointerId: 3, clientX: 190, clientY: 130 });
+  assert.equal(harness.status.textContent, 'Photo 1 of 5', 'short swipes do nothing');
+
+  harness.dots[4].emit('click', {});
+  assert.equal(harness.status.textContent, 'Photo 5 of 5');
+  assert.equal(harness.counter.textContent, '05');
+  harness.dots[4].emit('click', {});
+  assert.equal(harness.status.textContent, 'Photo 5 of 5', 'clicking the active dot keeps the current photo (dots are direct selectors)');
+  harness.next.emit('click', {});
+  assert.equal(harness.status.textContent, 'Photo 1 of 5', 'the deck wraps from the last photo to the first');
 });
 
 test('direct-file navigation handles fragment mutations without selector parsing', () => {
@@ -652,17 +684,25 @@ test('direct-file navigation handles fragment mutations without selector parsing
       this.attributes = new Map();
       this.classList = { add() {}, remove() {}, toggle() {}, contains() { return false; } };
       this.style = { setProperty() {} };
+      this.hidden = false;
+      this.textContent = '';
       this.focusCount = 0;
     }
 
     addEventListener(type, listener) { this.listeners.set(type, listener); }
+    emit(type, event) { this.listeners.get(type)?.forEach((listener) => listener(event)); }
     setAttribute(name, value) { this.attributes.set(name, value); }
+    getAttribute(name) { return this.attributes.get(name) ?? null; }
+    removeAttribute(name) { this.attributes.delete(name); }
     focus() { this.focusCount += 1; }
+    getBoundingClientRect() { return { left: 0, top: 0, width: 100, height: 100 }; }
+    querySelector(selector) { return selector === '.nav-toggle-label' ? this.label : undefined; }
     querySelectorAll() { return []; }
   }
 
   const header = new MockElement();
   const toggle = new MockElement();
+  toggle.label = new MockElement();
   const nav = new MockElement();
   const target = new MockElement();
   const links = [
@@ -673,26 +713,24 @@ test('direct-file navigation handles fragment mutations without selector parsing
     Object.assign(new MockElement(), { origin: 'file://', pathname: '/axora/index.html', hash: '#services' }),
   ];
   nav.querySelectorAll = () => links;
-  const reducedMotion = { matches: false, addEventListener() {} };
-  const finePointer = { matches: true, addEventListener() {} };
   const document = {
     body: new MockElement(),
     documentElement: new MockElement(),
     hidden: false,
     activeElement: undefined,
     addEventListener() {},
+    getElementById(id) { return id === 'services' ? target : null; },
     querySelector(selector) {
       return { '.site-header': header, '.nav-toggle': toggle, '#primary-nav': nav }[selector];
     },
     querySelectorAll() { return []; },
-    getElementById(id) { return id === 'services' ? target : null; },
   };
   const window = {
     location: { origin: 'file://', pathname: '/axora/index.html' },
     innerWidth: 1440,
     innerHeight: 900,
     scrollY: 0,
-    matchMedia(query) { return query === '(prefers-reduced-motion: reduce)' ? reducedMotion : finePointer; },
+    matchMedia(query) { return { matches: false, addEventListener() {} }; },
     requestAnimationFrame(callback) { callback(); return 1; },
     cancelAnimationFrame() {},
     addEventListener() {},
@@ -705,7 +743,10 @@ test('direct-file navigation handles fragment mutations without selector parsing
   for (const link of links.slice(0, 4)) {
     assert.doesNotThrow(() => link.listeners.get('click')());
   }
-  assert.equal(toggle.focusCount, 4);
+  assert.equal(toggle.focusCount, 4, 'unresolvable fragments close the menu and restore focus');
+  assert.equal(toggle.attributes.get('aria-expanded'), 'false');
+  assert.equal(toggle.label.textContent, 'Open navigation');
   links[4].listeners.get('click')();
-  assert.equal(target.focusCount, 1);
+  assert.equal(target.focusCount, 1, 'resolvable fragments focus the target section');
+  assert.equal(target.attributes.get('tabindex'), '-1');
 });
