@@ -29,11 +29,13 @@
         </button>
         <nav id="primary-nav" class="site-nav" aria-label="Primary navigation">
           <a class="load-item" href="#home" style="--order: 1">Home</a>
+          <a class="load-item" href="#about" style="--order: 1">About</a>
           <a class="load-item" href="#services" style="--order: 1">Services</a>
+          <a class="load-item" href="#portfolio" style="--order: 1">Portfolio</a>
           <a class="load-item" href="#team" style="--order: 1">Team</a>
           <a class="load-item" href="#contact" style="--order: 1">Contact</a>
         </nav>
-        <a class="top-cta load-item" href="#contact" style="--order: 2">Let’s talk</a>
+        <a class="top-cta load-item" href="#contact" style="--order: 2">Let's talk</a>
       </header>
 
       <main>
@@ -48,6 +50,7 @@
             <div class="hero-actions load-item" style="--order: 3">
               <a class="button button-primary" href="#services">Explore services<svg aria-hidden="true" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></a>
               <a class="button button-ghost" href="#team">Meet the team</a>
+              <a class="button button-ghost" href="#contact">Start a Project</a>
             </div>
             <ul class="chips load-item" style="--order: 4" aria-label="Capabilities">
               <li class="chip">
@@ -137,38 +140,207 @@
           </section>
         </section>
 
+        <!-- About -->
+        <section id="about" aria-labelledby="about-title">
+          <p class="eyebrow" data-reveal>About AXORA</p>
+          <h2 id="about-title" data-reveal>The studio behind<br>the solutions.</h2>
+          <div class="about-body" data-reveal>
+            <div class="about-card about-who" data-reveal style="--reveal-order: 1">
+              <h3>Who We Are</h3>
+              <p>AXORA is a Digital Solutions Studio dedicated to helping businesses, entrepreneurs, startups, and organizations solve problems through technology, design, and digital support.</p>
+            </div>
+            <div class="about-card about-mission" data-reveal style="--reveal-order: 2">
+              <h3>Mission</h3>
+              <p>To empower businesses by delivering innovative, reliable, and client focused digital solutions through collaboration, creativity, and technology.</p>
+            </div>
+            <div class="about-card about-vision" data-reveal style="--reveal-order: 3">
+              <h3>Vision</h3>
+              <p>To become a trusted digital solutions partner recognized for transforming ideas into meaningful digital experiences and long term business success.</p>
+            </div>
+          </div>
+
+          <div class="values-row" data-reveal style="--reveal-order: 4">
+            <p class="values-label">Core Values</p>
+            <div class="value-tiles">
+              <div class="value-tile" data-tilt>
+                <span class="value-letter" aria-hidden="true">A</span>
+                <span class="value-name">Accountability</span>
+                <p class="value-desc">We take ownership of our work and stand behind every solution we deliver.</p>
+              </div>
+              <div class="value-tile" data-tilt>
+                <span class="value-letter" aria-hidden="true">X</span>
+                <span class="value-name">Excellence</span>
+                <p class="value-desc">We hold ourselves to high standards in every project we take on.</p>
+              </div>
+              <div class="value-tile" data-tilt>
+                <span class="value-letter" aria-hidden="true">O</span>
+                <span class="value-name">Openness</span>
+                <p class="value-desc">We communicate clearly and collaborate honestly with every client.</p>
+              </div>
+              <div class="value-tile" data-tilt>
+                <span class="value-letter" aria-hidden="true">R</span>
+                <span class="value-name">Reliability</span>
+                <p class="value-desc">We show up consistently and deliver on our commitments.</p>
+              </div>
+              <div class="value-tile" data-tilt>
+                <span class="value-letter" aria-hidden="true">A</span>
+                <span class="value-name">Adaptability</span>
+                <p class="value-desc">We adjust to new challenges and find the right approach for each situation.</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="about-story" data-reveal style="--reveal-order: 5">
+            <h3>Our Story</h3>
+            <p>AXORA was born from a moment of inspiration during an IT Summit. Surrounded by innovators and industry professionals, we realized that opportunity begins the moment you choose to step forward. Inspired by that experience, we combined our strengths in development, design, and digital support to create a team dedicated to delivering meaningful digital solutions through collaboration, creativity, and technology.</p>
+          </div>
+        </section>
+
+        <!-- Services -->
         <section id="services" aria-labelledby="services-title">
           <p class="eyebrow" data-reveal>Services</p>
           <h2 id="services-title" data-reveal>What we build<br>and support.</h2>
-          <p class="section-intro" data-reveal>Practical digital assistance for products, systems, and the everyday work around them.</p>
+          <p class="section-intro" data-reveal>We design, build, and support digital solutions that help businesses work smarter, connect better, and grow with confidence.</p>
           <div class="service-list">
             <article class="service-card service-web" data-tilt tabindex="0" data-reveal style="--reveal-order: 1">
               <span class="service-index" aria-hidden="true">01</span>
               <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M3 9.5h18M6.5 6.8h.01M9 6.8h.01" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/><path d="m9 13.5-2 2 2 2M15 13.5l2 2-2 2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg>
-              <h3>Web applications</h3>
+              <h3>Web Development</h3>
               <p>Responsive web experiences and practical browser-based tools shaped around the way you work.</p>
+              <ul class="service-list-items">
+                <li>Business Websites</li>
+                <li>Web Applications</li>
+                <li>Custom Systems</li>
+                <li>Landing Pages</li>
+                <li>Website Maintenance</li>
+              </ul>
             </article>
             <article class="service-card service-mobile" data-tilt tabindex="0" data-reveal style="--reveal-order: 2">
               <span class="service-index" aria-hidden="true">02</span>
               <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="7" y="2.5" width="10" height="19" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 18.5h2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg>
-              <h3>Mobile applications</h3>
+              <h3>Mobile Development</h3>
               <p>Focused mobile products and companion experiences designed for everyday use.</p>
+              <ul class="service-list-items">
+                <li>Android Applications</li>
+                <li>Cross Platform Apps</li>
+                <li>Mobile Solutions</li>
+              </ul>
             </article>
             <article class="service-card service-design" data-tilt tabindex="0" data-reveal style="--reveal-order: 3">
               <span class="service-index" aria-hidden="true">03</span>
               <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m12 19 7-7 3 3-7 7-3-3z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/><circle cx="11" cy="11" r="2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
-              <h3>UI/UX and visual design</h3>
+              <h3>Design</h3>
               <p>Clear interfaces, thoughtful interaction flows, and visual systems that make digital products easier to use.</p>
+              <ul class="service-list-items">
+                <li>Brand Identity</li>
+                <li>Logo Design</li>
+                <li>UI Design</li>
+                <li>UX Design</li>
+                <li>Marketing Graphics</li>
+              </ul>
             </article>
             <article class="service-card service-support" data-tilt tabindex="0" data-reveal style="--reveal-order: 4">
               <span class="service-index" aria-hidden="true">04</span>
               <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m5.5 5.5 4.2 4.2M18.5 5.5l-4.2 4.2M5.5 18.5l4.2-4.2M18.5 18.5l-4.2-4.2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg>
-              <h3>Technical support</h3>
+              <h3>Digital Support</h3>
               <p>Flexible help with websites, systems, content updates, troubleshooting, and other day-to-day digital tasks.</p>
+              <ul class="service-list-items">
+                <li>Technical Support</li>
+                <li>Website Maintenance</li>
+                <li>Administrative Support</li>
+                <li>Documentation</li>
+                <li>Process Optimization</li>
+              </ul>
             </article>
           </div>
         </section>
 
+        <!-- Why Choose AXORA -->
+        <section id="why-axora" aria-labelledby="why-axora-title">
+          <p class="eyebrow" data-reveal>Why AXORA</p>
+          <h2 id="why-axora-title" data-reveal>Why choose<br>AXORA.</h2>
+          <p class="section-intro" data-reveal>We bring together the right skills, the right mindset, and a genuine commitment to your success.</p>
+          <div class="why-grid">
+            <article class="why-card why-focal" data-tilt data-reveal style="--reveal-order: 1">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 12l3 3 5-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg>
+              <h3>Multidisciplinary Team</h3>
+              <p>Different specialists working together to deliver complete solutions.</p>
+            </article>
+            <article class="why-card" data-tilt data-reveal style="--reveal-order: 2">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M12 8v4l3 3" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg>
+              <h3>Client Focused Approach</h3>
+              <p>Every solution is tailored to your goals and requirements.</p>
+            </article>
+            <article class="why-card" data-tilt data-reveal style="--reveal-order: 3">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="m9 12 2 2 4-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.6"/></svg>
+              <h3>Reliable Delivery</h3>
+              <p>We value professionalism, communication, and accountability.</p>
+            </article>
+            <article class="why-card" data-tilt data-reveal style="--reveal-order: 4">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg>
+              <h3>Modern Technology</h3>
+              <p>We use current tools and best practices to create scalable digital solutions.</p>
+            </article>
+            <article class="why-card" data-tilt data-reveal style="--reveal-order: 5">
+              <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/><circle cx="9" cy="7" r="4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.6"/></svg>
+              <h3>Long Term Partnership</h3>
+              <p>We continue supporting your business even after project completion.</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Portfolio -->
+        <section id="portfolio" aria-labelledby="portfolio-title">
+          <p class="eyebrow" data-reveal>Portfolio</p>
+          <h2 id="portfolio-title" data-reveal>Selected work.</h2>
+          <p class="section-intro" data-reveal>A growing collection of projects across web, mobile, design, and branding.</p>
+          <div class="portfolio-grid">
+            <article class="portfolio-card" data-tilt data-reveal style="--reveal-order: 1">
+              <div class="portfolio-preview portfolio-preview-web">
+                <svg aria-hidden="true" viewBox="0 0 48 48"><rect x="4" y="8" width="40" height="28" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M4 16h40" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="9" cy="12" r="1.5" fill="currentColor"/><circle cx="14" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/><path d="M14 24h20M14 30h12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg>
+              </div>
+              <h3>Websites</h3>
+              <p>Selected work is being prepared for publication.</p>
+            </article>
+            <article class="portfolio-card" data-tilt data-reveal style="--reveal-order: 2">
+              <div class="portfolio-preview portfolio-preview-mobile">
+                <svg aria-hidden="true" viewBox="0 0 48 48"><rect x="14" y="4" width="20" height="40" rx="4" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M22 38h4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"/></svg>
+              </div>
+              <h3>Mobile Apps</h3>
+              <p>Selected work is being prepared for publication.</p>
+            </article>
+            <article class="portfolio-card" data-tilt data-reveal style="--reveal-order: 3">
+              <div class="portfolio-preview portfolio-preview-brand">
+                <svg aria-hidden="true" viewBox="0 0 48 48"><circle cx="24" cy="24" r="16" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M24 8v32M8 24h32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3"/></svg>
+              </div>
+              <h3>Branding Projects</h3>
+              <p>Selected work is being prepared for publication.</p>
+            </article>
+            <article class="portfolio-card" data-tilt data-reveal style="--reveal-order: 4">
+              <div class="portfolio-preview portfolio-preview-uiux">
+                <svg aria-hidden="true" viewBox="0 0 48 48"><rect x="6" y="6" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="26" y="6" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="6" y="26" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="26" y="26" width="16" height="16" rx="3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+              </div>
+              <h3>UI/UX Designs</h3>
+              <p>Selected work is being prepared for publication.</p>
+            </article>
+            <article class="portfolio-card" data-tilt data-reveal style="--reveal-order: 5">
+              <div class="portfolio-preview portfolio-preview-graphics">
+                <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M8 36l10-14 8 10 6-8 8 12" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"/><circle cx="34" cy="14" r="5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+              </div>
+              <h3>Graphics</h3>
+              <p>Selected work is being prepared for publication.</p>
+            </article>
+            <article class="portfolio-card portfolio-card-academic" data-tilt data-reveal style="--reveal-order: 6">
+              <div class="portfolio-preview portfolio-preview-academic">
+                <svg aria-hidden="true" viewBox="0 0 48 48"><path d="M24 6L6 16l18 10 18-10L24 6z" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6 16v16l18 10 18-10V16" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M38 16v14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              </div>
+              <h3>Academic Projects</h3>
+              <p>Academic collaborations and research-based work. Selected work is being prepared for publication.</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Team -->
         <section id="team" aria-labelledby="team-title">
           <p class="eyebrow" data-reveal>Team</p>
           <h2 id="team-title" data-reveal>Four people,<br>one shared standard.</h2>
@@ -178,56 +350,110 @@
               <span class="team-index" aria-hidden="true">01</span>
               <span class="team-visual" aria-hidden="true"><img class="team-photo" src="member%20images/762542297_1046525607966526_6264202658131260171_n.jpg" alt="" width="1086" height="1448" loading="lazy" decoding="async" draggable="false"></span>
               <strong class="team-name">Team Member 01</strong>
-              <small class="team-role">Role / specialty</small>
-              <span class="team-action"><span>View work and achievements</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
+              <small class="team-role">Client Success Lead</small>
+              <span class="team-action"><span>View role and expertise</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
             </button>
             <button class="team-card" type="button" data-member="1" data-tilt disabled data-reveal style="--reveal-order: 2">
               <span class="team-index" aria-hidden="true">02</span>
               <span class="team-visual" aria-hidden="true"><span class="device"><span class="device-label">TM-02</span></span></span>
               <strong class="team-name">Team Member 02</strong>
-              <small class="team-role">Role / specialty</small>
-              <span class="team-action"><span>View work and achievements</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
+              <small class="team-role">Lead Developer</small>
+              <span class="team-action"><span>View role and expertise</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
             </button>
             <button class="team-card" type="button" data-member="2" data-tilt disabled data-reveal style="--reveal-order: 3">
               <span class="team-index" aria-hidden="true">03</span>
               <span class="team-visual" aria-hidden="true"><span class="device"><span class="device-label">TM-03</span></span></span>
               <strong class="team-name">Team Member 03</strong>
-              <small class="team-role">Role / specialty</small>
-              <span class="team-action"><span>View work and achievements</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
+              <small class="team-role">Frontend Developer</small>
+              <span class="team-action"><span>View role and expertise</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
             </button>
             <button class="team-card" type="button" data-member="3" data-tilt disabled data-reveal style="--reveal-order: 4">
               <span class="team-index" aria-hidden="true">04</span>
               <span class="team-visual" aria-hidden="true"><span class="device"><span class="device-label">TM-04</span></span></span>
               <strong class="team-name">Team Member 04</strong>
-              <small class="team-role">Role / specialty</small>
-              <span class="team-action"><span>View work and achievements</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
+              <small class="team-role">Creative Director</small>
+              <span class="team-action"><span>View role and expertise</span><svg aria-hidden="true" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75"/></svg></span>
             </button>
           </div>
         </section>
 
+        <!-- Testimonials -->
+        <section id="testimonials" aria-labelledby="testimonials-title">
+          <p class="eyebrow" data-reveal>Testimonials</p>
+          <h2 id="testimonials-title" data-reveal>What others<br>will say.</h2>
+          <p class="section-intro" data-reveal>Verified feedback will be shared here as completed work is approved for publication.</p>
+          <div class="testimonials-grid">
+            <article class="testimonial-card" data-reveal style="--reveal-order: 1">
+              <span class="testimonial-source" aria-hidden="true">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+              </span>
+              <h3>Academic collaborations</h3>
+              <p>Feedback from academic partners and research-based projects will be published here once approved.</p>
+            </article>
+            <article class="testimonial-card" data-reveal style="--reveal-order: 2">
+              <span class="testimonial-source" aria-hidden="true">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M16 7V5a4 4 0 0 0-8 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+              </span>
+              <h3>Organization projects</h3>
+              <p>Verified client and organization feedback will be added as work is completed and approved for publication.</p>
+            </article>
+            <article class="testimonial-card" data-reveal style="--reveal-order: 3">
+              <span class="testimonial-source" aria-hidden="true">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+              </span>
+              <h3>Volunteer work</h3>
+              <p>Community and volunteer project feedback will be shared here as verified testimonials become available.</p>
+            </article>
+          </div>
+        </section>
+
+        <!-- Contact -->
         <section id="contact" class="contact-panel" aria-labelledby="contact-title" data-reveal>
           <div class="contact-copy">
             <p class="eyebrow">Contact</p>
-            <h2 id="contact-title">Have something useful to build?</h2>
-            <p>Tell us what you are working on and where you need a capable extra set of hands.</p>
+            <h2 id="contact-title">Let's Build Something Meaningful Together.</h2>
+            <p>Whether you're starting with an idea or improving an existing project, AXORA is ready to help transform your vision into practical digital solutions.</p>
           </div>
           <div class="contact-actions">
             <a class="contact-email" href="mailto:your-email@example.com">your-email@example.com</a>
             <p class="contact-warning">Replace this email before launch.</p>
-            <a class="button button-dark" href="mailto:your-email@example.com">Start a conversation</a>
+            <a class="button button-dark" href="mailto:your-email@example.com">Start a Project</a>
           </div>
         </section>
       </main>
 
       <footer class="site-footer">
-        <a class="brand" href="#home" aria-label="AXORA home">AXORA<span aria-hidden="true">.</span></a>
+        <div class="footer-brand">
+          <a class="brand" href="#home" aria-label="AXORA home">AXORA<span aria-hidden="true">.</span></a>
+          <p class="footer-tagline">Turning ideas into meaningful digital solutions.</p>
+        </div>
         <nav aria-label="Footer navigation">
           <a href="#home">Home</a>
+          <a href="#about">About</a>
           <a href="#services">Services</a>
+          <a href="#portfolio">Portfolio</a>
           <a href="#team">Team</a>
           <a href="#contact">Contact</a>
         </nav>
-        <p>Web apps, mobile apps, design, and practical tech support.</p>
+        <div class="footer-services">
+          <p class="footer-col-title">Services</p>
+          <ul>
+            <li><a href="#services">Web Development</a></li>
+            <li><a href="#services">Mobile Development</a></li>
+            <li><a href="#services">Design</a></li>
+            <li><a href="#services">Digital Support</a></li>
+          </ul>
+        </div>
+        <div class="footer-connect">
+          <p class="footer-col-title">Connect</p>
+          <a class="footer-email" href="mailto:your-email@example.com">your-email@example.com</a>
+          <p class="footer-email-warning">Replace this email before launch.</p>
+          <p class="footer-social">Official social profiles will be added before launch.</p>
+        </div>
+        <div class="footer-legal">
+          <p>© 2026 AXORA. All rights reserved.</p>
+          <p class="footer-privacy">Privacy Policy — Coming soon.</p>
+        </div>
       </footer>
     </div>
 
@@ -251,20 +477,20 @@
     <dialog id="team-dialog" aria-labelledby="team-dialog-name">
       <div class="dialog-shell">
         <button type="button" data-dialog-close aria-label="Close team details"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button>
-        <p class="dialog-placeholder">Placeholder content</p>
+        <p class="dialog-placeholder">Team Profile</p>
         <p data-dialog-marker>01</p>
         <h2 id="team-dialog-name" data-dialog-name>Team Member 01</h2>
-        <p data-dialog-role>Role / specialty</p>
-        <p data-dialog-bio>Add this team member's short biography, focus, and approach here.</p>
-        <section data-dialog-achievements aria-labelledby="achievements-title">
-          <h3 id="achievements-title">Achievements</h3>
-          <p>Achievement placeholder 01</p>
-          <p>Achievement placeholder 02</p>
+        <p data-dialog-role>Client Success Lead</p>
+        <p data-dialog-bio>Driving client relationships and ensuring every project delivers real value through clear communication and strategic planning.</p>
+        <section data-dialog-achievements aria-labelledby="skills-title">
+          <h3 id="skills-title">Skills &amp; expertise</h3>
+          <p>Client communication</p>
+          <p>Project coordination</p>
         </section>
-        <section data-dialog-work aria-labelledby="work-title">
-          <h3 id="work-title">Selected work</h3>
-          <article><h4>Project placeholder 01</h4><p>Add a short project summary and contribution.</p></article>
-          <article><h4>Project placeholder 02</h4><p>Add a short project summary and contribution.</p></article>
+        <section data-dialog-work aria-labelledby="role-title">
+          <h3 id="role-title">Role focus</h3>
+          <p>Bridging the gap between client goals and technical delivery</p>
+          <p>Managing timelines, expectations, and deliverables</p>
         </section>
       </div>
     </dialog>

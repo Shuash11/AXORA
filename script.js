@@ -158,16 +158,11 @@
     }
 
     const membersByIndex = [
-      'Team Member 01',
-      'Team Member 02',
-      'Team Member 03',
-      'Team Member 04',
+      { name: 'Team Member 01', role: 'Client Success Lead', bio: 'Driving client relationships and ensuring every project delivers real value through clear communication and strategic planning.', skills: ['Client communication', 'Project coordination'], focus: ['Bridging the gap between client goals and technical delivery', 'Managing timelines, expectations, and deliverables'] },
+      { name: 'Team Member 02', role: 'Lead Developer', bio: 'Building reliable, scalable systems with a focus on clean architecture and practical performance.', skills: ['Full-stack development', 'System architecture'], focus: ['Designing robust backend services and APIs', 'Ensuring code quality and technical documentation'] },
+      { name: 'Team Member 03', role: 'Frontend Developer', bio: 'Crafting responsive, accessible interfaces that feel intuitive and perform smoothly across devices.', skills: ['Responsive development', 'Accessibility'], focus: ['Translating designs into pixel-perfect interfaces', 'Optimizing frontend performance and user experience'] },
+      { name: 'Team Member 04', role: 'Creative Director', bio: 'Shaping visual identity and creative direction to ensure every project communicates with clarity and impact.', skills: ['Visual design', 'Brand strategy'], focus: ['Defining creative direction and design systems', 'Ensuring visual consistency across all deliverables'] },
     ];
-    const roleText = 'Role / specialty';
-    const bioText = "Add this team member's short biography, focus, and approach here.";
-    const achievementTexts = ['Achievement placeholder 01', 'Achievement placeholder 02'];
-    const projectTexts = ['Project placeholder 01', 'Project placeholder 02'];
-    const projectSummary = 'Add a short project summary and contribution.';
     let trigger;
     let selectedMember;
     let closeTimer;
@@ -182,31 +177,28 @@
     }
 
     function populate(index) {
+      const member = membersByIndex[index];
       const number = String(index + 1).padStart(2, '0');
       marker.textContent = number;
-      name.textContent = membersByIndex[index];
-      role.textContent = roleText;
-      bio.textContent = bioText;
+      name.textContent = member.name;
+      role.textContent = member.role;
+      bio.textContent = member.bio;
 
-      const achievementsTitle = document.createElement('h3');
-      achievementsTitle.id = 'achievements-title';
-      achievementsTitle.textContent = 'Achievements';
-      replaceTextChildren(achievements, 'p', achievementTexts);
-      achievements.prepend(achievementsTitle);
+      const skillsTitle = document.createElement('h3');
+      skillsTitle.id = 'skills-title';
+      skillsTitle.textContent = 'Skills & expertise';
+      replaceTextChildren(achievements, 'p', member.skills);
+      achievements.prepend(skillsTitle);
 
-      const workTitle = document.createElement('h3');
-      workTitle.id = 'work-title';
-      workTitle.textContent = 'Selected work';
-      const projects = projectTexts.map((project) => {
-        const article = document.createElement('article');
-        const heading = document.createElement('h4');
-        const summary = document.createElement('p');
-        heading.textContent = project;
-        summary.textContent = projectSummary;
-        article.replaceChildren(heading, summary);
-        return article;
+      const focusTitle = document.createElement('h3');
+      focusTitle.id = 'role-title';
+      focusTitle.textContent = 'Role focus';
+      const focusItems = member.focus.map((item) => {
+        const p = document.createElement('p');
+        p.textContent = item;
+        return p;
       });
-      work.replaceChildren(workTitle, ...projects);
+      work.replaceChildren(focusTitle, ...focusItems);
     }
 
     function openDialog() {
@@ -303,7 +295,7 @@
     const header = document.querySelector('.site-header');
     const greeter = document.querySelector('.scroll-greeter');
     const footer = document.querySelector('.site-footer');
-    const sectionIds = ['home', 'services', 'team', 'contact'];
+    const sectionIds = ['home', 'about', 'services', 'portfolio', 'team', 'contact'];
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter((section) => section != null);

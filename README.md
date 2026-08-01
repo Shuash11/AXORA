@@ -1,17 +1,24 @@
 # AXORA Landing Page
 
-A complete, dependency-free AXORA landing page with Home, Services, a four-person Team showcase, and Contact. It uses CSS 3D presentation and native JavaScript enhancements while remaining usable as a direct `index.html` file and with reduced motion enabled.
+A complete, dependency-free AXORA landing page with Home, About, Services, Why AXORA, Portfolio, Team, Testimonials, and Contact. It uses CSS 3D presentation and native JavaScript enhancements while remaining usable as a direct `index.html` file and with reduced motion enabled.
 
 ## Before launch
 
 Replace every draft placeholder before publishing:
 
-- `Team Member 01`, `Team Member 02`, `Team Member 03`, and `Team Member 04`
-- Every `Role / specialty` label
-- The placeholder dialog biography, achievements, and projects
-- `your-email@example.com`
+**Member profiles** — replace `Team Member 01` through `Team Member 04`, role labels, dialog bio, skills, and focus areas. Update in `index.html`, `script.js`, and `tests/hero-markup.test.mjs`.
 
-Team names, roles, and dialog biography, achievements, and projects are deliberately duplicated for the static progressive fallback and JavaScript enhancement. Replace them together in the static visible Team cards and dialog fallback in `index.html`, the dynamic member names and dialog placeholder constants in `script.js`, and the locked expectations in `tests/hero-markup.test.mjs`. The contact email is in `index.html` and its expected string is in `tests/hero-markup.test.mjs`. Update every listed source together, then run `npm test` and `npm run verify:static`; there is no single source of truth for these draft values.
+**Photos** — supply five hero event photos and four team member portraits (Members 02–04 need portraits; Member 01 already has one). Remove the placeholder device cards (`TM-02`, `TM-03`, `TM-04`) and swap in real images.
+
+**Contact** — replace `your-email@example.com` in `index.html` and its expected string in `tests/hero-markup.test.mjs`.
+
+**Portfolio** — replace the "Selected work is being prepared for publication" placeholders with real project screenshots and descriptions as work is approved for publication.
+
+**Testimonials** — replace the honest pre-launch cards with verified client feedback as reviews are approved.
+
+**Social profiles** — add official social destinations once available. The social section currently shows a pre-launch notice.
+
+**Legal** — supply final Privacy Policy text. Terms of Service is optional and will not be a dead link.
 
 Do not add social or contact claims until real destinations and details are available.
 

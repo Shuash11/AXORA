@@ -55,40 +55,58 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.equal((html.match(/<main\b/gi) ?? []).length, 1);
   assert.equal((html.match(/<footer\b[^>]*\bclass="[^"]*\bsite-footer\b[^"]*"/gi) ?? []).length, 1);
   assert.match(html, /AXORA<span aria-hidden="true">\.<\/span>/);
-  for (const id of ['home', 'services', 'team', 'contact']) {
-    assert.match(html, new RegExp(`<section[^>]+id="${id}"`, 'i'));
+
+  /* === Section order: home, about, services, why-axora, portfolio, team, testimonials, contact === */
+  for (const id of ['home', 'about', 'services', 'why-axora', 'portfolio', 'team', 'testimonials', 'contact']) {
+    assert.match(html, new RegExp(`<section[^>]+id="${id}"`, 'i'), `section#${id} must exist`);
   }
   const sectionIds = [...html.matchAll(/<section\b[^>]*\bid="([^"]+)"/gi)].map((match) => match[1]);
-  assert.deepEqual(sectionIds, ['home', 'services', 'team', 'contact']);
+  const expectedOrder = ['home', 'about', 'services', 'why-axora', 'portfolio', 'team', 'testimonials', 'contact'];
+  assert.deepEqual(sectionIds, expectedOrder, 'sections must follow the required order');
+
+  /* === Primary nav: Home, About, Services, Portfolio, Team, Contact === */
   const header = html.match(/<header\b[\s\S]*?<\/header>/i)?.[0] ?? '';
   const footer = html.match(/<footer\b[\s\S]*?<\/footer>/i)?.[0] ?? '';
-  for (const target of ['#home', '#services', '#team', '#contact']) {
-    assert.match(header, new RegExp(`href="${target}"`));
-    assert.match(footer, new RegExp(`href="${target}"`));
+  for (const target of ['#home', '#about', '#services', '#portfolio', '#team', '#contact']) {
+    assert.match(header, new RegExp(`href="${target}"`), `header nav must link to ${target}`);
+    assert.match(footer, new RegExp(`href="${target}"`), `footer nav must link to ${target}`);
   }
   assert.match(html, /<button class="nav-toggle"[^>]*aria-controls="primary-nav"[^>]*aria-expanded="false"[^>]*aria-label="Open navigation"[^>]*hidden>/);
-  assert.match(html, /<nav id="primary-nav" class="site-nav" aria-label="Primary navigation">\s*<a class="load-item" href="#home"[^>]*>Home<\/a>\s*<a class="load-item" href="#services"[^>]*>Services<\/a>\s*<a class="load-item" href="#team"[^>]*>Team<\/a>\s*<a class="load-item" href="#contact"[^>]*>Contact<\/a>/);
+  assert.match(html, /<nav id="primary-nav" class="site-nav" aria-label="Primary navigation">/);
+  assert.match(html, /href="#home"[^>]*>Home<\/a>/);
+  assert.match(html, /href="#about"[^>]*>About<\/a>/);
+  assert.match(html, /href="#services"[^>]*>Services<\/a>/);
+  assert.match(html, /href="#portfolio"[^>]*>Portfolio<\/a>/);
+  assert.match(html, /href="#team"[^>]*>Team<\/a>/);
+  assert.match(html, /href="#contact"[^>]*>Contact<\/a>/);
+  /* Primary nav must follow the exact section order */
+  const primaryNav = header.match(/<nav\b[^>]*id="primary-nav"[^>]*>([\s\S]*?)<\/nav>/i)?.[1] ?? '';
+  const primaryNavLinks = [...primaryNav.matchAll(/<a\b[^>]*href="#([a-z0-9-]+)"[^>]*>([^<]+)<\/a>/gi)].map((m) => m[1]);
+  assert.deepEqual(primaryNavLinks, ['home', 'about', 'services', 'portfolio', 'team', 'contact'], 'primary nav must list links in section order');
   assert.match(header, /<span class="nav-toggle-label">Menu<\/span>/);
-  assert.match(css, /^\.site-nav\s*\{[^}]*display:\s*flex/m, 'the desktop nav must be visible without JS (only the mobile dropdown hides it inside the 767px media query)');
-  assert.match(header, /href="#contact"[^>]*>Let’s talk<\/a>/);
+  assert.match(css, /^\.site-nav\s*\{[^}]*display:\s*flex/m, 'the desktop nav must be visible without JS');
+  assert.match(header, /href="#contact"[^>]*>Let.s talk<\/a>/);
 
   assert.doesNotMatch(html, /AXORA\s*·\s*VIRTUAL ASSISTANTS/i, 'the stale hero eyebrow must be gone');
   assert.doesNotMatch(html, /Skilled hands,|ready to help\./i, 'the old headline must be gone');
   const heroIdentity = html.match(/<p class="hero-identity load-item"[^>]*>([\s\S]*?)<\/p>/)?.[1] ?? '';
   assert.ok(heroIdentity, 'the hero identity must be a hero-specific two-line block');
-  assert.match(heroIdentity, /^\s*<strong>AXORA<\/strong>\s*<span>Digital Solutions Studio<\/span>\s*$/m, 'the identity must be exactly AXORA / Digital Solutions Studio as two real markup lines');
+  assert.match(heroIdentity, /^\s*<strong>AXORA<\/strong>\s*<span>Digital Solutions Studio<\/span>\s*$/m, 'the identity must be exactly AXORA / Digital Solutions Studio');
   assert.doesNotMatch(heroIdentity, /[·|—–]/, 'the identity must not fake two lines with a separator character');
   const heroH1 = html.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/)?.[0] ?? '';
   assert.match(heroH1, /^<h1 id="hero-title" class="load-item" style="--order: 1">Turning Ideas Into<br><em>Solutions\.<\/em><\/h1>$/, 'the hero H1 must keep its designed line break and gradient emphasis');
   const renderedHeadline = heroH1.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
   assert.equal(renderedHeadline, 'Turning Ideas Into Solutions.', 'the rendered headline text must be exactly "Turning Ideas Into Solutions."');
   assert.match(html, /<title>AXORA — Turning Ideas Into Solutions<\/title>/, 'the document title must drop the stale headline');
-  assert.doesNotMatch(html, /Meet AXORA—the skilled virtual assistants behind every task, system, and solution, ready to make your digital work run smoother\./, 'the previous virtual-assistant description must be gone');
   assert.match(html, /<p class="lede load-item"[^>]*>AXORA is a digital solutions studio helping businesses, entrepreneurs, and organizations transform ideas into practical digital products through development, design, and reliable digital support\.<\/p>/, 'the hero must contain the approved studio description');
+
+  /* === Hero CTAs: Explore services, Meet the team, Start a Project === */
   const heroActions = html.match(/<div class="hero-actions load-item"([^>]*)>([\s\S]*?)<\/div>/)?.[0] ?? '';
   assert.doesNotMatch(heroActions, /aria-label=/);
   assert.match(heroActions, /href="#services"[^>]*>Explore services/);
   assert.match(heroActions, /href="#team"[^>]*>Meet the team/);
+  assert.match(heroActions, /href="#contact"[^>]*>Start a Project/);
+
   const chips = html.match(/<ul class="chips load-item"[^>]*aria-label="Capabilities">([\s\S]*?)<\/ul>/)?.[1] ?? '';
   for (const label of ['Web apps', 'Mobile apps', 'Design', 'Tech support']) {
     assert.match(chips, new RegExp(`<li class="chip">[\\s\\S]*?<svg\\b[\\s\\S]*?<span>${escapeRegExp(label)}<\\/span>`));
@@ -114,57 +132,140 @@ test('full landing page has the required semantic sections, navigation, and cont
   assert.match(html, /<div class="scene-back scene-back-b" aria-hidden="true"><\/div>/);
   assert.match(html, /<p class="scene-count" aria-hidden="true"><span data-count-current>01<\/span> \/ 05<\/p>/);
   assert.match(html, /<div class="stage">/);
+});
 
-  const services = [
-    ['Web applications', 'Responsive web experiences and practical browser-based tools shaped around the way you work.'],
-    ['Mobile applications', 'Focused mobile products and companion experiences designed for everyday use.'],
-    ['UI/UX and visual design', 'Clear interfaces, thoughtful interaction flows, and visual systems that make digital products easier to use.'],
-    ['Technical support', 'Flexible help with websites, systems, content updates, troubleshooting, and other day-to-day digital tasks.'],
-  ];
-  const serviceClasses = ['service-web', 'service-mobile', 'service-design', 'service-support'];
-  assert.equal(classCount(html, 'service-card'), 4);
-  services.forEach(([title, copy], index) => {
-    assert.match(html, new RegExp(`<article[^>]*class="service-card ${serviceClasses[index]}"[^>]*data-tilt[^>]*tabindex="0"[^>]*data-reveal[^>]*>[\\s\\S]*?<svg\\b[\\s\\S]*?<h3>${escapeRegExp(title)}<\\/h3>[\\s\\S]*?${escapeRegExp(copy)}`));
-    assert.match(html, new RegExp(`<span class="service-index" aria-hidden="true">0${index + 1}<\\/span>`));
-  });
+test('About section contains required copy and value tiles', () => {
+  const about = html.match(/<section id="about"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  assert.ok(about, 'the About section must exist');
+  assert.match(about, /eyebrow/i, 'About must have an eyebrow');
+  assert.match(html, /About AXORA/i, 'About section must have the eyebrow "About AXORA"');
+  assert.match(about, /AXORA is a Digital Solutions Studio dedicated to helping businesses, entrepreneurs, startups, and organizations solve problems through technology, design, and digital support/, 'Who We Are text must be present');
+  assert.match(about, /To empower businesses by delivering innovative, reliable, and client focused digital solutions through collaboration, creativity, and technology/, 'Mission text must be present');
+  assert.match(about, /To become a trusted digital solutions partner recognized for transforming ideas into meaningful digital experiences and long term business success/, 'Vision text must be present');
+  assert.match(about, /AXORA was born from a moment of inspiration during an IT Summit\. Surrounded by innovators and industry professionals, we realized that opportunity begins the moment you choose to step forward\. Inspired by that experience, we combined our strengths in development, design, and digital support to create a team dedicated to delivering meaningful digital solutions through collaboration, creativity, and technology\./, 'Our Story must contain the complete approved paragraph');
+  const valueTileOpenings = [...about.matchAll(/<div\b(?=[^>]*\bclass="[^"]*\bvalue-tile\b[^"]*")[^>]*>/g)].map((match) => match[0]);
+  assert.equal(valueTileOpenings.length, 5, 'five complete value-tile opening tags must exist');
+  const coreValuePairs = [...about.matchAll(/<div\b(?=[^>]*\bclass="[^"]*\bvalue-tile\b[^"]*")[^>]*>\s*<span class="value-letter" aria-hidden="true">([A-Z])<\/span>\s*<span class="value-name">([^<]+)<\/span>/g)]
+    .map((match) => [match[1], match[2]]);
+  assert.deepEqual(coreValuePairs, [
+    ['A', 'Accountability'],
+    ['X', 'Excellence'],
+    ['O', 'Openness'],
+    ['R', 'Reliability'],
+    ['A', 'Adaptability'],
+  ], 'Core Value letter/name pairs must be exact and ordered');
+  /* Static value tiles must not be keyboard-focusable after their class attribute. */
+  for (const opening of valueTileOpenings) {
+    const classAttribute = opening.match(/\bclass="[^"]*"/)?.[0] ?? '';
+    const afterClassAttribute = opening.slice(opening.indexOf(classAttribute) + classAttribute.length);
+    assert.doesNotMatch(afterClassAttribute, /\btabindex\b/, `static value-tile must not have tabindex after its class attribute: ${opening}`);
+  }
+});
 
-  assert.match(html, /<h2 id="services-title"[^>]*>What we build<br>and support\.<\/h2>\s*<p class="section-intro"[^>]*>Practical digital assistance for products, systems, and the everyday work around them\.<\/p>/);
-  assert.match(html, /<h2 id="team-title"[^>]*>Four people,<br>one shared standard\.<\/h2>\s*<p class="section-intro"[^>]*>AXORA combines different technical and creative strengths to make digital work clearer and easier to move forward\.<\/p>/);
+test('Services section has updated copy and semantic service lists', () => {
+  const services = html.match(/<section id="services"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  assert.ok(services, 'the Services section must exist');
+  assert.match(services, /We design, build, and support digital solutions that help businesses work smarter, connect better, and grow with confidence\./, 'services intro must be updated');
+  /* Card titles updated */
+  assert.match(html, /<h3>Web Development<\/h3>/, 'Web card title must be "Web Development"');
+  assert.match(html, /<h3>Mobile Development<\/h3>/, 'Mobile card title must be "Mobile Development"');
+  assert.match(html, /<h3>Design<\/h3>/, 'Design card title must be "Design"');
+  assert.match(html, /<h3>Digital Support<\/h3>/, 'Digital Support card title must be "Digital Support"');
+  /* Service lists present */
+  assert.match(services, /Business Websites/, 'Web Development list item');
+  assert.match(services, /Web Applications/, 'Web Development list item');
+  assert.match(services, /Custom Systems/, 'Web Development list item');
+  assert.match(services, /Landing Pages/, 'Web Development list item');
+  assert.match(services, /Website Maintenance/, 'Web Development list item');
+  assert.match(services, /Android Applications/, 'Mobile Development list item');
+  assert.match(services, /Cross Platform Apps/, 'Mobile Development list item');
+  assert.match(services, /Mobile Solutions/, 'Mobile Development list item');
+  assert.match(services, /Brand Identity/, 'Design list item');
+  assert.match(services, /Logo Design/, 'Design list item');
+  assert.match(services, /UI Design/, 'Design list item');
+  assert.match(services, /UX Design/, 'Design list item');
+  assert.match(services, /Marketing Graphics/, 'Design list item');
+  assert.match(services, /Technical Support/, 'Digital Support list item');
+  assert.match(services, /Administrative Support/, 'Digital Support list item');
+  assert.match(services, /Documentation/, 'Digital Support list item');
+  assert.match(services, /Process Optimization/, 'Digital Support list item');
+});
+
+test('Why Choose AXORA section has required items', () => {
+  const why = html.match(/<section id="why-axora"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  assert.ok(why, 'the why-axora section must exist');
+  assert.match(why, /Multidisciplinary Team/);
+  assert.match(why, /Different specialists working together to deliver complete solutions\./);
+  assert.match(why, /Client Focused Approach/);
+  assert.match(why, /Every solution is tailored to your goals and requirements\./);
+  assert.match(why, /Reliable Delivery/);
+  assert.match(why, /We value professionalism, communication, and accountability\./);
+  assert.match(why, /Modern Technology/);
+  assert.match(why, /We use current tools and best practices to create scalable digital solutions\./);
+  assert.match(why, /Long Term Partnership/);
+  assert.match(why, /We continue supporting your business even after project completion\./);
+  /* Static why cards must not be keyboard-focusable after their class attribute. */
+  const whyCardOpenings = [...why.matchAll(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*")[^>]*>/g)].map((match) => match[0]);
+  assert.equal(whyCardOpenings.length, 5, 'five complete why-card opening tags must exist');
+  for (const opening of whyCardOpenings) {
+    const classAttribute = opening.match(/\bclass="[^"]*"/)?.[0] ?? '';
+    const afterClassAttribute = opening.slice(opening.indexOf(classAttribute) + classAttribute.length);
+    assert.doesNotMatch(afterClassAttribute, /\btabindex\b/, `static why-card must not have tabindex after its class attribute: ${opening}`);
+  }
+});
+
+test('Portfolio section has categories and honest pre-launch state', () => {
+  const portfolio = html.match(/<section id="portfolio"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  assert.ok(portfolio, 'the portfolio section must exist');
+  for (const cat of ['Websites', 'Mobile Apps', 'Branding Projects', 'UI/UX Designs', 'Graphics', 'Academic Projects']) {
+    assert.match(portfolio, new RegExp(escapeRegExp(cat)), `portfolio must include category: ${cat}`);
+  }
+  assert.match(portfolio, /Academic Projects/i, 'Academic Projects must be clearly labeled');
+  assert.match(portfolio, /Selected work is being prepared for publication|being prepared for publication/i, 'portfolio must have honest pre-launch state');
+  assert.doesNotMatch(portfolio, /Lorem ipsum/i, 'no lorem ipsum in portfolio');
+  /* Static portfolio cards must not be keyboard-focusable (no tabindex) */
+  const portfolioCards = [...html.matchAll(/<article\b[^>]*class="portfolio-card[^"]*"[^>]*>/g)];
+  assert.ok(portfolioCards.length >= 6, 'at least six portfolio cards');
+  for (const card of portfolioCards) {
+    assert.doesNotMatch(card[0], /tabindex/, `static portfolio-card must not have tabindex: ${card[0].slice(0, 80)}`);
+  }
+});
+
+test('Team section has updated roles and dialog data', () => {
+  const team = html.match(/<section id="team"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  assert.ok(team, 'the team section must exist');
   assert.equal(classCount(html, 'team-card'), 4);
   const member01PortraitPath = 'member images/762542297_1046525607966526_6264202658131260171_n.jpg';
   assert.ok(existsSync(member01PortraitPath), 'the Member 01 portrait source file must exist on disk');
   const member01EncodedSrc = 'member%20images/762542297_1046525607966526_6264202658131260171_n.jpg';
+
+  /* Check that roles are updated */
+  const roles = [...html.matchAll(/<small class="team-role">([^<]+)<\/small>/g)].map(m => m[1]);
+  assert.equal(roles.length, 4, 'four team cards must have roles');
+  assert.equal(roles[0], 'Client Success Lead', 'Member 01 role');
+  assert.equal(roles[1], 'Lead Developer', 'Member 02 role');
+  assert.equal(roles[2], 'Frontend Developer', 'Member 03 role');
+  assert.equal(roles[3], 'Creative Director', 'Member 04 role');
+
   for (let index = 0; index < 4; index += 1) {
     const number = String(index + 1).padStart(2, '0');
-    assert.match(html, new RegExp(`<button[^>]*class="team-card"[^>]*data-member="${index}"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>[\\s\\S]*?${number}[\\s\\S]*?Team Member ${number}[\\s\\S]*?<small class="team-role">Role / specialty<\\/small>[\\s\\S]*?View work and achievements`));
+    assert.match(html, new RegExp(`<button[^>]*class="team-card"[^>]*data-member="${index}"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>[\\s\\S]*?${number}[\\s\\S]*?Team Member ${number}`));
   }
+
   const member01Card = html.match(/<button[^>]*class="team-card"[^>]*data-member="0"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>([\s\S]*?)<\/button>/)?.[0] ?? '';
   assert.ok(member01Card, 'Member 01 card must be matched');
-  assert.match(member01Card, new RegExp(`<img[^>]*class="team-photo"[^>]*src="${escapeRegExp(member01EncodedSrc)}"[^>]*alt=""[^>]*width="1086"[^>]*height="1448"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`), 'Member 01 must contain the portrait image with correct attributes');
+  assert.match(member01Card, new RegExp(`<img[^>]*class="team-photo"[^>]*src="${escapeRegExp(member01EncodedSrc)}"[^>]*alt=""[^>]*width="1086"[^>]*height="1448"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`), 'Member 01 must contain the portrait image');
   assert.doesNotMatch(member01Card, /device-label/, 'Member 01 must not contain a device-label');
   for (let index = 1; index < 4; index += 1) {
-    const number = String(index + 1).padStart(2, '0');
-    assert.match(html, new RegExp(`<span class="device-label">TM-0${index + 1}<\\/span>`), `Members 02-04 must retain device labels (${number})`);
+    assert.match(html, new RegExp(`<span class="device-label">TM-0${index + 1}<\\/span>`), `Members 02-04 must retain device labels`);
   }
-  assert.equal((html.match(/<small class="team-role">Role \/ specialty<\/small>/g) ?? []).length, 4);
-  assert.equal((html.match(/View work and achievements/g) ?? []).length, 4);
 
-  const contact = html.match(/<section id="contact" class="contact-panel"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
-  for (const text of ['Have something useful to build?', 'Tell us what you are working on and where you need a capable extra set of hands.', 'mailto:your-email@example.com', 'Replace this email before launch.', 'Start a conversation']) assert.ok(contact.includes(text));
+  /* Dialog must use role-based content, not generic placeholder wording */
   const dialog = html.match(/<dialog id="team-dialog"[^>]*>([\s\S]*?)<\/dialog>/)?.[1] ?? '';
   assert.ok(dialog, 'the native team dialog must be present');
-  for (const hook of ['data-dialog-close', 'data-dialog-name', 'data-dialog-marker', 'data-dialog-role', 'data-dialog-bio', 'data-dialog-achievements', 'data-dialog-work']) assert.ok(dialog.includes(hook));
-  for (const text of ['Team Member 01', 'Role / specialty', "Add this team member's short biography, focus, and approach here.", '01', '02', 'Add a short project summary and contribution.', 'Placeholder content']) assert.ok(dialog.includes(text));
-  const achievements = dialog.match(/<section data-dialog-achievements[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
-  const achievementLabels = [...achievements.matchAll(/<p>Achievement placeholder (0[12])<\/p>/g)].map((match) => match[1]);
-  assert.deepEqual(achievementLabels, ['01', '02']);
-  const work = dialog.match(/<section data-dialog-work[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
-  const projectLabels = [...work.matchAll(/<article>\s*<h4>Project placeholder (0[12])<\/h4>[\s\S]*?<\/article>/g)].map((match) => match[1]);
-  assert.deepEqual(projectLabels, ['01', '02']);
-  assert.equal((work.match(/Add a short project summary and contribution\./g) ?? []).length, 2);
-  assert.match(footer, /Web apps, mobile apps, design, and practical tech support\./);
-  assert.match(html, /<script\s+src="script\.js"\s+defer><\/script>/i);
-  assert.doesNotMatch(html, /<script\b(?=[^>]*\bsrc="script\.js")(?=[^>]*\btype="module")[^>]*>/i);
+  assert.doesNotMatch(dialog, /Achievement placeholder/, 'dialog must not contain generic "Achievement placeholder" text');
+  assert.doesNotMatch(dialog, /Project placeholder/, 'dialog must not contain generic "Project placeholder" text');
+  assert.doesNotMatch(dialog, /Role \/ specialty/, 'dialog must not show generic "Role / specialty" — should show actual roles');
 });
 
 test('embedded favicon is the canonical safe SVG data URI', () => {
@@ -236,6 +337,55 @@ test('five event photo slides preserve the exact local image mapping and caption
   assert.doesNotMatch(html, /carousel-toggle/);
 });
 
+test('Testimonials section has honest pre-launch state', () => {
+  const testimonials = html.match(/<section id="testimonials"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  assert.ok(testimonials, 'the testimonials section must exist');
+  assert.match(testimonials, /Academic collaborations/i, 'testimonials must include academic collaborations');
+  assert.match(testimonials, /Organization projects/i, 'testimonials must include organization projects');
+  assert.match(testimonials, /Volunteer work/i, 'testimonials must include volunteer work');
+  assert.match(testimonials, /Verified feedback will be shared here as completed work is approved for publication\./i, 'testimonials must include the approved future-feedback statement');
+  assert.doesNotMatch(testimonials, /Lorem ipsum/i, 'no lorem ipsum');
+  assert.doesNotMatch(testimonials, /★★★|star rating|⭐/i, 'no fake star ratings');
+});
+
+test('Contact section has updated copy', () => {
+  const contact = html.match(/<section id="contact" class="contact-panel"[^>]*>([\s\S]*?)<\/section>/)?.[1] ?? '';
+  assert.ok(contact, 'the contact section must exist');
+  assert.match(contact, /<h2 id="contact-title">Let's Build Something Meaningful Together\.<\/h2>/, 'contact heading');
+  assert.match(contact, /Whether you.re starting with an idea or improving an existing project, AXORA is ready to help transform your vision into practical digital solutions\./, 'contact supporting text');
+  assert.match(contact, /mailto:your-email@example.com/, 'contact email');
+  assert.match(contact, /Replace this email before launch\./, 'contact warning');
+  assert.match(contact, /<a class="button button-dark" href="mailto:your-email@example\.com">Start a Project<\/a>/, 'contact CTA');
+});
+
+test('Footer has expanded navigation, services, connect sections', () => {
+  const footer = html.match(/<footer\b[\s\S]*?<\/footer>/i)?.[0] ?? '';
+  assert.ok(footer, 'footer must exist');
+  /* Quick nav links */
+  const footerNav = footer.match(/<nav\b[^>]*aria-label="Footer navigation"[^>]*>([\s\S]*?)<\/nav>/i)?.[1] ?? '';
+  assert.ok(footerNav, 'footer navigation must exist');
+  for (const target of ['#home', '#about', '#services', '#portfolio', '#team', '#contact']) {
+    assert.match(footerNav, new RegExp(`href="${target}"`), `footer navigation must link to ${target}`);
+  }
+  const footerNavLinks = [...footerNav.matchAll(/<a\b[^>]*href="#([a-z0-9-]+)"[^>]*>[^<]+<\/a>/gi)].map((match) => match[1]);
+  assert.deepEqual(footerNavLinks, ['home', 'about', 'services', 'portfolio', 'team', 'contact'], 'footer navigation links must follow the exact quick-nav order');
+  /* Service group names */
+  assert.match(footer, /Web Development/i, 'footer must list Web Development');
+  assert.match(footer, /Mobile Development/i, 'footer must list Mobile Development');
+  assert.match(footer, /Design/i, 'footer must list Design');
+  assert.match(footer, /Digital Support/i, 'footer must list Digital Support');
+  /* Placeholder email */
+  assert.match(footer, /your-email@example\.com/, 'footer must display placeholder email');
+  /* Copyright */
+  assert.match(footer, /© 2026 AXORA\. All rights reserved\./, 'footer must have copyright');
+  /* Social profiles state */
+  assert.match(footer, /social profiles will be added|official social profiles/i, 'footer must state social profiles are pending');
+  assert.doesNotMatch(footer, /href="#"/, 'no dead # links in footer');
+  /* Privacy policy */
+  assert.match(footer, /Privacy Policy/i, 'footer must include Privacy Policy label');
+  assert.doesNotMatch(footer, /Terms of Service is optional/, 'footer must not contain internal dev sentence');
+});
+
 test('styles define the white 3D studio design with motion safeguards', () => {
   for (const color of ['#F8FAFF', '#FFFFFF', '#F0F3FF', '#E7ECFF', '#172033', '#667086', '#6268F4', '#3640C8', '#FF795C', '#6CC9B8']) assert.match(css, new RegExp(color, 'i'));
   for (const font of ['Fraunces', 'DM Sans', 'DM Mono']) assert.match(css, new RegExp(font));
@@ -267,6 +417,12 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scroll-greeter\.is-visible \.greeter-bubble\s*\{[^}]*opacity:\s*1\s*!important[^}]*transform:\s*none\s*!important/);
   assert.match(css, /\.js \[data-reveal\]\s*\{[^}]*opacity:\s*0[^}]*translateY\(26px\)\s+rotateX\(3deg\)/, 'reveal must settle with a 20-32px rise and subtle rotateX');
   assert.match(css, /\.js \[data-reveal\]\.is-revealed\s*\{[^}]*opacity:\s*1/);
+  assert.match(css, /\.js \[data-tilt\]\[data-reveal\]\.is-revealed\s*\{[^}]*transform:\s*rotateX\(clamp\(-3deg,\s*var\(--tilt-x,\s*0deg\),\s*3deg\)\)\s*rotateY\(clamp\(-3deg,\s*var\(--tilt-y,\s*0deg\),\s*3deg\)\)\s*translateY\(var\(--lift,\s*0px\)\)/, 'revealed tilt cards must preserve the non-inverted base tilt orientation and lift');
+  assert.match(css, /\.values-label\s*\{[^}]*color:\s*var\(--text-dim\)/, 'values label must use the approved contrast-safe text token');
+  assert.doesNotMatch(css, /\.values-label\s*\{[^}]*color:\s*var\(--text-faint\)/, 'values label must not use the low-contrast text-faint token');
+  assert.match(css, /\.footer-privacy\s*\{[^}]*color:\s*var\(--text-dim\)/, 'footer privacy label must use the approved contrast-safe text token');
+  assert.doesNotMatch(css, /\.footer-privacy\s*\{[^}]*color:\s*var\(--text-faint\)/, 'footer privacy label must not use the low-contrast text-faint token');
+  assert.match(css, /@media \(hover:\s*none\),\s*\(pointer:\s*coarse\)\s*\{[\s\S]*?\.js \[data-tilt\]\[data-reveal\]\.is-revealed\s*\{[^}]*--lift:\s*0px[^}]*transform:\s*none\s*;/, 'coarse pointers must explicitly clear revealed tilt transforms and lift');
   assert.match(css, /@media \(prefers-reduced-motion:\s*no-preference\)[\s\S]*?\.load-item\s*\{[^}]*animation:\s*rise/);
   assert.match(css, /@keyframes\s+rise\s*\{/);
   assert.match(css, /\.scene-slide\[data-position="0"\]\s*\{[^}]*opacity:\s*1/);
@@ -288,18 +444,56 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /#team-dialog::backdrop\s*\{[^}]*opacity:\s*0/);
   assert.match(css, /#team-dialog\.is-open::backdrop\s*\{[^}]*opacity:\s*1/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.js \[data-reveal\]\s*\{[^}]*opacity:\s*1\s*!important[^}]*transform:\s*none\s*!important/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene,\s*\.service-card,\s*\.team-card\s*\{[^}]*transform:\s*none\s*!important/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene,\s*\.service-card,\s*\.team-card,\s*\.why-card,\s*\.portfolio-card,\s*\.value-tile\s*\{[^}]*transform:\s*none\s*!important/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.load-item\s*\{[^}]*animation:\s*none\s*!important/);
   assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.team-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.service-list,\s*\.team-list\s*\{[^}]*grid-template-columns:\s*1fr/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-actions\s*\{[^}]*grid-template-columns:\s*1fr/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.chips\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, 'mobile capability chips must form a balanced two-column grid');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer \.brand\s*\{[^}]*grid-area:\s*auto/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer \.brand\s*\{[^}]*(?:grid-area:\s*auto|order:\s*1)/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer nav\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, 'mobile footer navigation must use a two-column grid');
-  assert.match(css, /\.nav-toggle\s*\{[^}]*min-block-size:\s*44px[^}]*align-items:\s*center[^}]*justify-content:\s*center/, 'nav toggle must be a 44px-tall tap target (tester: 151x24 at 390/320)');
-  assert.match(css, /@media \(max-width:\s*767px\)\s*\{[\s\S]*?html:not\(\.js\)\s*\.scene-back-a,\s*html:not\(\.js\)\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'no-JS scene backdrop cards must be bounded flush on narrow screens (tester: 390->425, 320->350)');
-  assert.match(css, /@media \(max-width:\s*767px\)\s*and\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.scene-back-a,\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'reduced-motion scene backdrop cards must be bounded flush on narrow screens (tester: 390->404, 320->333)');
+  assert.match(css, /\.nav-toggle\s*\{[^}]*min-block-size:\s*44px[^}]*align-items:\s*center[^}]*justify-content:\s*center/, 'nav toggle must be a 44px-tall tap target');
+  assert.match(css, /@media \(max-width:\s*767px\)\s*\{[\s\S]*?html:not\(\.js\)\s*\.scene-back-a,\s*html:not\(\.js\)\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'no-JS scene backdrop cards must be bounded flush on narrow screens');
+  assert.match(css, /@media \(max-width:\s*767px\)\s*and\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.scene-back-a,\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'reduced-motion scene backdrop cards must be bounded flush on narrow screens');
+  /* New section layout selectors */
+  assert.match(css, /\.about-body\s*\{[^}]*display:\s*grid/, 'about-body must be a grid layout');
+  assert.match(css, /\.about-who\s*\{[^}]*grid-column:\s*span/, 'about-who must be a focal card spanning columns');
+  assert.match(css, /\.values-row\s*\{[^}]*margin/, 'values-row must have spacing');
+  assert.match(css, /\.value-tiles\s*\{[^}]*display:\s*grid/, 'value-tiles must be a grid');
+  assert.match(css, /\.value-tile\s*\{[^}]*border/, 'value-tile must have border for depth');
+  assert.match(css, /\.value-letter\s*\{[^}]*font-family:\s*var\(--display\)/, 'value-letter must use display font');
+  assert.match(css, /\.about-story\s*\{[^}]*border/, 'about-story must have border for plate effect');
+  assert.match(css, /\.service-list-items\s*\{[^}]*list-style:\s*none/, 'service-list-items must be unstyled');
+  assert.match(css, /\.why-grid\s*\{[^}]*display:\s*grid/, 'why-grid must be a grid layout');
+  assert.match(css, /\.why-focal\s*\{[^}]*grid-column:\s*span/, 'why-focal must span columns for dominance');
+  assert.match(css, /\.portfolio-grid\s*\{[^}]*display:\s*grid/, 'portfolio-grid must be a grid layout');
+  assert.match(css, /\.portfolio-preview\s*\{[^}]*aspect-ratio/, 'portfolio-preview must have aspect-ratio');
+  assert.match(css, /\.testimonials-grid\s*\{[^}]*display:\s*grid/, 'testimonials-grid must be a grid layout');
+  assert.match(css, /\.testimonial-card\s*\{[^}]*border/, 'testimonial-card must have border');
+  assert.match(css, /\.footer-brand\s*\{[^}]*display:\s*flex/, 'footer-brand must use flex or grid');
+  assert.match(css, /\.footer-services ul\s*\{[^}]*list-style:\s*none/, 'footer-services list must be unstyled');
+  assert.match(css, /\.footer-legal\s*\{[^}]*display:\s*flex/, 'footer-legal must be flex for row layout');
+  /* Responsive rules for new sections */
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.about-body\s*\{/, 'about-body must have tablet breakpoint');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.portfolio-grid\s*\{[^}]*grid-template-columns:\s*1fr/, 'portfolio-grid must stack on mobile');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.why-grid\s*\{/, 'why-grid must have mobile rule');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.value-tiles\s*\{/, 'value-tiles must have mobile rule');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.value-tiles\s*\{[^}]*grid-template-columns:\s*repeat\(2/, 'value-tiles must collapse to 2 columns at 767px');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.value-tiles \.value-tile:last-child\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/, 'last value tile must span both columns at 767px');
+  assert.match(css, /@media \(max-width:\s*340px\)[\s\S]*?\.value-tiles\s*\{[^}]*grid-template-columns:\s*1fr/, 'value-tiles must collapse to 1 column at 340px');
+  assert.match(css, /@media \(max-width:\s*340px\)[\s\S]*?\.value-tiles \.value-tile:last-child\s*\{[^}]*grid-column:\s*auto/, 'last value tile span must reset at 340px');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.testimonials-grid\s*\{/, 'testimonials-grid must have mobile rule');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.footer-legal\s*\{/, 'footer-legal must have mobile rule');
+  /* Tilt integration for new cards */
+  assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');
+  assert.match(css, /\.why-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'why-card must preserve-3d');
+  assert.match(css, /\.portfolio-card\s*\{[^}]*--tilt-x/, 'portfolio-card must participate in tilt system');
+  assert.match(css, /\.portfolio-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'portfolio-card must preserve-3d');
+  /* Reduced motion coverage for new sections */
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.why-card\s*[,{][^}]*transform:\s*none\s*!important/, 'why-card must respect reduced-motion');
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.portfolio-card\s*[,{][^}]*transform:\s*none\s*!important/, 'portfolio-card must respect reduced-motion');
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.value-tile\s*[,{][^}]*transform:\s*none\s*!important/, 'value-tile must respect reduced-motion');
 });
 
 test('script keeps one RAF scheduler plus one IntersectionObserver and drops stale glow machinery', () => {
@@ -343,6 +537,15 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(spatialMotion, /greeter\.tabIndex = visible \? 0 : -1/);
   assert.match(spatialMotion, /function updateScrollSpy\(\)\s*\{/);
   assert.match(spatialMotion, /link\.classList\.toggle\(['"]is-active['"], active\)/);
+  /* Scroll spy must include new section IDs for navigation highlighting */
+  assert.match(spatialMotion, /const sectionIds = /, 'sectionIds must be defined for scroll spy');
+  assert.match(spatialMotion, /'home'/, 'scroll spy must track home');
+  assert.match(spatialMotion, /'about'/, 'scroll spy must track about');
+  assert.match(spatialMotion, /'services'/, 'scroll spy must track services');
+  assert.match(spatialMotion, /'portfolio'/, 'scroll spy must track portfolio');
+  assert.match(spatialMotion, /'team'/, 'scroll spy must track team');
+  assert.match(spatialMotion, /'contact'/, 'scroll spy must track contact');
+  assert.match(spatialMotion, /const sectionIds = \['home', 'about', 'services', 'portfolio', 'team', 'contact'\]/, 'scroll-spy sectionIds must match the exact section order');
   const reveals = script.match(/function initReveals\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
   assert.match(reveals, /document\.querySelectorAll\(['"]\[data-reveal\]['"]\)/);
   assert.match(reveals, /item\.classList\.add\(['"]is-revealed['"]\)/);
@@ -371,6 +574,10 @@ test('dialog keeps named hooks, focus restoration, and spring entry/exit without
   assert.match(dialog, /selectedMember\?\.classList\.remove\(['"]is-selected['"]\)/);
   assert.doesNotMatch(dialog, /window\.setTimeout\([\s\S]*?\}, 140\)/);
   assert.doesNotMatch(dialog, /pendingOpen/);
+  /* Dialog must use role-based content, not generic placeholders */
+  assert.doesNotMatch(dialog, /Achievement placeholder/, 'dialog populate must not use generic achievement placeholders');
+  assert.doesNotMatch(dialog, /Project placeholder/, 'dialog populate must not use generic project placeholders');
+  assert.doesNotMatch(dialog, /Role \/ specialty/, 'dialog must populate with actual role text, not generic');
 });
 
 test('carousel keeps keyboard, swipe, dots, and arrows with an accessible status', () => {
