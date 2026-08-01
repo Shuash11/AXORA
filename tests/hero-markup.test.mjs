@@ -6,6 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
+const assetVersion = '20260801-2';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -98,6 +99,9 @@ test('full landing page has the required semantic sections, navigation, and cont
   const renderedHeadline = heroH1.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
   assert.equal(renderedHeadline, 'Turning Ideas Into Solutions.', 'the rendered headline text must be exactly "Turning Ideas Into Solutions."');
   assert.match(html, /<title>AXORA — Turning Ideas Into Solutions<\/title>/, 'the document title must drop the stale headline');
+  assert.match(html, new RegExp(`<link rel="stylesheet" href="styles\\.css\\?v=${assetVersion}">`), 'the stylesheet URL must be versioned so deployed HTML cannot reuse stale CSS');
+  assert.match(html, new RegExp(`<script src="script\\.js\\?v=${assetVersion}" defer><\\/script>`), 'the script URL must be versioned with the same release key');
+  assert.doesNotMatch(html, /(?:href="styles\.css"|src="script\.js")/, 'bare mutable asset URLs must not return');
   assert.match(html, /<p class="lede load-item"[^>]*>AXORA is a digital solutions studio helping businesses, entrepreneurs, and organizations transform ideas into practical digital products through development, design, and reliable digital support\.<\/p>/, 'the hero must contain the approved studio description');
 
   /* === Hero CTAs: Explore services, Meet the team, Start a Project === */
@@ -143,6 +147,10 @@ test('About section contains required copy and value tiles', () => {
   assert.match(about, /To empower businesses by delivering innovative, reliable, and client focused digital solutions through collaboration, creativity, and technology/, 'Mission text must be present');
   assert.match(about, /To become a trusted digital solutions partner recognized for transforming ideas into meaningful digital experiences and long term business success/, 'Vision text must be present');
   assert.match(about, /AXORA was born from a moment of inspiration during an IT Summit\. Surrounded by innovators and industry professionals, we realized that opportunity begins the moment you choose to step forward\. Inspired by that experience, we combined our strengths in development, design, and digital support to create a team dedicated to delivering meaningful digital solutions through collaboration, creativity, and technology\./, 'Our Story must contain the complete approved paragraph');
+  assert.match(about, /<div class="about-stage"[^>]*>/, 'About must use the spatial studio-stage composition');
+  assert.match(about, /<div class="about-prop" aria-hidden="true">[\s\S]*?about-orbit[\s\S]*?about-core[\s\S]*?about-satellite/, 'About must contain a bounded physical 3D prop scene');
+  assert.match(about, /<div class="about-direction">[\s\S]*?about-mission[\s\S]*?about-vision/, 'Mission and Vision must form one directional rail');
+  assert.match(about, /<div class="story-marker" aria-hidden="true">[\s\S]*?IT Summit/, 'Our Story must have a distinct origin marker');
   const valueTileOpenings = [...about.matchAll(/<div\b(?=[^>]*\bclass="[^"]*\bvalue-tile\b[^"]*")[^>]*>/g)].map((match) => match[0]);
   assert.equal(valueTileOpenings.length, 5, 'five complete value-tile opening tags must exist');
   const coreValuePairs = [...about.matchAll(/<div\b(?=[^>]*\bclass="[^"]*\bvalue-tile\b[^"]*")[^>]*>\s*<span class="value-letter" aria-hidden="true">([A-Z])<\/span>\s*<span class="value-name">([^<]+)<\/span>/g)]
@@ -343,7 +351,16 @@ test('Testimonials section has honest pre-launch state', () => {
   assert.match(testimonials, /Academic collaborations/i, 'testimonials must include academic collaborations');
   assert.match(testimonials, /Organization projects/i, 'testimonials must include organization projects');
   assert.match(testimonials, /Volunteer work/i, 'testimonials must include volunteer work');
-  assert.match(testimonials, /Verified feedback will be shared here as completed work is approved for publication\./i, 'testimonials must include the approved future-feedback statement');
+  assert.match(testimonials, /We do not publish invented praise\. Verified feedback will appear here only after completed work is approved for publication\./i, 'the section must state its verified-feedback policy');
+  assert.match(testimonials, /<div class="proof-board"[^>]*>[\s\S]*?<article class="proof-manifesto">[\s\S]*?<ol class="proof-list">/, 'Testimonials must render as one cohesive proof board, not generic quote cards');
+  assert.equal(classCount(testimonials, 'proof-row'), 3, 'the proof board must contain three evidence rows');
+  assert.equal(classCount(testimonials, 'testimonial-card'), 0, 'generic testimonial placeholder cards must be removed');
+  const proofIcons = [...testimonials.matchAll(/<svg\b[^>]*>/g)].map((match) => match[0]);
+  assert.equal(proofIcons.length, 3, 'each proof source must have one icon');
+  proofIcons.forEach((icon) => {
+    assert.match(icon, /width="24"/);
+    assert.match(icon, /height="24"/);
+  });
   assert.doesNotMatch(testimonials, /Lorem ipsum/i, 'no lorem ipsum');
   assert.doesNotMatch(testimonials, /★★★|star rating|⭐/i, 'no fake star ratings');
 });
@@ -418,7 +435,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.js \[data-reveal\]\s*\{[^}]*opacity:\s*0[^}]*translateY\(26px\)\s+rotateX\(3deg\)/, 'reveal must settle with a 20-32px rise and subtle rotateX');
   assert.match(css, /\.js \[data-reveal\]\.is-revealed\s*\{[^}]*opacity:\s*1/);
   assert.match(css, /\.js \[data-tilt\]\[data-reveal\]\.is-revealed\s*\{[^}]*transform:\s*rotateX\(clamp\(-3deg,\s*var\(--tilt-x,\s*0deg\),\s*3deg\)\)\s*rotateY\(clamp\(-3deg,\s*var\(--tilt-y,\s*0deg\),\s*3deg\)\)\s*translateY\(var\(--lift,\s*0px\)\)/, 'revealed tilt cards must preserve the non-inverted base tilt orientation and lift');
-  assert.match(css, /\.values-label\s*\{[^}]*color:\s*var\(--text-dim\)/, 'values label must use the approved contrast-safe text token');
+  assert.match(css, /\.values-label\s*\{[^}]*color:\s*#D8DBFF/i, 'values label must use a high-contrast light token on the dark values rail');
   assert.doesNotMatch(css, /\.values-label\s*\{[^}]*color:\s*var\(--text-faint\)/, 'values label must not use the low-contrast text-faint token');
   assert.match(css, /\.footer-privacy\s*\{[^}]*color:\s*var\(--text-dim\)/, 'footer privacy label must use the approved contrast-safe text token');
   assert.doesNotMatch(css, /\.footer-privacy\s*\{[^}]*color:\s*var\(--text-faint\)/, 'footer privacy label must not use the low-contrast text-faint token');
@@ -457,9 +474,11 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /@media \(max-width:\s*767px\)\s*\{[\s\S]*?html:not\(\.js\)\s*\.scene-back-a,\s*html:not\(\.js\)\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'no-JS scene backdrop cards must be bounded flush on narrow screens');
   assert.match(css, /@media \(max-width:\s*767px\)\s*and\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[\s\S]*?\.scene-back-a,\s*\.scene-back-b\s*\{[^}]*inset-inline:\s*0[^}]*transform:\s*none/, 'reduced-motion scene backdrop cards must be bounded flush on narrow screens');
   /* New section layout selectors */
-  assert.match(css, /\.about-body\s*\{[^}]*display:\s*grid/, 'about-body must be a grid layout');
-  assert.match(css, /\.about-who\s*\{[^}]*grid-column:\s*span/, 'about-who must be a focal card spanning columns');
-  assert.match(css, /\.values-row\s*\{[^}]*margin/, 'values-row must have spacing');
+  assert.match(css, /\.about-stage\s*\{[^}]*display:\s*grid/, 'about-stage must be a grid layout');
+  assert.match(css, /\.about-who\s*\{[^}]*grid-column:/, 'about-who must be the focal editorial plate');
+  assert.match(css, /\.about-prop\s*\{[^}]*position:\s*relative[^}]*overflow:\s*hidden/, 'about prop scene must be bounded');
+  assert.match(css, /@keyframes\s+about-orbit\s*\{/, 'the About prop must include real object motion');
+  assert.match(css, /\.values-row\s*\{[^}]*background:/, 'values-row must be a distinct dark studio rail');
   assert.match(css, /\.value-tiles\s*\{[^}]*display:\s*grid/, 'value-tiles must be a grid');
   assert.match(css, /\.value-tile\s*\{[^}]*border/, 'value-tile must have border for depth');
   assert.match(css, /\.value-letter\s*\{[^}]*font-family:\s*var\(--display\)/, 'value-letter must use display font');
@@ -469,21 +488,27 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.why-focal\s*\{[^}]*grid-column:\s*span/, 'why-focal must span columns for dominance');
   assert.match(css, /\.portfolio-grid\s*\{[^}]*display:\s*grid/, 'portfolio-grid must be a grid layout');
   assert.match(css, /\.portfolio-preview\s*\{[^}]*aspect-ratio/, 'portfolio-preview must have aspect-ratio');
-  assert.match(css, /\.testimonials-grid\s*\{[^}]*display:\s*grid/, 'testimonials-grid must be a grid layout');
-  assert.match(css, /\.testimonial-card\s*\{[^}]*border/, 'testimonial-card must have border');
+  assert.match(css, /\.proof-board\s*\{[^}]*display:\s*grid/, 'proof-board must be one cohesive grid');
+  assert.match(css, /\.proof-manifesto\s*\{[^}]*background:/, 'proof manifesto must be visually distinct');
+  assert.match(css, /\.proof-row\s*\{[^}]*display:\s*grid/, 'proof sources must be structured rows');
+  assert.match(css, /\.proof-icon svg\s*\{[^}]*inline-size:\s*24px[^}]*block-size:\s*24px/, 'proof icons must remain intrinsically bounded');
   assert.match(css, /\.footer-brand\s*\{[^}]*display:\s*flex/, 'footer-brand must use flex or grid');
   assert.match(css, /\.footer-services ul\s*\{[^}]*list-style:\s*none/, 'footer-services list must be unstyled');
   assert.match(css, /\.footer-legal\s*\{[^}]*display:\s*flex/, 'footer-legal must be flex for row layout');
   /* Responsive rules for new sections */
-  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.about-body\s*\{/, 'about-body must have tablet breakpoint');
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.about-stage\s*\{/, 'about-stage must have tablet breakpoint');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.portfolio-grid\s*\{[^}]*grid-template-columns:\s*1fr/, 'portfolio-grid must stack on mobile');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.why-grid\s*\{/, 'why-grid must have mobile rule');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.value-tiles\s*\{/, 'value-tiles must have mobile rule');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.value-tiles\s*\{[^}]*grid-template-columns:\s*repeat\(2/, 'value-tiles must collapse to 2 columns at 767px');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.value-tiles \.value-tile:last-child\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/, 'last value tile must span both columns at 767px');
+  assert.match(css, /@media \(max-width:\s*540px\)[\s\S]*?\.value-tiles\s*\{[^}]*grid-template-columns:\s*1fr/, 'the dark value rail must become one readable column on phones');
+  assert.doesNotMatch(css, /@media \(max-width:\s*1699px\)[\s\S]*?\.scroll-greeter\s*\{[^}]*display:\s*none/, 'the peeking character must not disappear at normal viewport widths');
+  assert.match(css, /@media \(max-width:\s*1699px\)[\s\S]*?\.scroll-greeter\s*\{[^}]*scale:\s*\.82/, 'the full greeter must dock compactly at normal desktop widths');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.scroll-greeter\s*\{[^}]*scale:\s*\.8[^}]*[\s\S]*?\.greeter-bubble\s*\{[^}]*display:\s*grid[^}]*inline-size:\s*158px/, 'the mobile peeking character and speech bubble must remain clearly visible');
   assert.match(css, /@media \(max-width:\s*340px\)[\s\S]*?\.value-tiles\s*\{[^}]*grid-template-columns:\s*1fr/, 'value-tiles must collapse to 1 column at 340px');
   assert.match(css, /@media \(max-width:\s*340px\)[\s\S]*?\.value-tiles \.value-tile:last-child\s*\{[^}]*grid-column:\s*auto/, 'last value tile span must reset at 340px');
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.testimonials-grid\s*\{/, 'testimonials-grid must have mobile rule');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.proof-board\s*\{/, 'proof-board must have a mobile rule');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.footer-legal\s*\{/, 'footer-legal must have mobile rule');
   /* Tilt integration for new cards */
   assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');

@@ -38,3 +38,5 @@ No install is required: the checks use Node built-ins.
 npm test
 npm run verify:static
 ```
+
+The deployed HTML versions `styles.css` and `script.js` with the same release key so GitHub Pages cannot pair new markup with a cached older asset. Bump that key in `index.html` and `tests/hero-markup.test.mjs` whenever either asset changes.
