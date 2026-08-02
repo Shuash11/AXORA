@@ -1,0 +1,120 @@
+/* Full-size photo lightbox: the dialog adopts the photo aspect so the image fills it edge to edge. */
+.photo-lightbox {
+  width: min(92vw, 117.33vh);
+  max-width: 1100px;
+  aspect-ratio: 4 / 3;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 44px 96px -32px rgb(20 30 70 / 60%);
+  overflow: hidden;
+  animation: lightbox-in 180ms var(--ease-out);
+}
+.photo-lightbox img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.photo-lightbox::backdrop { background: rgb(23 32 51 / .72); backdrop-filter: blur(3px); }
+.photo-lightbox [data-close-lightbox] {
+  position: absolute;
+  inset-block-start: .9rem;
+  inset-inline-end: .9rem;
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgb(248 250 255 / .92);
+  color: var(--text);
+  box-shadow: 0 10px 22px -12px rgb(45 57 126 / 45%);
+  cursor: pointer;
+}
+.photo-lightbox [data-close-lightbox]:hover,
+.photo-lightbox [data-close-lightbox]:focus-visible { border-color: rgb(98 104 244 / 45%); color: var(--accent); }
+.photo-lightbox [data-close-lightbox] svg { inline-size: 18px; block-size: 18px; }
+@keyframes lightbox-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
+/* ---------- Dialog ---------- */
+
+#team-dialog {
+  inline-size: min(940px, calc(100vw - 2rem));
+  max-block-size: min(780px, calc(100svh - 2rem));
+  padding: 0;
+  overflow: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 50px 120px -42px rgb(23 32 51 / 52%);
+  opacity: 0;
+  transform: translateY(16px) scale(.97);
+  transition: opacity 200ms ease, transform 300ms cubic-bezier(.3, 1.35, .4, 1);
+}
+
+#team-dialog.is-open { opacity: 1; transform: none; }
+#team-dialog.closing { opacity: 0; transform: translateY(10px) scale(.98); transition-duration: 140ms; }
+
+#team-dialog::backdrop {
+  background: rgb(23 32 51 / 48%);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+#team-dialog.is-open::backdrop { opacity: 1; }
+#team-dialog.closing::backdrop { opacity: 0; }
+
+.dialog-shell {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(13rem, .7fr) minmax(0, 1fr);
+  column-gap: clamp(2rem, 5vw, 4.5rem);
+  align-items: start;
+  padding: clamp(1.5rem, 4vw, 3rem);
+}
+
+#team-dialog [data-dialog-close] {
+  position: absolute;
+  inset: 1rem 1rem auto auto;
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: var(--surface);
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease;
+}
+
+#team-dialog [data-dialog-close]:hover, #team-dialog [data-dialog-close]:focus-visible { border-color: rgb(98 104 244 / 45%); color: var(--accent); }
+#team-dialog [data-dialog-close] svg { inline-size: 18px; block-size: 18px; }
+
+.dialog-placeholder { grid-column: 1; margin: 0 0 2.2rem; color: var(--text-faint); font-family: var(--label); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
+
+#team-dialog [data-dialog-marker] { grid-column: 1; margin: 0; color: var(--accent); font-family: var(--label); font-size: .95rem; font-weight: 600; }
+
+#team-dialog h2 { grid-column: 1; margin: .65rem 0; font-size: clamp(2rem, 4.5vw, 3.2rem); }
+
+#team-dialog [data-dialog-role], #team-dialog [data-dialog-bio] { grid-column: 1; color: var(--text-dim); }
+
+#team-dialog [data-dialog-role] { margin: 0; font-family: var(--label); font-size: .68rem; }
+
+#team-dialog [data-dialog-bio] { margin: 1.4rem 0 0; font-size: .95rem; line-height: 1.7; }
+
+#team-dialog section {
+  grid-column: 2;
+  margin: 0;
+  padding: 1.3rem 1.4rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-2);
+}
+
+#team-dialog section + section { margin-block-start: 1rem; }
+#team-dialog h3, #team-dialog h4 { margin: 0 0 .7rem; font-family: var(--display); font-weight: 600; }
+#team-dialog h3 { font-size: 1.05rem; }
+#team-dialog h4 { font-size: .95rem; }
+#team-dialog section p { margin: .4rem 0; color: var(--text-dim); font-size: .9rem; }
+#team-dialog article { padding: .8rem 0; border-block-start: 1px solid var(--line); }

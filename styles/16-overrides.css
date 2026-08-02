@@ -1,0 +1,228 @@
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1023px) {
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 3.2rem; justify-items: stretch; }
+  .hero-copy { max-inline-size: none; }
+  .hero-scene { justify-self: center; inline-size: min(560px, 100%); }
+  .team-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dialog-shell { grid-template-columns: 1fr; row-gap: 1.25rem; }
+  #team-dialog section { grid-column: 1; }
+  .contact-panel { grid-template-columns: 1fr; gap: 1.75rem; }
+  .about-stage { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .about-who { grid-column: 1 / span 4; }
+  .about-prop { grid-column: 5 / -1; }
+  .about-direction { grid-column: 1 / span 4; grid-template-columns: 1fr; }
+  .why-focal { grid-column: span 6; }
+  .why-card:not(.why-focal) { grid-column: span 4; }
+  .portfolio-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .site-footer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Tablet band: keep why-card headings on one line — the global 14ch cap would otherwise wrap them to two lines. */
+  .why-card h3 { max-inline-size: none; font-size: clamp(.95rem, 1.7vw, 1.1rem); white-space: nowrap; }
+  /* Prop scenes scale down with the four-column cards so props stay legible without clipping at the 190px travel end. */
+  .why-prop-stage { height: 100px; }
+  .why-prop-stage .why-prop-layer { transform: scale(.58); transform-origin: top center; }
+  /* Per-scene centering: shift every layer (bg + mg + fg) so the prop composition is optically centered. */
+  .why-prop-delivery .why-prop-layer { transform: scale(.58) translateX(calc(50% - 80px)); }
+  .why-prop-technology .why-prop-layer { transform: scale(.58) translateX(calc(50% - 161px)); }
+  .why-prop-partnership .why-prop-layer { transform: scale(.58) translateX(calc(50% - 145px)); }
+}
+
+@media (min-width: 768px) and (max-width: 1199px) {
+  /* Core Values rail: stack below the intro and reflow into a balanced connected 3+2 grid. */
+  .values-row { grid-template-columns: 1fr; }
+  .value-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .value-tile { grid-column: span 2; }
+  .value-tile:nth-child(n + 4) { grid-column: span 3; }
+  .value-tile:nth-child(3) { border-inline-end: 0; }
+  .value-tile:nth-child(-n + 3) { border-block-end: 1px solid rgb(255 255 255 / 10%); }
+}
+
+@media (max-width: 1380px) {
+  /* Two-column hero: the scene column sits near the right edge, so the side layers shift less to stay on-page. */
+  .hero-scene.is-enhanced .scene-slide[data-position="1"], .hero-scene.is-enhanced .scene-slide[data-position="2"] { transform: translate3d(48px, 0, 0) scale(.97); }
+  .hero-scene.is-enhanced .scene-slide[data-position="-1"], .hero-scene.is-enhanced .scene-slide[data-position="-2"] { transform: translate3d(-48px, 0, 0) scale(.97); }
+}
+
+@media (max-width: 767px) {
+  .wrap { padding-inline: 18px; }
+  .site-header {
+    min-block-size: 64px;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "brand toggle";
+  }
+  .site-header:not(.is-enhanced) { position: relative; }
+  .site-header.is-enhanced .nav-toggle:not([hidden]) { display: inline-flex; }
+  .site-header.is-enhanced .site-nav { display: none; }
+  .site-header.is-enhanced.menu-open .site-nav {
+    display: flex;
+    grid-area: nav;
+    flex-direction: column;
+    align-items: stretch;
+    gap: .15rem;
+    padding-block: .6rem;
+    border-block-start: 1px solid var(--line);
+  }
+  .site-header.is-enhanced .top-cta { display: none; }
+  .site-header.is-enhanced.menu-open .top-cta { grid-area: cta; display: inline-flex; justify-self: stretch; margin-block: .5rem .6rem; }
+  .site-header.is-enhanced.menu-open { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "brand toggle" "nav nav" "cta cta"; }
+  /* The scene fills the row at narrow widths, so the side layers shift less to stay on-page. */
+  .hero-scene.is-enhanced .scene-slide[data-position="1"], .hero-scene.is-enhanced .scene-slide[data-position="2"] { transform: translate3d(12px, 0, 0) scale(.97); }
+  .hero-scene.is-enhanced .scene-slide[data-position="-1"], .hero-scene.is-enhanced .scene-slide[data-position="-2"] { transform: translate3d(-12px, 0, 0) scale(.97); }
+  .site-nav a { justify-content: flex-start; padding-inline: .5rem; }
+  .site-nav a::after { inset: auto 12px 10px; }
+  section[id] { scroll-margin-block-start: 88px; }
+  main > section:not(.hero) { padding-block: 4rem; }
+  .hero { gap: 2.6rem; padding-block: 2.5rem 3.75rem; }
+  .hero-actions { display: grid; grid-template-columns: 1fr; max-inline-size: 22rem; }
+  .hero-actions .button { inline-size: 100%; }
+  .chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; inline-size: 100%; max-inline-size: 360px; }
+  .chip { justify-content: center; min-inline-size: 0; inline-size: 100%; padding-inline: .5rem; }
+  .team-list { grid-template-columns: 1fr; }
+  .team-card { min-block-size: 320px; }
+  .contact-panel { padding: 2.1rem 1.5rem; }
+  .about-stage { grid-template-columns: 1fr; }
+  .about-who, .about-prop, .about-direction { grid-column: 1; grid-row: auto; }
+  .about-prop { min-block-size: 390px; }
+  .about-direction { grid-template-columns: 1fr; }
+  .values-row { grid-template-columns: 1fr; }
+  .value-tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .value-tiles .value-tile:last-child { grid-column: 1 / -1; }
+  .value-tile:nth-child(even) { border-inline-end: 0; }
+  .value-tile:nth-child(-n + 4) { border-block-end: 1px solid rgb(255 255 255 / 10%); }
+  .about-story { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr; }
+  .why-focal, .why-card:not(.why-focal) { grid-column: 1; grid-row: auto; }
+  /* One-column prop cards keep a deliberate composition: full-height stage, full-size geometry. */
+  .why-prop-stage { height: 120px; }
+  .why-prop-stage .why-prop-layer { transform: none; }
+  /* Full-size geometry on the full-width card still needs the same optical centering. */
+  .why-prop-delivery .why-prop-layer-mg, .why-prop-delivery .why-prop-layer-fg { transform: translateX(min(17px, calc(50% - 124px))); }
+  .why-prop-technology .why-prop-layer-mg, .why-prop-technology .why-prop-layer-fg { transform: translateX(calc(50% - 161px)); }
+  .why-prop-partnership .why-prop-layer-mg, .why-prop-partnership .why-prop-layer-fg { transform: translateX(calc(50% - 161px)); }
+  .why-prop-stage .why-prop-bg-grid { opacity: .35; }
+  .portfolio-grid { grid-template-columns: 1fr; }
+  .proof-board { grid-template-columns: 1fr; }
+  .proof-manifesto { min-block-size: 320px; }
+  .proof-row { grid-template-columns: 2rem 3rem minmax(0, 1fr); }
+  .proof-status { grid-column: 3; justify-self: start; }
+  .site-footer { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding-block: 2.25rem calc(2.25rem + env(safe-area-inset-bottom)); }
+  .site-footer .brand { order: 1; }
+  .footer-tagline { order: 2; }
+  .site-footer nav { order: 3; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; margin-block-start: .6rem; }
+  .site-footer nav a { justify-content: center; min-inline-size: 0; padding-inline: .75rem; border: 1px solid var(--line); border-radius: 999px; background: rgb(255 255 255 / 72%); box-shadow: inset 0 1px 0 #FFFFFF; }
+  .footer-services { order: 4; margin-block-start: 1.2rem; }
+  .footer-services ul { flex-direction: row; flex-wrap: wrap; gap: .35rem; }
+  .footer-services li a { padding-inline: .6rem; border: 1px solid var(--line); border-radius: 999px; background: rgb(255 255 255 / 60%); }
+  .footer-connect { order: 5; margin-block-start: 1.2rem; }
+  .footer-legal { order: 6; flex-direction: column; align-items: flex-start; gap: .4rem; }
+  .passing-ball { inline-size: 58px; block-size: 58px; }
+  .passing-ball::after { inset: 11px auto auto 13px; inline-size: 18px; block-size: 10px; }
+  .scroll-greeter { inset: auto 0 0 auto; min-block-size: 150px; }
+  .greeter-bubble { inline-size: 158px; margin: 0 -10px 72px 0; padding: 12px 14px; }
+  .greeter-bubble strong { font-size: 1.05rem; }
+  .greeter-bubble span { font-size: .67rem; }
+}
+
+@media (max-width: 420px) {
+  /* Bound every prop to the narrow card so nothing overflows the stage. */
+  .why-prop-stage { height: 112px; }
+  .why-prop-stage .why-prop-layer { transform: scale(.9); transform-origin: top center; }
+  /* Keep the .9 scale optically centered on the smallest cards. */
+  .why-prop-delivery .why-prop-layer-mg, .why-prop-delivery .why-prop-layer-fg { transform: scale(.9) translateX(min(17px, calc(50% - 124px))); }
+  .why-prop-technology .why-prop-layer-mg, .why-prop-technology .why-prop-layer-fg { transform: scale(.9) translateX(calc(50% - 161px)); }
+  .why-prop-partnership .why-prop-layer-mg, .why-prop-partnership .why-prop-layer-fg { transform: scale(.9) translateX(calc(50% - 161px)); }
+}
+
+@media (max-width: 540px) {
+  .value-tiles { grid-template-columns: 1fr; }
+  .value-tiles .value-tile, .value-tiles .value-tile:last-child { grid-column: auto; border-inline-end: 0; border-block-end: 1px solid rgb(255 255 255 / 10%); }
+  .value-tiles .value-tile:last-child { border-block-end: 0; }
+}
+
+/* Keep the full character and speech bubble, but dock the pair into the edge on normal screens. */
+@media (max-width: 1699px) {
+  .scroll-greeter { inset: auto -18px -18px auto; scale: .82; transform-origin: 100% 100%; }
+  .greeter-bubble { inline-size: 164px; margin-inline-end: -12px; }
+}
+
+@media (max-width: 767px) {
+  .scroll-greeter { inset: auto -14px -20px auto; scale: .8; transform-origin: 100% 100%; }
+  .greeter-bubble { display: grid; inline-size: 158px; margin: 0 -12px 74px 0; }
+}
+
+@media (max-width: 420px) {
+  .hero-scene { inline-size: 100%; }
+  /* The dots + arrows row is wider than the scene at phone widths: overlay the arrows on the photo sides, keeping 44px touch targets. */
+  .hero-scene.is-enhanced .stage { position: relative; }
+  .hero-scene.is-enhanced .carousel-arrow { position: absolute; top: 50%; z-index: 3; transform: translateY(-50%); }
+  .hero-scene.is-enhanced [data-carousel-prev] { left: 10px; }
+  .hero-scene.is-enhanced [data-carousel-next] { right: 10px; }
+  .team-card { min-block-size: 320px; }
+  .contact-email { font-size: .82rem; }
+  .scroll-greeter { inset: auto -12px -20px auto; scale: .78; }
+  .greeter-bubble { inline-size: 156px; margin: 0 -12px 72px 0; padding: 11px 12px; }
+  .peek-character { scale: .92; }
+  .about-prop { min-block-size: 340px; }
+  .about-core { inline-size: 132px; }
+  .about-satellite { inline-size: 46px; }
+  .proof-row { grid-template-columns: 2.8rem minmax(0, 1fr); padding-inline: 1rem; }
+  .proof-index { display: none; }
+  .proof-icon { grid-column: 1; grid-row: 1 / span 2; }
+  .proof-row > div { grid-column: 2; }
+  .proof-status { grid-column: 2; }
+}
+
+@media (max-width: 340px) {
+  .value-tiles { grid-template-columns: 1fr; }
+  .value-tiles .value-tile:last-child { grid-column: auto; }
+}
+
+/* ---------- Coarse pointers ---------- */
+
+@media (hover: none), (pointer: coarse) {
+  .scene, .team-card, .why-card, .portfolio-card, .value-tile { transform: none; }
+  .js [data-tilt][data-reveal].is-revealed { --lift: 0px; transform: none; }
+  .scene-back-a { transform: rotate(-2.6deg); }
+  .scene-back-b { transform: rotate(2.2deg); }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation: none !important;
+    scroll-behavior: auto !important;
+    transition: none !important;
+  }
+  .load-item { opacity: 1; animation: none !important; }
+  .js [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .scene, .team-card, .why-card, .portfolio-card, .value-tile { transform: none !important; transition: none !important; }
+  .scroll-greeter.is-visible .peek-character { transform: none !important; }
+  .scroll-greeter.is-visible .greeter-bubble { opacity: 1 !important; transform: none !important; }
+  .hero-scene.is-enhanced .scene-slide { transition: none; }
+  .story-carousel.is-enhanced .story-slide { transform: none !important; }
+  .story-carousel.is-enhanced .story-slide:not([data-position="0"]) { opacity: 0 !important; }
+  .scene-back-a { transform: rotate(-2.6deg); }
+  .scene-back-b { transform: rotate(2.2deg); }
+  /* Freeze every prop scene in its attractive resting layout. */
+  .why-prop-stage, .why-prop-stage *, .why-prop-stage *::before, .why-prop-stage *::after { animation: none !important; transition: none !important; }
+}
+
+/* ---------- Scene backdrop containment on narrow screens ---------- */
+/* The coarse-pointer and reduced-motion overrides above re-apply the rotation WITHOUT
+   the base rule's inward scale/translate, so tall backdrop cards (the stacked no-JS deck
+   or reduced-motion cards) sweep their corners past the viewport. Bound them flush to
+   the scene in exactly those states; JS-on coarse phones keep the decorative tilt
+   (measured in-bounds at 390/320). Placed after the reduce block to win the cascade. */
+
+@media (max-width: 767px) {
+  html:not(.js) .scene-back-a, html:not(.js) .scene-back-b { inset-inline: 0; transform: none; }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .scene-back-a, .scene-back-b { inset-inline: 0; transform: none; }
+}

@@ -1,0 +1,29 @@
+:root {
+  --bg: #F8FAFF;
+  --surface: #FFFFFF;
+  --surface-2: #F0F3FF;
+  --surface-3: #E7ECFF;
+  --text: #172033;
+  --text-dim: #667086;
+  --text-faint: #8C95A7;
+  --line: rgb(23 32 51 / 9%);
+  --line-strong: rgb(23 32 51 / 15%);
+  --accent: #6268F4;
+  --accent-2: #3640C8;
+  --accent-ink: #FFFFFF;
+  --accent-soft: rgb(98 104 244 / 11%);
+  --warm: #FF795C;
+  --warm-soft: rgb(255 121 92 / 12%);
+  --panel-light: #FFFFFF;
+  --panel-light-text: #172033;
+  --link-light: #3640C8;
+  --radius-sm: 16px;
+  --radius-md: 22px;
+  --radius-lg: 30px;
+  --display: "Fraunces", Georgia, serif;
+  --body: "DM Sans", "Segoe UI", sans-serif;
+  --label: "DM Mono", "Consolas", monospace;
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --px: 0;
+  --py: 0;
+}

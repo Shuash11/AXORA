@@ -3,10 +3,26 @@ import { existsSync, readFileSync } from 'node:fs';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 
+const assetVersion = '20260802-12';
+const cssModules = [
+  '00-tokens.css', '01-base.css', '02-ambient.css', '03-header.css',
+  '04-components.css', '05-hero.css', '06-people.css', '07-contact.css',
+  '08-about.css', '09-why.css', '10-portfolio.css', '11-proof.css',
+  '12-dialogs.css', '13-footer.css', '14-greeter.css', '15-motion.css',
+  '16-overrides.css',
+];
+const cssImportPattern = /^\s*@import\s+url\(["']?([^"')]+)["']?\);\s*$/gm;
+function loadCss(filePath, seen = new Set()) {
+  assert.ok(existsSync(filePath), `missing stylesheet: ${filePath}`);
+  assert.ok(!seen.has(filePath), `stylesheet imports ${filePath} more than once`);
+  seen.add(filePath);
+  const source = readFileSync(filePath, 'utf8');
+  return source.replace(cssImportPattern, (_, href) => loadCss(href.replace(/^\.\//, '').split('?')[0], seen));
+}
 const html = readFileSync('index.html', 'utf8');
-const css = readFileSync('styles.css', 'utf8');
+const cssManifest = readFileSync('styles.css', 'utf8');
+const css = loadCss('styles.css');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-11';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -46,6 +62,19 @@ function validateCanonicalFavicon(href) {
     && !/\burl\s*\(/i.test(svg)
     && !/(?:\bhttps?:|\/\/)/i.test(withoutNamespace);
 }
+
+test('stylesheet loader resolves the existing CSS baseline', () => {
+  for (const selector of [':root', '.hero', '#team-dialog']) {
+    assert.match(css, new RegExp(selector.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+  }
+});
+
+test('stylesheet manifest imports every module in the required order', () => {
+  const expectedManifest = `${cssModules
+    .map((file) => `@import url("./styles/${file}?v=20260802-12");`)
+    .join('\n')}\n`;
+  assert.equal(cssManifest, expectedManifest, 'styles.css must contain only the ordered module imports');
+});
 
 test('full landing page has the required semantic sections, navigation, and content', () => {
   const icons = faviconHrefs(html);

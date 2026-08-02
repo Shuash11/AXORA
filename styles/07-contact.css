@@ -1,0 +1,80 @@
+/* ---------- Contact ---------- */
+
+.contact-panel {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(15rem, .75fr);
+  gap: 2.5rem;
+  align-items: center;
+  margin-block: clamp(1rem, 2vw, 2rem) clamp(3rem, 6vw, 5rem);
+  padding: clamp(2.2rem, 5.5vw, 4.2rem);
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  color: var(--panel-light-text);
+  background:
+    linear-gradient(rgb(23 32 51 / 3%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 32 51 / 3%) 1px, transparent 1px),
+    linear-gradient(135deg, #FFFFFF, #F0F3FF 58%, #FFF4F0);
+  background-size: 48px 48px, 48px 48px, auto;
+  border: 1px solid rgb(255 255 255 / 92%);
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 40px 90px -46px rgb(45 57 126 / 46%), 0 12px 30px rgb(26 39 75 / 7%);
+}
+
+.contact-panel::before {
+  position: absolute;
+  inset: -14rem -10rem auto auto;
+  inline-size: 30rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  content: "";
+  background: radial-gradient(circle, rgb(98 104 244 / 20%), transparent 64%);
+  pointer-events: none;
+}
+
+.contact-panel::after {
+  position: absolute;
+  inset: auto auto -9rem -7rem;
+  inline-size: 22rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  content: "";
+  background: radial-gradient(circle, rgb(255 121 92 / 18%), transparent 64%);
+  pointer-events: none;
+}
+
+.contact-panel > * { position: relative; z-index: 1; }
+
+.contact-panel .eyebrow { color: var(--link-light); }
+.contact-panel h2 { max-inline-size: 15ch; }
+.contact-panel p { max-inline-size: 36rem; margin: 1rem 0 0; color: rgb(23 32 51 / 76%); font-size: 1rem; }
+
+.contact-actions { display: flex; flex-direction: column; align-items: flex-start; gap: .8rem; }
+
+.contact-email {
+  display: inline-flex;
+  align-items: center;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  color: var(--link-light);
+  font-family: var(--label);
+  font-size: clamp(.8rem, 1.6vw, .98rem);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+  transition: color 180ms ease;
+}
+
+.contact-email:hover, .contact-email:focus-visible { color: #2832B5; }
+
+.contact-warning {
+  margin: 0 !important;
+  padding: .42rem .8rem;
+  border: 1px solid rgb(255 121 92 / 42%);
+  border-radius: 999px;
+  color: #9A3028 !important;
+  background: var(--warm-soft);
+  font-family: var(--label);
+  font-size: .64rem !important;
+  letter-spacing: .04em;
+}
+
+.contact-panel :focus-visible { outline-color: var(--link-light); }

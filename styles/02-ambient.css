@@ -1,0 +1,103 @@
+/* Ambient atmosphere: a faint grid, drifting studio color, and fine grain. */
+body::before {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background-image:
+    linear-gradient(rgb(23 32 51 / 2.4%) 1px, transparent 1px),
+    linear-gradient(90deg, rgb(23 32 51 / 2.4%) 1px, transparent 1px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(115% 92% at 50% 0%, #000 28%, transparent 78%);
+}
+
+body::after {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: radial-gradient(48rem 34rem at 50% 118%, rgb(108 201 184 / 8%), transparent 65%);
+}
+
+.noise {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  pointer-events: none;
+  opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='160'%20height='160'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='2'%20stitchTiles='stitch'/%3E%3C/filter%3E%3Crect%20width='160'%20height='160'%20filter='url(%23n)'%20opacity='0.55'/%3E%3C/svg%3E");
+}
+
+.ambient-scene {
+  position: fixed;
+  z-index: 0;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.blob { position: absolute; border-radius: 50%; filter: blur(58px); opacity: .2; }
+.blob-violet { inline-size: 360px; block-size: 360px; inset: -180px auto auto -110px; background: var(--accent); animation: drift-violet 19s ease-in-out infinite; }
+.blob-coral { inline-size: 340px; block-size: 340px; inset: 12% -180px auto auto; background: var(--warm); animation: drift-coral 23s -7s ease-in-out infinite; }
+.blob-mint { inline-size: 300px; block-size: 300px; inset: auto auto -170px 42%; background: #6CC9B8; animation: drift-mint 21s -12s ease-in-out infinite; }
+
+.passing-ball-track {
+  position: absolute;
+  inset: 32% auto auto -130px;
+  animation: pass-ball 18s -5s linear infinite;
+  will-change: transform;
+}
+
+.passing-ball {
+  position: relative;
+  display: block;
+  inline-size: 74px;
+  block-size: 74px;
+  border-radius: 50%;
+  opacity: .72;
+  background: radial-gradient(circle at 30% 27%, #F4F1FF 0%, #C8C9FF 20%, #7378FF 52%, #3640C8 100%);
+  box-shadow: inset -9px -11px 18px rgb(24 33 143 / 25%), inset 7px 8px 14px rgb(255 255 255 / 72%), 0 24px 30px -14px rgb(54 64 200 / 46%);
+  animation: roll-ball 3.6s linear infinite;
+}
+
+.passing-ball::after {
+  position: absolute;
+  inset: 14px auto auto 17px;
+  inline-size: 22px;
+  block-size: 13px;
+  border-radius: 50%;
+  content: "";
+  background: rgb(255 255 255 / 72%);
+  filter: blur(2px);
+  transform: rotate(-22deg);
+}
+@keyframes drift-violet {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  35% { transform: translate(48px, 30px) scale(1.08); }
+  70% { transform: translate(-16px, 54px) scale(.94); }
+}
+
+@keyframes pass-ball {
+  0% { transform: translate3d(0, 0, 0) scale(.82); }
+  22% { transform: translate3d(26vw, -56px, 0) scale(1); }
+  48% { transform: translate3d(53vw, 64px, 0) scale(.92); }
+  73% { transform: translate3d(79vw, -38px, 0) scale(1.06); }
+  100% { transform: translate3d(calc(100vw + 260px), 24px, 0) scale(.84); }
+}
+
+@keyframes roll-ball {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(.94); }
+}
+
+@keyframes drift-coral {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  50% { transform: translate(-64px, 44px) scale(1.1); }
+}
+
+@keyframes drift-mint {
+  0%, 100% { transform: translate(0, 0) scale(.96); }
+  50% { transform: translate(42px, -50px) scale(1.08); }
+}
