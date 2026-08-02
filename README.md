@@ -6,9 +6,9 @@ A complete, dependency-free AXORA landing page with Home, About, Services, Why A
 
 Replace every draft placeholder before publishing:
 
-**Member profiles** — replace `Team Member 01` through `Team Member 04`, role labels, dialog bio, skills, and focus areas. Update in `index.html`, `script.js`, and `tests/hero-markup.test.mjs`.
+**People profiles** — replace the temporary People 01–04 placeholders with approved names, descriptions, and individual portraits. Update `index.html`, `script.js`, and `tests/hero-markup.test.mjs` together.
 
-**Photos** — supply five hero event photos and four team member portraits (Members 02–04 need portraits; Member 01 already has one). Remove the placeholder device cards (`TM-02`, `TM-03`, `TM-04`) and swap in real images.
+**People images** — no temporary image may be attributed to a person. Replace every temporary People 01–04 image with that person's approved individual portrait before publication.
 
 **Contact** — replace `your-email@example.com` in `index.html` and its expected string in `tests/hero-markup.test.mjs`.
 

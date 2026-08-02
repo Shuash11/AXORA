@@ -141,64 +141,32 @@
 
   function initTeamDialog() {
     const dialog = document.querySelector('#team-dialog');
-    const members = [...document.querySelectorAll('button[data-member]')];
+    const members = [...document.querySelectorAll('#team .person-stage[data-member]')];
     const dialogShell = dialog?.querySelector('.dialog-shell');
     const closeButton = dialog?.querySelector('[data-dialog-close]');
     const name = dialog?.querySelector('[data-dialog-name]');
-    const marker = dialog?.querySelector('[data-dialog-marker]');
-    const role = dialog?.querySelector('[data-dialog-role]');
-    const bio = dialog?.querySelector('[data-dialog-bio]');
-    const achievements = dialog?.querySelector('[data-dialog-achievements]');
-    const work = dialog?.querySelector('[data-dialog-work]');
+    const description = dialog?.querySelector('[data-dialog-description]');
 
     const memberIndexes = new Set(members.map((member) => Number(member.dataset.member)));
 
-    if (!dialog || members.length !== 4 || ![...memberIndexes].every(Number.isInteger) || memberIndexes.size !== 4 || !memberIndexes.has(0) || !memberIndexes.has(1) || !memberIndexes.has(2) || !memberIndexes.has(3) || !dialogShell || !closeButton || !name || !marker || !role || !bio || !achievements || !work || typeof dialog.showModal !== 'function') {
+    if (!dialog || members.length !== 4 || ![...memberIndexes].every(Number.isInteger) || memberIndexes.size !== 4 || !memberIndexes.has(0) || !memberIndexes.has(1) || !memberIndexes.has(2) || !memberIndexes.has(3) || !dialogShell || !closeButton || !name || !description || typeof dialog.showModal !== 'function') {
       return;
     }
 
     const membersByIndex = [
-      { name: 'Team Member 01', role: 'Client Success Lead', bio: 'Driving client relationships and ensuring every project delivers real value through clear communication and strategic planning.', skills: ['Client communication', 'Project coordination'], focus: ['Bridging the gap between client goals and technical delivery', 'Managing timelines, expectations, and deliverables'] },
-      { name: 'Team Member 02', role: 'Lead Developer', bio: 'Building reliable, scalable systems with a focus on clean architecture and practical performance.', skills: ['Full-stack development', 'System architecture'], focus: ['Designing robust backend services and APIs', 'Ensuring code quality and technical documentation'] },
-      { name: 'Team Member 03', role: 'Frontend Developer', bio: 'Crafting responsive, accessible interfaces that feel intuitive and perform smoothly across devices.', skills: ['Responsive development', 'Accessibility'], focus: ['Translating designs into pixel-perfect interfaces', 'Optimizing frontend performance and user experience'] },
-      { name: 'Team Member 04', role: 'Creative Director', bio: 'Shaping visual identity and creative direction to ensure every project communicates with clarity and impact.', skills: ['Visual design', 'Brand strategy'], focus: ['Defining creative direction and design systems', 'Ensuring visual consistency across all deliverables'] },
+      { name: 'People 01', description: 'An AXORA team member contributing to the work behind each solution.' },
+      { name: 'People 02', description: 'A temporary profile for a person helping turn ideas into practical digital work.' },
+      { name: 'People 03', description: 'An AXORA team member supporting the studio through collaborative work.' },
+      { name: 'People 04', description: 'A temporary profile representing the people shaping the AXORA studio.' },
     ];
     let trigger;
     let selectedMember;
     let closeTimer;
 
-    function replaceTextChildren(container, tagName, values) {
-      const children = values.map((value) => {
-        const element = document.createElement(tagName);
-        element.textContent = value;
-        return element;
-      });
-      container.replaceChildren(...children);
-    }
-
     function populate(index) {
       const member = membersByIndex[index];
-      const number = String(index + 1).padStart(2, '0');
-      marker.textContent = number;
       name.textContent = member.name;
-      role.textContent = member.role;
-      bio.textContent = member.bio;
-
-      const skillsTitle = document.createElement('h3');
-      skillsTitle.id = 'skills-title';
-      skillsTitle.textContent = 'Skills & expertise';
-      replaceTextChildren(achievements, 'p', member.skills);
-      achievements.prepend(skillsTitle);
-
-      const focusTitle = document.createElement('h3');
-      focusTitle.id = 'role-title';
-      focusTitle.textContent = 'Role focus';
-      const focusItems = member.focus.map((item) => {
-        const p = document.createElement('p');
-        p.textContent = item;
-        return p;
-      });
-      work.replaceChildren(focusTitle, ...focusItems);
+      description.textContent = member.description;
     }
 
     function openDialog() {

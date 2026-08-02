@@ -370,41 +370,44 @@ test('Portfolio section has categories and honest pre-launch state', () => {
   }
 });
 
-test('Team section has updated roles and dialog data', () => {
+test('People Behind AXORA uses temporary person stages and a minimal dialog', () => {
   const team = html.match(/<section id="team"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
   assert.ok(team, 'the team section must exist');
-  assert.equal(classCount(html, 'team-card'), 4);
-  const member01PortraitPath = 'member images/762542297_1046525607966526_6264202658131260171_n.jpg';
-  assert.ok(existsSync(member01PortraitPath), 'the Member 01 portrait source file must exist on disk');
-  const member01EncodedSrc = 'member%20images/762542297_1046525607966526_6264202658131260171_n.jpg';
-
-  /* Check that roles are updated */
-  const roles = [...html.matchAll(/<small class="team-role">([^<]+)<\/small>/g)].map(m => m[1]);
-  assert.equal(roles.length, 4, 'four team cards must have roles');
-  assert.equal(roles[0], 'Client Success Lead', 'Member 01 role');
-  assert.equal(roles[1], 'Lead Developer', 'Member 02 role');
-  assert.equal(roles[2], 'Frontend Developer', 'Member 03 role');
-  assert.equal(roles[3], 'Creative Director', 'Member 04 role');
-
+  assert.match(team, /<h2 id="team-title" data-reveal>People Behind<br>AXORA\.<\/h2>/);
+  const stages = [...team.matchAll(/<button\b(?=[^>]*\bclass="[^"]*\bperson-stage\b[^"]*")[^>]*>([\s\S]*?)<\/button>/g)];
+  assert.equal(stages.length, 4, 'there must be exactly four temporary person stages');
+  const placeholderSources = [
+    'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg',
+    'Hero%20Image/755941564_2053703328575625_420494940045368523_n%20(1).jpg',
+    'Hero%20Image/755690039_2254034195393709_1404549311183090400_n.jpg',
+    'Hero%20Image/755538558_27737088675918586_7287023157067586050_n.jpg',
+  ];
   for (let index = 0; index < 4; index += 1) {
     const number = String(index + 1).padStart(2, '0');
-    assert.match(html, new RegExp(`<button[^>]*class="team-card"[^>]*data-member="${index}"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>[\\s\\S]*?${number}[\\s\\S]*?Team Member ${number}`));
+    const stage = stages[index][0];
+    assert.match(stage, new RegExp(`data-member="${index}"`));
+    assert.match(stage, /\bdata-tilt\b/);
+    assert.match(stage, /\bdisabled\b/);
+    assert.match(stage, /\bdata-reveal\b/);
+    assert.match(stage, new RegExp(`Person ${number}`));
+    for (const className of ['person-index', 'person-scene', 'person-backdrop', 'person-light', 'person-floor-shadow', 'person-figure', 'person-placeholder', 'person-name', 'person-action']) {
+      assert.match(stage, new RegExp(`\\b${className}\\b`), `Person ${number} must include .${className}`);
+    }
+    assert.match(stage, new RegExp(`<img[^>]*src="${escapeRegExp(placeholderSources[index])}"[^>]*alt=""[^>]*width="2048"[^>]*height="1536"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`));
+    assert.match(stage, new RegExp(`style="--reveal-order: ${index + 1}"`));
   }
+  assert.doesNotMatch(team, /(?:team-card|team-role|device-label|TM-0[2-4]|Team Member|Client Success Lead|Lead Developer|Frontend Developer|Creative Director)/);
 
-  const member01Card = html.match(/<button[^>]*class="team-card"[^>]*data-member="0"[^>]*data-tilt[^>]*disabled[^>]*data-reveal[^>]*>([\s\S]*?)<\/button>/)?.[0] ?? '';
-  assert.ok(member01Card, 'Member 01 card must be matched');
-  assert.match(member01Card, new RegExp(`<img[^>]*class="team-photo"[^>]*src="${escapeRegExp(member01EncodedSrc)}"[^>]*alt=""[^>]*width="1086"[^>]*height="1448"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`), 'Member 01 must contain the portrait image');
-  assert.doesNotMatch(member01Card, /device-label/, 'Member 01 must not contain a device-label');
-  for (let index = 1; index < 4; index += 1) {
-    assert.match(html, new RegExp(`<span class="device-label">TM-0${index + 1}<\\/span>`), `Members 02-04 must retain device labels`);
-  }
-
-  /* Dialog must use role-based content, not generic placeholder wording */
+  const dialogOpening = html.match(/<dialog id="team-dialog"[^>]*>/)?.[0] ?? '';
+  assert.match(dialogOpening, /aria-labelledby="team-dialog-name"/);
+  assert.match(dialogOpening, /aria-describedby="team-dialog-description"/);
   const dialog = html.match(/<dialog id="team-dialog"[^>]*>([\s\S]*?)<\/dialog>/)?.[1] ?? '';
   assert.ok(dialog, 'the native team dialog must be present');
-  assert.doesNotMatch(dialog, /Achievement placeholder/, 'dialog must not contain generic "Achievement placeholder" text');
-  assert.doesNotMatch(dialog, /Project placeholder/, 'dialog must not contain generic "Project placeholder" text');
-  assert.doesNotMatch(dialog, /Role \/ specialty/, 'dialog must not show generic "Role / specialty" — should show actual roles');
+  assert.match(dialog, /<h2 id="team-dialog-name" data-dialog-name>[\s\S]*?<\/h2>/);
+  assert.match(dialog, /<p id="team-dialog-description" data-dialog-description>[\s\S]*?<\/p>/);
+  assert.equal((dialog.match(/<h[1-6]\b/gi) ?? []).length, 1, 'the dialog has only its name heading');
+  assert.equal((dialog.match(/<p\b/gi) ?? []).length, 1, 'the dialog has only its description paragraph');
+  assert.doesNotMatch(dialog, /(?:data-dialog-marker|data-dialog-role|data-dialog-bio|data-dialog-achievements|data-dialog-work|class="dialog-placeholder"|Team Profile|Skills &amp; expertise|Role focus|<section\b)/i);
 });
 
 test('embedded favicon is the canonical safe SVG data URI', () => {
@@ -747,14 +750,20 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(reveals, /threshold:\s*0\.12/);
 });
 
-test('dialog keeps named hooks, focus restoration, and spring entry/exit without autoplay', () => {
+test('dialog keeps name and description hooks, focus restoration, and spring entry/exit without autoplay', () => {
   const dialog = script.match(/function initTeamDialog\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
   assert.match(dialog, /document\.querySelector\(['"]#team-dialog['"]\)/);
   assert.match(dialog, /members\.length !== 4/);
   assert.match(dialog, /typeof dialog\.showModal !== ['"]function['"]/);
   assert.match(dialog, /members\.forEach[\s\S]*?member\.disabled = false;[\s\S]*?member\.setAttribute\(['"]aria-haspopup['"], ['"]dialog['"]\)/);
-  assert.match(dialog, /document\.createElement\(/);
-  assert.match(dialog, /replaceChildren\(/);
+  assert.match(dialog, /const membersByIndex = \[/);
+  assert.match(dialog, /\{ name: 'People 01', description: 'An AXORA team member contributing to the work behind each solution\.' \}/);
+  assert.match(dialog, /\{ name: 'People 02', description: 'A temporary profile for a person helping turn ideas into practical digital work\.' \}/);
+  assert.match(dialog, /\{ name: 'People 03', description: 'An AXORA team member supporting the studio through collaborative work\.' \}/);
+  assert.match(dialog, /\{ name: 'People 04', description: 'A temporary profile representing the people shaping the AXORA studio\.' \}/);
+  assert.match(dialog, /description\.textContent = member\.description;/);
+  assert.doesNotMatch(dialog, /member\.(?:role|bio|skills|focus)/);
+  assert.doesNotMatch(dialog, /replaceTextChildren|document\.createElement/);
   assert.doesNotMatch(dialog, /innerHTML/);
   assert.match(dialog, /dialog\.classList\.add\(['"]is-open['"]\)/);
   assert.match(dialog, /dialog\.classList\.add\(['"]closing['"]\)/);
