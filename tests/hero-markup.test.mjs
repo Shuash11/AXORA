@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-2';
+const assetVersion = '20260802-3';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -217,6 +217,10 @@ test('Why Choose AXORA section has required items', () => {
   assert.match(why, /We continue supporting your business even after project completion\./);
   assert.match(why, /<div class="why-focal-media"[^>]*>[\s\S]*?<img\b[^>]*\bsrc="Hero Image\/755690039_2254034195393709_1404549311183090400_n\.jpg"[^>]*\bloading="lazy"/, 'the focal team card must show the team photo instead of a plain box');
   assert.doesNotMatch(why.match(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*\bwhy-focal\b[^"]*")[^>]*>[\s\S]*?<\/article>/)?.[0] ?? '', /<svg\b/, 'the focal team card must not fake a team visual with an icon');
+  assert.match(why, /<button\b[^>]*\bclass="[^"]*\bwhy-focal-open\b[^"]*"[^>]*\bdata-open-lightbox[^>]*\bdisabled\b/, 'the focal card must ship a tappable photo button, inert until enhancement succeeds');
+  assert.match(why, /<span class="why-focal-hint">[^<]+<\/span>/, 'the tappable photo area must show a view-photo hint');
+  assert.match(html, /<dialog\b[^>]*\bid="photo-lightbox"[^>]*\baria-label="[^"]+"[^>]*>\s*<img\b[^>]*\bsrc="Hero Image\/755690039_2254034195393709_1404549311183090400_n\.jpg"[^>]*\balt="[^"]+"[^>]*>/m, 'the full team photo must live in a labelled lightbox dialog');
+  assert.match(html, /<dialog\b[^>]*\bid="photo-lightbox"[\s\S]*?<button\b[^>]*\bdata-close-lightbox\b/, 'the lightbox must carry an explicit close button');
   /* Static why cards must not be keyboard-focusable after their class attribute. */
   const whyCardOpenings = [...why.matchAll(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*")[^>]*>/g)].map((match) => match[0]);
   assert.equal(whyCardOpenings.length, 5, 'five complete why-card opening tags must exist');
@@ -522,8 +526,14 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');
   assert.match(css, /\.why-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'why-card must preserve-3d');
   assert.match(css, /\.why-focal-media\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0/, 'the team photo must be a full-card background layer');
-  assert.match(css, /\.why-focal-media img\s*\{[^}]*object-fit:\s*cover[^}]*opacity:\s*\.45/, 'the backdrop photo must fill its frame, softened to stay behind the copy');
+  assert.match(css, /\.why-focal-media img\s*\{[^}]*object-fit:\s*cover[^}]*opacity:\s*\.\d+[^}]*filter:\s*contrast\(/, 'the backdrop photo must fill its frame, crisp enough to read behind the copy');
   assert.match(css, /\.why-focal-media::after\s*\{[^}]*linear-gradient/, 'the backdrop must carry a light scrim so the copy stays readable');
+  assert.match(css, /\.why-focal\s*\{[^}]*min-block-size:\s*clamp\(/, 'the focal card must reserve enough height for a readable photo backdrop');
+  assert.match(css, /\.why-focal-open\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*z-index:\s*2/, 'the tappable photo layer must cover the whole card above the backdrop');
+  assert.match(css, /\.why-focal-hint\s*\{[^}]*border-radius:\s*999px/, 'the view-photo hint must render as a pill');
+  assert.match(css, /\.photo-lightbox\s*\{[^}]*animation:\s*lightbox-in/, 'the lightbox must open with a short entrance animation');
+  assert.match(css, /\.photo-lightbox img\s*\{[^}]*max-block-size:\s*88vh[^}]*object-fit:\s*contain/, 'the full photo must fit the viewport without cropping');
+  assert.match(css, /\.photo-lightbox::backdrop\s*\{[^}]*backdrop-filter:\s*blur\(/, 'the lightbox must dim and soften the page behind it');
   assert.match(css, /\.why-focal h3,\s*\.why-focal p\s*\{[^}]*z-index:\s*1/, 'the focal copy must sit above the photo layer');
   assert.match(css, /\.portfolio-card\s*\{[^}]*--tilt-x/, 'portfolio-card must participate in tilt system');
   assert.match(css, /\.portfolio-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'portfolio-card must preserve-3d');
@@ -543,6 +553,7 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(script, /function initNavigation\(\)\s*\{/);
   assert.match(script, /function initReveals\(\)\s*\{/);
   assert.match(script, /function initTeamDialog\(\)\s*\{/);
+  assert.match(script, /function initPhotoLightbox\(\)\s*\{/);
   assert.match(script, /function initSpatialMotion\(\)\s*\{/);
   assert.match(script, /function initCarousel\(heroStack\)\s*\{/);
   assert.match(script, /function initStoryCarousel\(storyCarousel\)\s*\{/);
@@ -558,7 +569,7 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]focusout['"]/);
   assert.match(storyCarousel, /reducedMotionQuery\.addEventListener\(['"]change['"], startAutoplay\)/);
   assert.match(storyCarousel, /stage\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/, 'the deck must ignore native drags');
-  for (const name of ['initNavigation', 'initReveals', 'initTeamDialog', 'initSpatialMotion']) {
+  for (const name of ['initNavigation', 'initReveals', 'initTeamDialog', 'initPhotoLightbox', 'initSpatialMotion']) {
     assert.equal((script.match(new RegExp(`\\b${name}\\(\\)\\s*;`)) ?? []).length, 1, `${name}() must run exactly once`);
   }
   assert.equal((script.match(/new IntersectionObserver/g) ?? []).length, 1, 'exactly one IntersectionObserver');
@@ -627,6 +638,19 @@ test('dialog keeps named hooks, focus restoration, and spring entry/exit without
   assert.doesNotMatch(dialog, /Achievement placeholder/, 'dialog populate must not use generic achievement placeholders');
   assert.doesNotMatch(dialog, /Project placeholder/, 'dialog populate must not use generic project placeholders');
   assert.doesNotMatch(dialog, /Role \/ specialty/, 'dialog must populate with actual role text, not generic');
+});
+
+test('photo lightbox opens the full team photo without auto-announce or autoplay', () => {
+  const lightbox = script.match(/function initPhotoLightbox\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(lightbox, /document\.querySelector\(['"]\[data-open-lightbox\]['"]\)/);
+  assert.match(lightbox, /document\.querySelector\(['"]#photo-lightbox['"]\)/);
+  assert.match(lightbox, /typeof lightbox\.showModal !== ['"]function['"]/);
+  assert.match(lightbox, /opener\.disabled = false;/, 'the photo button must become tappable only after the lightbox initializes');
+  assert.match(lightbox, /lightbox\.showModal\(\);[\s\S]*?document\.body\.classList\.add\(['"]dialog-open['"]\)/);
+  assert.match(lightbox, /event\.target === lightbox[\s\S]*?lightbox\.close\(\)/, 'clicking the dimmed backdrop must close the lightbox');
+  assert.match(lightbox, /lightbox\.addEventListener\(['"]close['"][\s\S]*?document\.body\.classList\.remove\(['"]dialog-open['"]\)/);
+  assert.doesNotMatch(lightbox, /window\.setTimeout\(/, 'lightbox must open and close synchronously');
+  assert.doesNotMatch(lightbox, /innerHTML/, 'lightbox must not build markup from strings');
 });
 
 test('carousel keeps keyboard, swipe, dots, and arrows with an accessible status', () => {

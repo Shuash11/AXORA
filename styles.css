@@ -1096,15 +1096,79 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   border-radius: inherit;
   background: var(--surface-2);
 }
-.why-focal-media img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; opacity: .45; user-select: none; -webkit-user-drag: none; }
+.why-focal-media img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; opacity: .7; filter: contrast(1.06) saturate(1.08); user-select: none; -webkit-user-drag: none; }
 .why-focal-media::after {
   position: absolute;
   inset: 0;
   content: "";
-  background: linear-gradient(160deg, rgb(248 250 255 / .82), rgb(248 250 255 / .45) 62%, rgb(255 255 255 / .62));
+  background: linear-gradient(160deg, rgb(248 250 255 / .55), rgb(248 250 255 / .24) 62%, rgb(255 255 255 / .38));
 }
 .why-focal { overflow: hidden; min-block-size: clamp(260px, 30vw, 380px); }
 .why-focal h3, .why-focal p { position: relative; z-index: 1; }
+
+/* Tap the card photo to open the full-size lightbox. */
+.why-focal-open {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-items: end;
+  justify-items: end;
+  padding: .9rem;
+  border: 0;
+  border-radius: inherit;
+  background: transparent;
+  cursor: pointer;
+}
+.why-focal-open:disabled { cursor: default; }
+.why-focal-hint {
+  padding: .45rem .8rem;
+  border: 1px solid rgb(255 255 255 / .65);
+  border-radius: 999px;
+  background: rgb(248 250 255 / .85);
+  box-shadow: 0 10px 22px -12px rgb(45 57 126 / 40%);
+  color: var(--text);
+  font-family: var(--label);
+  font-size: .68rem;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
+}
+.why-focal-open:hover .why-focal-hint,
+.why-focal-open:focus-visible .why-focal-hint { border-color: rgb(98 104 244 / 55%); background: var(--surface); color: var(--accent); }
+
+/* Full-size photo lightbox. */
+.photo-lightbox {
+  inline-size: min(92vw, 1100px);
+  padding: .75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  box-shadow: 0 44px 96px -32px rgb(20 30 70 / 60%);
+  animation: lightbox-in 180ms var(--ease-out);
+}
+.photo-lightbox img { display: block; inline-size: 100%; max-block-size: 88vh; object-fit: contain; border-radius: calc(var(--radius-md) - 6px); }
+.photo-lightbox::backdrop { background: rgb(23 32 51 / .72); backdrop-filter: blur(3px); }
+.photo-lightbox [data-close-lightbox] {
+  position: absolute;
+  inset-block-start: .9rem;
+  inset-inline-end: .9rem;
+  display: grid;
+  place-items: center;
+  inline-size: 44px;
+  block-size: 44px;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: rgb(248 250 255 / .92);
+  color: var(--text);
+  box-shadow: 0 10px 22px -12px rgb(45 57 126 / 45%);
+  cursor: pointer;
+}
+.photo-lightbox [data-close-lightbox]:hover,
+.photo-lightbox [data-close-lightbox]:focus-visible { border-color: rgb(98 104 244 / 45%); color: var(--accent); }
+.photo-lightbox [data-close-lightbox] svg { inline-size: 18px; block-size: 18px; }
+@keyframes lightbox-in { from { opacity: 0; transform: translateY(8px) scale(.98); } to { opacity: 1; transform: none; } }
 
 /* ---------- Portfolio ---------- */
 

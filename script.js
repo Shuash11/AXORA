@@ -288,6 +288,39 @@
     });
   }
 
+  /* ---------- Team photo lightbox ---------- */
+
+  function initPhotoLightbox() {
+    const opener = document.querySelector('[data-open-lightbox]');
+    const lightbox = document.querySelector('#photo-lightbox');
+    if (!opener || !lightbox || typeof lightbox.showModal !== 'function') {
+      return;
+    }
+    const closeButton = lightbox.querySelector('[data-close-lightbox]');
+    if (!closeButton) {
+      return;
+    }
+
+    opener.disabled = false;
+
+    opener.addEventListener('click', () => {
+      lightbox.showModal();
+      document.body.classList.add('dialog-open');
+    });
+
+    closeButton.addEventListener('click', () => lightbox.close());
+
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) {
+        lightbox.close();
+      }
+    });
+
+    lightbox.addEventListener('close', () => {
+      document.body.classList.remove('dialog-open');
+    });
+  }
+
   /* ---------- Pointer parallax + tilt: one RAF scheduler ---------- */
 
   function initSpatialMotion() {
@@ -783,6 +816,7 @@
   initNavigation();
   initReveals();
   initTeamDialog();
+  initPhotoLightbox();
   initSpatialMotion();
 
   const heroStack = document.querySelector('.hero-scene');
