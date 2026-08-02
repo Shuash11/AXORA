@@ -17,6 +17,12 @@
   .site-footer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
 }
 
+@media (min-width: 1024px) {
+  .people-list .person-stage:nth-child(2) { --stage-offset: -8px; }
+  .people-list .person-stage:nth-child(3) { --stage-offset: 6px; }
+  .people-list .person-stage:nth-child(4) { --stage-offset: -4px; }
+}
+
 @media (min-width: 768px) and (max-width: 1023px) {
   /* Tablet band: keep why-card headings on one line — the global 14ch cap would otherwise wrap them to two lines. */
   .why-card h3 { max-inline-size: none; font-size: clamp(.95rem, 1.7vw, 1.1rem); white-space: nowrap; }

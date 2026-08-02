@@ -6,6 +6,8 @@ import test from 'node:test';
    test loads the module file directly so the module stays independently
    testable. It fails to load until styles/06-people.css exists. */
 const css = readFileSync('styles/06-people.css', 'utf8');
+const motionCss = readFileSync('styles/15-motion.css', 'utf8');
+const overridesCss = readFileSync('styles/16-overrides.css', 'utf8');
 
 test('people-list stays a four-column stage grid under shared perspective', () => {
   assert.match(css, /\.people-list\s*\{[^}]*grid-template-columns:\s*repeat\(4,\s*minmax\(0,\s*1fr\)\)/, 'the people grid must keep four equal columns');
@@ -68,4 +70,12 @@ test('names and actions keep the display type and a 44px tap target', () => {
 
 test('module owns no global media overrides', () => {
   assert.doesNotMatch(css, /@media/, 'coarse-pointer and reduced-motion overrides belong to styles/16-overrides.css');
+});
+
+test('shared motion keeps safe defaults while desktop stages alternate depth', () => {
+  assert.match(motionCss, /\.js\s*\[data-tilt\]\[data-reveal\]\.is-revealed\s*\{[^}]*transform:\s*rotateX\(clamp\(-3deg,\s*var\(--tilt-x,\s*0deg\),\s*3deg\)\)\s*rotateY\(clamp\(-3deg,\s*var\(--tilt-y,\s*0deg\),\s*3deg\)\)\s*translateY\(calc\(var\(--lift,\s*0px\)\s*\+\s*var\(--stage-offset,\s*0px\)\)\)/, 'the revealed tilt transform must preserve unset component output with zero-value fallbacks');
+  for (const [position, offset] of [[2, '-8px'], [3, '6px'], [4, '-4px']]) {
+    assert.match(overridesCss, new RegExp(`@media \\(min-width:\\s*1024px\\)[\\s\\S]*?\\.people-list \\.person-stage:nth-child\\(${position}\\)\\s*\\{\\s*--stage-offset:\\s*${offset.replace('-', '\\-')}\\s*;`), `desktop stage ${position} must receive its restrained offset`);
+  }
+  assert.equal((overridesCss.match(/--stage-offset:/g) ?? []).length, 3, 'only the three desktop-stage offsets may define the composition variable');
 });

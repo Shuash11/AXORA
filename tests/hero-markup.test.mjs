@@ -575,7 +575,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scroll-greeter\.is-visible \.greeter-bubble\s*\{[^}]*opacity:\s*1\s*!important[^}]*transform:\s*none\s*!important/);
   assert.match(css, /\.js \[data-reveal\]\s*\{[^}]*opacity:\s*0[^}]*translateY\(26px\)\s+rotateX\(3deg\)/, 'reveal must settle with a 20-32px rise and subtle rotateX');
   assert.match(css, /\.js \[data-reveal\]\.is-revealed\s*\{[^}]*opacity:\s*1/);
-  assert.match(css, /\.js \[data-tilt\]\[data-reveal\]\.is-revealed\s*\{[^}]*transform:\s*rotateX\(clamp\(-3deg,\s*var\(--tilt-x,\s*0deg\),\s*3deg\)\)\s*rotateY\(clamp\(-3deg,\s*var\(--tilt-y,\s*0deg\),\s*3deg\)\)\s*translateY\(var\(--lift,\s*0px\)\)/, 'revealed tilt cards must preserve the non-inverted base tilt orientation and lift');
+  assert.match(css, /\.js \[data-tilt\]\[data-reveal\]\.is-revealed\s*\{[^}]*transform:\s*rotateX\(clamp\(-3deg,\s*var\(--tilt-x,\s*0deg\),\s*3deg\)\)\s*rotateY\(clamp\(-3deg,\s*var\(--tilt-y,\s*0deg\),\s*3deg\)\)\s*translateY\(calc\(var\(--lift,\s*0px\)\s*\+\s*var\(--stage-offset,\s*0px\)\)\)/, 'revealed tilt cards must preserve their default lift while allowing a safe stage offset');
   assert.match(css, /\.values-label\s*\{[^}]*color:\s*#D8DBFF/i, 'values label must use a high-contrast light token on the dark values rail');
   assert.doesNotMatch(css, /\.values-label\s*\{[^}]*color:\s*var\(--text-faint\)/, 'values label must not use the low-contrast text-faint token');
   assert.match(css, /\.footer-privacy\s*\{[^}]*color:\s*var\(--text-dim\)/, 'footer privacy label must use the approved contrast-safe text token');
@@ -786,6 +786,183 @@ test('dialog keeps name and description hooks, focus restoration, and spring ent
   assert.doesNotMatch(dialog, /Achievement placeholder/, 'dialog populate must not use generic achievement placeholders');
   assert.doesNotMatch(dialog, /Project placeholder/, 'dialog populate must not use generic project placeholders');
   assert.doesNotMatch(dialog, /Role \/ specialty/, 'dialog must populate with actual role text, not generic');
+});
+
+function createTeamDialogHarness() {
+  class MockElement {
+    constructor(dataset = {}) {
+      this.attributes = new Map();
+      this.dataset = { ...dataset };
+      this.disabled = true;
+      this.focusCount = 0;
+      this.listeners = new Map();
+      this.textContent = '';
+      const classes = new Set();
+      this.classList = {
+        add: (...names) => names.forEach((name) => classes.add(name)),
+        remove: (...names) => names.forEach((name) => classes.delete(name)),
+        contains: (name) => classes.has(name),
+        toggle: (name, force) => {
+          if (force) classes.add(name);
+          else classes.delete(name);
+        },
+      };
+      this.style = { setProperty() {} };
+    }
+
+    addEventListener(type, listener) {
+      if (!this.listeners.has(type)) this.listeners.set(type, []);
+      this.listeners.get(type).push(listener);
+    }
+
+    emit(type, event = {}) { this.listeners.get(type)?.forEach((listener) => listener(event)); }
+    setAttribute(name, value) { this.attributes.set(name, String(value)); }
+    getAttribute(name) { return this.attributes.get(name) ?? null; }
+    removeAttribute(name) { this.attributes.delete(name); }
+    focus() { this.focusCount += 1; }
+    closest(selector) { return selector === '.dialog-shell' && this.isDialogShell ? this : null; }
+    querySelector() { return undefined; }
+    querySelectorAll() { return []; }
+  }
+
+  const root = new MockElement();
+  const body = new MockElement();
+  const dialog = new MockElement();
+  const dialogShell = new MockElement();
+  dialogShell.isDialogShell = true;
+  const closeButton = new MockElement();
+  const name = new MockElement();
+  const description = new MockElement();
+  const members = Array.from({ length: 4 }, (_, index) => new MockElement({ member: String(index) }));
+  dialog.open = false;
+  dialog.showModalCount = 0;
+  dialog.showModal = () => {
+    dialog.open = true;
+    dialog.showModalCount += 1;
+  };
+  dialog.close = () => {
+    if (!dialog.open) return;
+    dialog.open = false;
+    dialog.emit('close');
+  };
+  dialog.querySelector = (selector) => ({
+    '.dialog-shell': dialogShell,
+    '[data-dialog-close]': closeButton,
+    '[data-dialog-name]': name,
+    '[data-dialog-description]': description,
+  })[selector];
+
+  const timers = new Map();
+  let nextTimer = 1;
+  const reducedMotion = { matches: false, addEventListener() {} };
+  const inertQuery = { matches: false, addEventListener() {} };
+  const document = {
+    body,
+    documentElement: root,
+    hidden: false,
+    activeElement: undefined,
+    addEventListener() {},
+    getElementById() { return undefined; },
+    querySelector(selector) { return selector === '#team-dialog' ? dialog : undefined; },
+    querySelectorAll(selector) { return selector === '#team .person-stage[data-member]' ? members : []; },
+  };
+  const window = {
+    innerWidth: 1440,
+    innerHeight: 900,
+    scrollY: 0,
+    matchMedia(query) { return query === '(prefers-reduced-motion: reduce)' ? reducedMotion : inertQuery; },
+    requestAnimationFrame(callback) { callback(); return 1; },
+    cancelAnimationFrame() {},
+    addEventListener() {},
+    setTimeout(callback, delay) {
+      const id = nextTimer;
+      nextTimer += 1;
+      timers.set(id, { callback, delay });
+      return id;
+    },
+    clearTimeout(id) { timers.delete(id); },
+    setInterval() { return 1; },
+    clearInterval() {},
+  };
+  runInNewContext(script, { document, window, Element: MockElement, decodeURIComponent });
+
+  return {
+    body,
+    closeButton,
+    description,
+    dialog,
+    members,
+    name,
+    reducedMotion,
+    runOnlyTimer() {
+      assert.equal(timers.size, 1, 'normal close must schedule exactly one timer');
+      const [id, timer] = timers.entries().next().value;
+      timers.delete(id);
+      assert.equal(timer.delay, 160, 'normal close must retain the 160ms exit delay');
+      timer.callback();
+    },
+    timerCount: () => timers.size,
+  };
+}
+
+test('team dialog controller opens each staged profile and restores the exact trigger on every close path', () => {
+  const runtime = createTeamDialogHarness();
+  const profiles = [
+    ['People 01', 'An AXORA team member contributing to the work behind each solution.'],
+    ['People 02', 'A temporary profile for a person helping turn ideas into practical digital work.'],
+    ['People 03', 'An AXORA team member supporting the studio through collaborative work.'],
+    ['People 04', 'A temporary profile representing the people shaping the AXORA studio.'],
+  ];
+
+  runtime.members.forEach((member) => {
+    assert.equal(member.disabled, false, 'every stage must become available after dialog initialization');
+    assert.equal(member.getAttribute('aria-haspopup'), 'dialog');
+  });
+
+  const open = (index) => runtime.members[index].emit('click');
+  const assertOpen = (index) => {
+    assert.equal(runtime.dialog.open, true);
+    assert.equal(runtime.dialog.showModalCount > 0, true);
+    assert.equal(runtime.name.textContent, profiles[index][0]);
+    assert.equal(runtime.description.textContent, profiles[index][1]);
+    assert.equal(runtime.body.classList.contains('dialog-open'), true);
+    assert.equal(runtime.members[index].classList.contains('is-selected'), true);
+    assert.equal(runtime.closeButton.focusCount > 0, true);
+  };
+  const assertClosed = (index) => {
+    assert.equal(runtime.dialog.open, false);
+    assert.equal(runtime.body.classList.contains('dialog-open'), false);
+    assert.equal(runtime.members[index].classList.contains('is-selected'), false);
+    assert.equal(runtime.members[index].focusCount, 1, 'focus must return to the member that opened the dialog');
+  };
+
+  open(2);
+  assertOpen(2);
+  runtime.closeButton.emit('click');
+  assert.equal(runtime.dialog.open, true, 'normal close waits for the exit animation');
+  runtime.runOnlyTimer();
+  assertClosed(2);
+
+  open(1);
+  assertOpen(1);
+  runtime.dialog.emit('click', { target: runtime.dialog });
+  runtime.runOnlyTimer();
+  assertClosed(1);
+
+  open(0);
+  assertOpen(0);
+  let cancelPrevented = false;
+  runtime.dialog.emit('cancel', { preventDefault() { cancelPrevented = true; } });
+  assert.equal(cancelPrevented, true, 'Escape cancel must defer to the managed close animation');
+  runtime.runOnlyTimer();
+  assertClosed(0);
+
+  runtime.reducedMotion.matches = true;
+  open(3);
+  assertOpen(3);
+  runtime.closeButton.emit('click');
+  assert.equal(runtime.timerCount(), 0, 'reduced motion must close without an animation timer');
+  assertClosed(3);
 });
 
 test('photo lightbox opens the full team photo without auto-announce or autoplay', () => {
