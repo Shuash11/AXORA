@@ -60,6 +60,57 @@
 }
 
 .chip svg { inline-size: 15px; block-size: 15px; color: var(--accent); }
+
+/* ---------- Carousel controls ---------- */
+
+.carousel-controls { display: none; }
+
+.carousel-arrow {
+  display: inline-grid;
+  place-items: center;
+  min-inline-size: 36px;
+  min-block-size: 36px;
+  padding: 0;
+  border: 1px solid var(--line-strong);
+  border-radius: 50%;
+  color: var(--text-dim);
+  background: rgb(255 255 255 / 82%);
+  box-shadow: inset 0 1px 0 #FFFFFF, 0 8px 18px -14px rgb(23 32 51 / 55%);
+  cursor: pointer;
+  transition: color 180ms ease, border-color 180ms ease, background-color 180ms ease, transform 180ms var(--ease-out);
+}
+
+.carousel-arrow:hover, .carousel-arrow:focus-visible { border-color: rgb(98 104 244 / 45%); color: var(--accent); background: var(--accent-soft); transform: translateY(-1px); }
+.carousel-arrow svg { inline-size: 18px; block-size: 18px; }
+
+.dots { display: flex; align-items: center; gap: .1rem; }
+
+.dot {
+  position: relative;
+  min-inline-size: 44px;
+  min-block-size: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.dot::after {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  inline-size: 5px;
+  block-size: 5px;
+  border-radius: 999px;
+  content: "";
+  background: var(--text-faint);
+  transform: translate(-50%, -50%);
+  transition: inline-size 260ms var(--ease-out), background-color 200ms ease;
+}
+
+.dot:hover::after, .dot:focus-visible::after { background: var(--text); }
+.dot[aria-current="true"]::after { inline-size: 18px; background: var(--accent); }
+
 /* ---------- Utilities ---------- */
 
 .sr-only {

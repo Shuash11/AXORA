@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { existsSync, readFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
 import test from 'node:test';
 import { runInNewContext } from 'node:vm';
 
@@ -13,11 +14,15 @@ const cssModules = [
 ];
 const cssImportPattern = /^\s*@import\s+url\(["']?([^"')]+)["']?\);\s*$/gm;
 function loadCss(filePath, seen = new Set()) {
-  assert.ok(existsSync(filePath), `missing stylesheet: ${filePath}`);
-  assert.ok(!seen.has(filePath), `stylesheet imports ${filePath} more than once`);
-  seen.add(filePath);
-  const source = readFileSync(filePath, 'utf8');
-  return source.replace(cssImportPattern, (_, href) => loadCss(href.replace(/^\.\//, '').split('?')[0], seen));
+  const resolvedPath = resolve(filePath);
+  assert.ok(existsSync(resolvedPath), `missing stylesheet: ${resolvedPath}`);
+  assert.ok(!seen.has(resolvedPath), `stylesheet imports ${resolvedPath} more than once`);
+  seen.add(resolvedPath);
+  const source = readFileSync(resolvedPath, 'utf8');
+  return source.replace(cssImportPattern, (_, href) => loadCss(
+    resolve(dirname(resolvedPath), href.replace(/^\.\//, '').split('?')[0]),
+    seen,
+  ));
 }
 const html = readFileSync('index.html', 'utf8');
 const cssManifest = readFileSync('styles.css', 'utf8');
@@ -71,9 +76,28 @@ test('stylesheet loader resolves the existing CSS baseline', () => {
 
 test('stylesheet manifest imports every module in the required order', () => {
   const expectedManifest = `${cssModules
-    .map((file) => `@import url("./styles/${file}?v=20260802-12");`)
+    .map((file) => `@import url("./styles/${file}?v=${assetVersion}");`)
     .join('\n')}\n`;
   assert.equal(cssManifest, expectedManifest, 'styles.css must contain only the ordered module imports');
+});
+
+test('shared carousel controls stay in components while section modules keep scoped overrides', () => {
+  const componentsCss = readFileSync('styles/04-components.css', 'utf8');
+  const heroCss = readFileSync('styles/05-hero.css', 'utf8');
+  const aboutCss = readFileSync('styles/08-about.css', 'utf8');
+
+  for (const selector of ['.carousel-controls', '.carousel-arrow', '.dots', '.dot']) {
+    assert.match(componentsCss, new RegExp(`${escapeRegExp(selector)}\\s*\\{`), `${selector} must be a shared component`);
+    assert.doesNotMatch(heroCss, new RegExp(`(?:^|\\n)${escapeRegExp(selector)}\\s*\\{`), `${selector} must not be defined generically in the Hero module`);
+  }
+  for (const selector of ['.carousel-arrow:hover', '.dot:hover::after', '.dot[aria-current="true"]::after']) {
+    assert.match(componentsCss, new RegExp(escapeRegExp(selector)), `${selector} must remain a shared component rule`);
+    assert.doesNotMatch(heroCss, new RegExp(escapeRegExp(selector)), `${selector} must not remain in the Hero module`);
+  }
+  assert.match(heroCss, /\.hero-scene\.is-enhanced \.carousel-controls\s*\{/, 'Hero must retain its enhanced carousel display rule');
+  assert.match(aboutCss, /\.story-carousel\.is-enhanced \.carousel-controls\s*\{/, 'About must retain its enhanced carousel display rule');
+  assert.match(aboutCss, /\.story-carousel \.carousel-arrow\s*\{/, 'About must retain its carousel-arrow override');
+  assert.match(aboutCss, /\.story-carousel \.dot\s*\{/, 'About must retain its dot override');
 });
 
 test('full landing page has the required semantic sections, navigation, and content', () => {
