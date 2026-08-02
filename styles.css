@@ -1087,6 +1087,18 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 
 .why-card p { max-inline-size: 36ch; margin: 0; color: var(--text-dim); font-size: .9rem; line-height: 1.65; }
 
+/* Compact photo thumbnail for why-cards that feature an event image. */
+.why-card-thumb {
+  position: relative;
+  inline-size: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--surface-2);
+  margin-block-end: .5rem;
+}
+.why-card-thumb img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
+
 /* The team photo fills the card in full color; a bottom-anchored scrim keeps the caption readable without washing the photo. */
 .why-focal-media {
   position: absolute;

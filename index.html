@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,500;9..144,600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="styles.css?v=20260802-6">
-    <script src="script.js?v=20260802-6" defer></script>
+    <link rel="stylesheet" href="styles.css?v=20260802-7">
+    <script src="script.js?v=20260802-7" defer></script>
   </head>
   <body>
     <div class="ambient-scene" aria-hidden="true">
@@ -314,13 +314,10 @@
               <h3>Multidisciplinary Team</h3>
               <p>Different specialists working together to deliver complete solutions.</p>
             </article>
-            <article class="why-card why-focal" data-tilt data-reveal style="--reveal-order: 2">
-              <div class="why-focal-media" aria-hidden="true">
+            <article class="why-card why-card-photo" data-tilt data-reveal style="--reveal-order: 2">
+              <div class="why-card-thumb" aria-hidden="true">
                 <img src="Hero Image/stadium-crowd.jpg" alt="" width="1600" height="1200" loading="lazy" decoding="async" draggable="false">
               </div>
-              <button type="button" class="why-focal-open" data-open-lightbox data-lightbox="client-photo-lightbox" aria-label="View the client-focused event photo in full" disabled>
-                <span class="why-focal-hint">View full photo</span>
-              </button>
               <h3>Client Focused Approach</h3>
               <p>Every solution is tailored to your goals and requirements.</p>
             </article>
@@ -344,11 +341,6 @@
 
         <dialog class="photo-lightbox" id="photo-lightbox" aria-label="Multidisciplinary team photo">
           <img src="Hero Image/755690039_2254034195393709_1404549311183090400_n.jpg" alt="The AXORA multidisciplinary team" width="2048" height="1536">
-          <button type="button" data-close-lightbox aria-label="Close photo"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button>
-        </dialog>
-
-        <dialog class="photo-lightbox" id="client-photo-lightbox" aria-label="Client focused event photo">
-          <img src="Hero Image/stadium-crowd.jpg" alt="AXORA speaking to an audience at a stadium event" width="1600" height="1200">
           <button type="button" data-close-lightbox aria-label="Close photo"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-linecap="round" stroke-width="2"/></svg></button>
         </dialog>
 
