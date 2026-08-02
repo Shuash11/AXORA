@@ -486,6 +486,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.about-story\s*\{[^}]*border/, 'about-story must have border for plate effect');
   assert.doesNotMatch(css, /\.story-marker\b|\.story-spark\b/, 'the removed origin marker styles must not remain');
   assert.match(css, /\.story-carousel\s*\{/, 'story carousel must have dedicated styles');
+  assert.match(css, /\.story-carousel\s*\{[^}]*touch-action:\s*pan-y/, 'story carousel must ignore horizontal drags while keeping vertical page scroll');
   assert.match(css, /\.story-carousel\.is-enhanced \.story-slide\[data-position="0"\]\s*\{[^}]*opacity:\s*1/, 'the active story slide must sit crisply in front');
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.story-carousel\.is-enhanced \.story-slide\s*\{[^}]*transform:\s*none\s*!important/, 'story carousel must disable the 3D fan under reduced motion');
   assert.doesNotMatch(css, /\.service-(?:card|list|index|web|mobile|design|support)\b/, 'removed Services section styles must not remain');
@@ -550,6 +551,7 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]focusin['"]/);
   assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]focusout['"]/);
   assert.match(storyCarousel, /reducedMotionQuery\.addEventListener\(['"]change['"], startAutoplay\)/);
+  assert.match(storyCarousel, /stage\.addEventListener\(['"]dragstart['"],\s*\(event\) => event\.preventDefault\(\)\)/, 'the deck must ignore native drags');
   for (const name of ['initNavigation', 'initReveals', 'initTeamDialog', 'initSpatialMotion']) {
     assert.equal((script.match(new RegExp(`\\b${name}\\(\\)\\s*;`)) ?? []).length, 1, `${name}() must run exactly once`);
   }

@@ -726,6 +726,9 @@
       }
     });
 
+    /* The deck drives itself: ignore native drags so the photos can never be grabbed. */
+    stage.addEventListener('dragstart', (event) => event.preventDefault());
+
     /* Autoplay: advance every 1s (at least 0.9s), pause on hover, focus, and while hidden. */
     let autoplayTimer;
     let autoplayHeld = false;
