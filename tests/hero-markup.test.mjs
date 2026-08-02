@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-3';
+const assetVersion = '20260802-4';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -532,8 +532,11 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.why-focal-open\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*z-index:\s*2/, 'the tappable photo layer must cover the whole card above the backdrop');
   assert.match(css, /\.why-focal-hint\s*\{[^}]*border-radius:\s*999px/, 'the view-photo hint must render as a pill');
   assert.match(css, /\.photo-lightbox\s*\{[^}]*animation:\s*lightbox-in/, 'the lightbox must open with a short entrance animation');
-  assert.match(css, /\.photo-lightbox img\s*\{[^}]*max-block-size:\s*88vh[^}]*object-fit:\s*contain/, 'the full photo must fit the viewport without cropping');
+  assert.match(css, /\.photo-lightbox\s*\{[^}]*aspect-ratio:\s*4\s*\/\s*3/, 'the lightbox must adopt the photo aspect so the image fills it completely');
+  assert.match(css, /\.photo-lightbox img\s*\{[^}]*width:\s*100%[^}]*height:\s*100%[^}]*object-fit:\s*cover/, 'the full photo must fill the lightbox edge to edge');
   assert.match(css, /\.photo-lightbox::backdrop\s*\{[^}]*backdrop-filter:\s*blur\(/, 'the lightbox must dim and soften the page behind it');
+  assert.match(css, /\.why-focal p\s*\{[^}]*color:\s*var\(--text\)/, 'the focal sub copy must be dark enough to read over the photo');
+  assert.match(css, /\.why-focal-media::after\s*\{[^}]*rgb\(248 250 255 \/ \.8\d\)/, 'the scrim must stay strong behind the copy');
   assert.match(css, /\.why-focal h3,\s*\.why-focal p\s*\{[^}]*z-index:\s*1/, 'the focal copy must sit above the photo layer');
   assert.match(css, /\.portfolio-card\s*\{[^}]*--tilt-x/, 'portfolio-card must participate in tilt system');
   assert.match(css, /\.portfolio-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'portfolio-card must preserve-3d');
