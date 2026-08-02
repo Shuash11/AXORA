@@ -295,7 +295,7 @@
     const header = document.querySelector('.site-header');
     const greeter = document.querySelector('.scroll-greeter');
     const footer = document.querySelector('.site-footer');
-    const sectionIds = ['home', 'about', 'services', 'portfolio', 'team', 'contact'];
+    const sectionIds = ['home', 'about', 'portfolio', 'team', 'contact'];
     const sections = sectionIds
       .map((id) => document.getElementById(id))
       .filter((section) => section != null);
@@ -659,6 +659,76 @@
     startAutoplay();
   }
 
+  /* ---------- Story carousel: 3D fan over the IT Summit photos ---------- */
+
+  function initStoryCarousel(storyCarousel) {
+    const stage = storyCarousel.querySelector('.story-stage');
+    const slides = [...storyCarousel.querySelectorAll('.story-slide')];
+    const controls = storyCarousel.querySelector('.carousel-controls');
+    const previous = storyCarousel.querySelector('[data-carousel-prev]');
+    const next = storyCarousel.querySelector('[data-carousel-next]');
+    const dots = controls ? [...controls.querySelectorAll('[data-dot]')] : [];
+    const status = storyCarousel.querySelector('.carousel-status');
+    const counter = storyCarousel.querySelector('[data-count-current]');
+    const count = slides.length;
+
+    if (!stage || !controls || !previous || !next || count !== 15 || dots.length !== count || !status) {
+      return;
+    }
+
+    let activeIndex = 0;
+
+    function render(announce) {
+      slides.forEach((slide, index) => {
+        slide.dataset.position = String(relativeOffset(index, activeIndex, count));
+        slide.setAttribute('aria-hidden', String(index !== activeIndex));
+      });
+
+      dots.forEach((dot, index) => {
+        dot.setAttribute('aria-current', String(index === activeIndex));
+      });
+
+      status.setAttribute('aria-live', announce ? 'polite' : 'off');
+      status.textContent = `Photo ${activeIndex + 1} of ${count}`;
+
+      if (counter) {
+        counter.textContent = String(activeIndex + 1).padStart(2, '0');
+      }
+    }
+
+    function show(index) {
+      activeIndex = normalizeIndex(index, count);
+      render(true);
+    }
+
+    storyCarousel.classList.add('is-enhanced');
+    controls.hidden = false;
+
+    dots.forEach((dot, index) => {
+      dot.disabled = false;
+      dot.addEventListener('click', () => show(index));
+    });
+
+    previous.addEventListener('click', () => show(previousIndex(activeIndex, count)));
+    next.addEventListener('click', () => show(nextIndex(activeIndex, count)));
+
+    storyCarousel.addEventListener('keydown', (event) => {
+      if (!storyCarousel.contains(document.activeElement)) {
+        return;
+      }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault();
+        show(previousIndex(activeIndex, count));
+      } else if (event.key === 'ArrowRight') {
+        event.preventDefault();
+        show(nextIndex(activeIndex, count));
+      }
+    });
+
+    render(false);
+  }
+
   initNavigation();
   initReveals();
   initTeamDialog();
@@ -667,5 +737,10 @@
   const heroStack = document.querySelector('.hero-scene');
   if (heroStack) {
     initCarousel(heroStack);
+  }
+
+  const storyCarousel = document.querySelector('.story-carousel');
+  if (storyCarousel) {
+    initStoryCarousel(storyCarousel);
   }
 })();
