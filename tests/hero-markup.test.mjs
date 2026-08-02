@@ -373,7 +373,7 @@ test('Portfolio section has categories and honest pre-launch state', () => {
 test('People Behind AXORA uses temporary person stages and a minimal dialog', () => {
   const team = html.match(/<section id="team"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
   assert.ok(team, 'the team section must exist');
-  assert.match(team, /<h2 id="team-title" data-reveal>People Behind<br>AXORA\.<\/h2>/);
+  assert.match(team, /<h2 id="team-title" data-reveal>People Behind<br>AXORA<\/h2>/);
   const stages = [...team.matchAll(/<button\b(?=[^>]*\bclass="[^"]*\bperson-stage\b[^"]*")[^>]*>([\s\S]*?)<\/button>/g)];
   assert.equal(stages.length, 4, 'there must be exactly four temporary person stages');
   const placeholderSources = [
@@ -389,9 +389,9 @@ test('People Behind AXORA uses temporary person stages and a minimal dialog', ()
     assert.match(stage, /\bdata-tilt\b/);
     assert.match(stage, /\bdisabled\b/);
     assert.match(stage, /\bdata-reveal\b/);
-    assert.match(stage, new RegExp(`Person ${number}`));
+    assert.match(stage, new RegExp(`People ${number}`));
     for (const className of ['person-index', 'person-scene', 'person-backdrop', 'person-light', 'person-floor-shadow', 'person-figure', 'person-placeholder', 'person-name', 'person-action']) {
-      assert.match(stage, new RegExp(`\\b${className}\\b`), `Person ${number} must include .${className}`);
+      assert.match(stage, new RegExp(`\\b${className}\\b`), `People ${number} must include .${className}`);
     }
     assert.match(stage, new RegExp(`<img[^>]*src="${escapeRegExp(placeholderSources[index])}"[^>]*alt=""[^>]*width="2048"[^>]*height="1536"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`));
     assert.match(stage, new RegExp(`style="--reveal-order: ${index + 1}"`));
