@@ -41,7 +41,7 @@ test('scene layers place a rear wall, top-left light, floor shadow, and forward 
 });
 
 test('placeholder images crop top-center cover and the stage keeps its index label', () => {
-  assert.match(css, /\.person-placeholder\s*\{[^}]*object-fit:\s*cover[^}]*object-position:\s*top\s+center/, 'placeholders must crop from the top center like portraits');
+  assert.match(css, /img\.person-placeholder\s*\{[^}]*object-fit:\s*cover[^}]*object-position:\s*top\s+center/, 'the placeholder image itself must crop from the top center like a portrait');
   assert.match(css, /\.person-index\s*\{/, 'the stage must style its index label');
 });
 

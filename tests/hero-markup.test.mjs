@@ -374,7 +374,9 @@ test('People Behind AXORA uses temporary person stages and a minimal dialog', ()
   const team = html.match(/<section id="team"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
   assert.ok(team, 'the team section must exist');
   assert.match(team, /<h2 id="team-title" data-reveal>People Behind<br>AXORA<\/h2>/);
-  const stages = [...team.matchAll(/<button\b(?=[^>]*\bclass="[^"]*\bperson-stage\b[^"]*")[^>]*>([\s\S]*?)<\/button>/g)];
+  const peopleList = team.match(/<div class="people-list">([\s\S]*?)<\/div>/)?.[1] ?? '';
+  assert.ok(peopleList, 'the team wrapper must use .people-list');
+  const stages = [...peopleList.matchAll(/<button\b(?=[^>]*\bclass="[^"]*\bperson-stage\b[^"]*")[^>]*>([\s\S]*?)<\/button>/g)];
   assert.equal(stages.length, 4, 'there must be exactly four temporary person stages');
   const placeholderSources = [
     'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg',
@@ -393,7 +395,8 @@ test('People Behind AXORA uses temporary person stages and a minimal dialog', ()
     for (const className of ['person-index', 'person-scene', 'person-backdrop', 'person-light', 'person-floor-shadow', 'person-figure', 'person-placeholder', 'person-name', 'person-action']) {
       assert.match(stage, new RegExp(`\\b${className}\\b`), `People ${number} must include .${className}`);
     }
-    assert.match(stage, new RegExp(`<img[^>]*src="${escapeRegExp(placeholderSources[index])}"[^>]*alt=""[^>]*width="2048"[^>]*height="1536"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`));
+    assert.match(stage, new RegExp(`<img class="person-placeholder" src="${escapeRegExp(placeholderSources[index])}"[^>]*alt=""[^>]*width="2048"[^>]*height="1536"[^>]*loading="lazy"[^>]*decoding="async"[^>]*draggable="false">`));
+    assert.doesNotMatch(stage, /<span class="person-placeholder">/, 'the image crop class must not be attached to a wrapper');
     assert.match(stage, new RegExp(`style="--reveal-order: ${index + 1}"`));
   }
   assert.doesNotMatch(team, /(?:team-card|team-role|device-label|TM-0[2-4]|Team Member|Client Success Lead|Lead Developer|Frontend Developer|Creative Director)/);
@@ -408,6 +411,10 @@ test('People Behind AXORA uses temporary person stages and a minimal dialog', ()
   assert.equal((dialog.match(/<h[1-6]\b/gi) ?? []).length, 1, 'the dialog has only its name heading');
   assert.equal((dialog.match(/<p\b/gi) ?? []).length, 1, 'the dialog has only its description paragraph');
   assert.doesNotMatch(dialog, /(?:data-dialog-marker|data-dialog-role|data-dialog-bio|data-dialog-achievements|data-dialog-work|class="dialog-placeholder"|Team Profile|Skills &amp; expertise|Role focus|<section\b)/i);
+  assert.doesNotMatch(css, /(?:\.dialog-placeholder|data-dialog-(?:marker|role|bio)|#team-dialog (?:section|article|h[34]))/, 'the dialog stylesheet must not retain profile-only selectors');
+  assert.match(css, /\.dialog-shell\s*\{[^}]*grid-template-columns:\s*minmax\(0,\s*1fr\)[^}]*gap:[^}]*padding:/, 'the simplified dialog must use a padded single-column shell');
+  assert.match(css, /#team-dialog h2\s*\{[^}]*padding-inline-end:\s*3\.5rem/, 'the dialog title must reserve close-button space');
+  assert.match(css, /#team-dialog \[data-dialog-description\]\s*\{[^}]*color:\s*var\(--text-dim\)[^}]*line-height:\s*1\.7/, 'the dialog description must remain readable');
 });
 
 test('embedded favicon is the canonical safe SVG data URI', () => {

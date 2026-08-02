@@ -66,8 +66,8 @@
 .dialog-shell {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(13rem, .7fr) minmax(0, 1fr);
-  column-gap: clamp(2rem, 5vw, 4.5rem);
+  grid-template-columns: minmax(0, 1fr);
+  gap: clamp(.85rem, 2vw, 1.25rem);
   align-items: start;
   padding: clamp(1.5rem, 4vw, 3rem);
 }
@@ -91,30 +91,16 @@
 #team-dialog [data-dialog-close]:hover, #team-dialog [data-dialog-close]:focus-visible { border-color: rgb(98 104 244 / 45%); color: var(--accent); }
 #team-dialog [data-dialog-close] svg { inline-size: 18px; block-size: 18px; }
 
-.dialog-placeholder { grid-column: 1; margin: 0 0 2.2rem; color: var(--text-faint); font-family: var(--label); font-size: .64rem; letter-spacing: .1em; text-transform: uppercase; }
-
-#team-dialog [data-dialog-marker] { grid-column: 1; margin: 0; color: var(--accent); font-family: var(--label); font-size: .95rem; font-weight: 600; }
-
-#team-dialog h2 { grid-column: 1; margin: .65rem 0; font-size: clamp(2rem, 4.5vw, 3.2rem); }
-
-#team-dialog [data-dialog-role], #team-dialog [data-dialog-bio] { grid-column: 1; color: var(--text-dim); }
-
-#team-dialog [data-dialog-role] { margin: 0; font-family: var(--label); font-size: .68rem; }
-
-#team-dialog [data-dialog-bio] { margin: 1.4rem 0 0; font-size: .95rem; line-height: 1.7; }
-
-#team-dialog section {
-  grid-column: 2;
+#team-dialog h2 {
   margin: 0;
-  padding: 1.3rem 1.4rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-md);
-  background: var(--surface-2);
+  padding-inline-end: 3.5rem;
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
 }
 
-#team-dialog section + section { margin-block-start: 1rem; }
-#team-dialog h3, #team-dialog h4 { margin: 0 0 .7rem; font-family: var(--display); font-weight: 600; }
-#team-dialog h3 { font-size: 1.05rem; }
-#team-dialog h4 { font-size: .95rem; }
-#team-dialog section p { margin: .4rem 0; color: var(--text-dim); font-size: .9rem; }
-#team-dialog article { padding: .8rem 0; border-block-start: 1px solid var(--line); }
+#team-dialog [data-dialog-description] {
+  max-inline-size: 58ch;
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 1rem;
+  line-height: 1.7;
+}

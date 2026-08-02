@@ -78,7 +78,7 @@
   transform: translateZ(28px);
 }
 
-.person-placeholder {
+img.person-placeholder {
   display: block;
   inline-size: 100%;
   block-size: 100%;
