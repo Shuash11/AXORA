@@ -17,6 +17,8 @@
   flex-direction: column;
   min-inline-size: 44px;
   min-block-size: 320px;
+  padding: 0;
+  appearance: none;
   border: 0;
   color: var(--text);
   background: transparent;
@@ -26,7 +28,7 @@
   transition: transform 260ms var(--ease-out), opacity 220ms ease;
 }
 
-.person-stage.is-tilting { transition: transform 130ms ease-out; }
+.js .person-stage[data-tilt][data-reveal].is-revealed.is-tilting { transition: transform 130ms ease-out; }
 
 .person-stage:disabled { cursor: default; opacity: 1; }
 
@@ -110,9 +112,9 @@
   min-block-size: 44px;
   margin-block-start: auto;
   padding-block-start: .5rem;
-  color: var(--text-faint);
+  color: var(--text-dim);
   font-family: var(--label);
-  font-size: .6rem;
+  font-size: .68rem;
   letter-spacing: .05em;
 }
 
