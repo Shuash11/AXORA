@@ -26,6 +26,7 @@ function loadCss(filePath, seen = new Set()) {
 }
 const html = readFileSync('index.html', 'utf8');
 const cssManifest = readFileSync('styles.css', 'utf8');
+const normalizedManifest = cssManifest.replace(/\r\n/g, '\n');
 const css = loadCss('styles.css');
 const script = readFileSync('script.js', 'utf8');
 
@@ -75,10 +76,18 @@ test('stylesheet loader resolves the existing CSS baseline', () => {
 });
 
 test('stylesheet manifest imports every module in the required order', () => {
-  const expectedManifest = `${cssModules
-    .map((file) => `@import url("./styles/${file}?v=${assetVersion}");`)
-    .join('\n')}\n`;
-  assert.equal(cssManifest, expectedManifest, 'styles.css must contain only the ordered module imports');
+  const expectedImports = cssModules.map((file) => `./styles/${file}?v=${assetVersion}`);
+  const manifestContract = (source) => ({
+    imports: [...source.matchAll(cssImportPattern)].map((match) => match[1]),
+    remainder: source.replace(cssImportPattern, ''),
+  });
+  const manifest = manifestContract(normalizedManifest);
+
+  assert.deepEqual(manifest.imports, expectedImports, 'styles.css imports must be exact and ordered');
+  assert.equal(manifest.remainder.trim(), '', 'styles.css must contain only ordered module imports');
+
+  const crlfManifest = normalizedManifest.replace(/\n/g, '\r\n');
+  assert.deepEqual(manifestContract(crlfManifest.replace(/\r\n/g, '\n')), manifest, 'CRLF checkout conversion must preserve the manifest contract');
 });
 
 test('shared carousel controls stay in components while section modules keep scoped overrides', () => {
