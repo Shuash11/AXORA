@@ -1930,8 +1930,8 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   /* Tablet band: keep why-card headings on one line — the global 14ch cap would otherwise wrap them to two lines. */
   .why-card h3 { max-inline-size: none; font-size: clamp(.95rem, 1.7vw, 1.1rem); white-space: nowrap; }
   /* Prop scenes scale down with the four-column cards so props stay legible without clipping at the 190px travel end. */
-  .why-prop-stage { height: 108px; }
-  .why-prop-stage .why-prop-layer { transform: scale(.72); transform-origin: top center; }
+  .why-prop-stage { height: 100px; }
+  .why-prop-stage .why-prop-layer { transform: scale(.58); transform-origin: top center; }
 }
 
 @media (min-width: 768px) and (max-width: 1199px) {
