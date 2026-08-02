@@ -1078,26 +1078,14 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 .why-card:hover, .why-card:focus-visible { border-color: rgb(98 104 244 / 35%); box-shadow: inset 0 1px 0 #FFFFFF, 0 28px 62px -30px rgb(54 64 200 / 42%), 0 10px 22px rgb(26 39 75 / 8%); --lift: -7px; }
 .why-card:hover::before, .why-card:focus-visible::before { opacity: 1; }
 
-.why-focal { grid-column: span 7; grid-row: span 2; }
-.why-card:not(.why-focal) { grid-column: span 5; }
+.why-focal { grid-column: span 6; grid-row: auto; }
+.why-card:not(.why-focal) { grid-column: span 4; }
 
 .why-card svg { inline-size: 28px; block-size: 28px; color: var(--accent); stroke: currentColor; }
 
 .why-card h3 { max-inline-size: 14ch; margin: 1.3rem 0 .5rem; font-family: var(--display); font-size: clamp(1.1rem, 1.8vw, 1.35rem); font-weight: 600; letter-spacing: -.01em; line-height: 1.15; }
 
 .why-card p { max-inline-size: 36ch; margin: 0; color: var(--text-dim); font-size: .9rem; line-height: 1.65; }
-
-/* Compact photo thumbnail for why-cards that feature an event image. */
-.why-card-thumb {
-  position: relative;
-  inline-size: 100%;
-  aspect-ratio: 16 / 9;
-  border-radius: var(--radius-sm);
-  overflow: hidden;
-  background: var(--surface-2);
-  margin-block-end: .5rem;
-}
-.why-card-thumb img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
 
 /* The team photo fills the card in full color; a bottom-anchored scrim keeps the caption readable without washing the photo. */
 .why-focal-media {
@@ -1844,7 +1832,7 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .about-prop { grid-column: 5 / -1; }
   .about-direction { grid-column: 1 / span 4; grid-template-columns: 1fr; }
   .why-focal { grid-column: span 6; }
-  .why-card:not(.why-focal) { grid-column: span 3; }
+  .why-card:not(.why-focal) { grid-column: span 4; }
   .portfolio-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .site-footer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
 }

@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-7';
+const assetVersion = '20260802-8';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -221,10 +221,15 @@ test('Why Choose AXORA section has required items', () => {
   assert.match(why, /<span class="why-focal-hint">[^<]+<\/span>/, 'the tappable photo area must show a view-photo hint');
   assert.match(html, /<dialog\b[^>]*\bid="photo-lightbox"[^>]*\baria-label="[^"]+"[^>]*>\s*<img\b[^>]*\bsrc="Hero Image\/755690039_2254034195393709_1404549311183090400_n\.jpg"[^>]*\balt="[^"]+"[^>]*>/m, 'the full team photo must live in a labelled lightbox dialog');
   assert.match(html, /<dialog\b[^>]*\bid="photo-lightbox"[\s\S]*?<button\b[^>]*\bdata-close-lightbox\b/, 'the lightbox must carry an explicit close button');
-  assert.match(why, /<div class="why-card-thumb"[^>]*>[\s\S]*?<img\b[^>]*\bsrc="Hero Image\/stadium-crowd\.jpg"[^>]*\bloading="lazy"/, 'the client-focused card must show the stadium crowd photo thumbnail');
+  assert.match(why, /<div class="why-focal-media"[^>]*>[\s\S]*?<img\b[^>]*\bsrc="Hero Image\/stadium-crowd\.jpg"[^>]*\bloading="lazy"/, 'the client-focused focal card must show the stadium crowd photo');
+  assert.match(why, /<button\b[^>]*\bdata-lightbox="client-photo-lightbox"/, 'the client focal card opener must reference its own lightbox');
+  assert.match(html, /<dialog\b[^>]*\bid="client-photo-lightbox"[^>]*\baria-label="[^"]+"[^>]*>\s*<img\b[^>]*\bsrc="Hero Image\/stadium-crowd\.jpg"[^>]*\balt="[^"]+"[^>]*>/m, 'the client event photo must live in its own labelled lightbox dialog');
+  assert.match(html, /<dialog\b[^>]*\bid="client-photo-lightbox"[\s\S]*?<button\b[^>]*\bdata-close-lightbox\b/, 'the client lightbox must carry an explicit close button');
   /* Static why cards must not be keyboard-focusable after their class attribute. */
   const whyCardOpenings = [...why.matchAll(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*")[^>]*>/g)].map((match) => match[0]);
   assert.equal(whyCardOpenings.length, 5, 'five complete why-card opening tags must exist');
+  const whyFocalCount = [...why.matchAll(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*\bwhy-focal\b[^"]*")[^>]*>/g)].length;
+  assert.equal(whyFocalCount, 2, 'exactly two full-photo focal cards must exist');
   for (const opening of whyCardOpenings) {
     const classAttribute = opening.match(/\bclass="[^"]*"/)?.[0] ?? '';
     const afterClassAttribute = opening.slice(opening.indexOf(classAttribute) + classAttribute.length);
@@ -499,6 +504,9 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.doesNotMatch(css, /\.service-(?:card|list|index|web|mobile|design|support)\b/, 'removed Services section styles must not remain');
   assert.match(css, /\.why-grid\s*\{[^}]*display:\s*grid/, 'why-grid must be a grid layout');
   assert.match(css, /\.why-focal\s*\{[^}]*grid-column:\s*span/, 'why-focal must span columns for dominance');
+  assert.match(css, /\.why-focal\s*\{[^}]*grid-column:\s*span 6;[^}]*grid-row:\s*auto;/, 'the two focal cards must share the first row evenly at six columns each');
+  assert.match(css, /\.why-card:not\(\.why-focal\)\s*\{[^}]*grid-column:\s*span 4;/, 'the three supporting cards must share the second row evenly at four columns each');
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.why-card:not\(\.why-focal\)\s*\{[^}]*grid-column:\s*span 4;/, 'the supporting cards must keep an even four-column row on tablet');
   assert.match(css, /\.portfolio-grid\s*\{[^}]*display:\s*grid/, 'portfolio-grid must be a grid layout');
   assert.match(css, /\.portfolio-preview\s*\{[^}]*aspect-ratio/, 'portfolio-preview must have aspect-ratio');
   assert.match(css, /\.proof-board\s*\{[^}]*display:\s*grid/, 'proof-board must be one cohesive grid');
@@ -648,8 +656,9 @@ test('dialog keeps named hooks, focus restoration, and spring entry/exit without
 
 test('photo lightbox opens the full team photo without auto-announce or autoplay', () => {
   const lightbox = script.match(/function initPhotoLightbox\(\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
-  assert.match(lightbox, /document\.querySelector\(['"]\[data-open-lightbox\]['"]\)/);
-  assert.match(lightbox, /document\.querySelector\(['"]#photo-lightbox['"]\)/);
+  assert.match(lightbox, /document\.querySelectorAll\(['"]\[data-open-lightbox\]['"]\)/, 'every photo opener must be wired, not just the first');
+  assert.match(lightbox, /openers\.forEach\(\(opener\) => \{/, 'the lightbox init must iterate over all photo openers');
+  assert.match(lightbox, /document\.getElementById\(opener\.dataset\.lightbox \|\| ['"]photo-lightbox['"]\)/);
   assert.match(lightbox, /typeof lightbox\.showModal !== ['"]function['"]/);
   assert.match(lightbox, /opener\.disabled = false;/, 'the photo button must become tappable only after the lightbox initializes');
   assert.match(lightbox, /lightbox\.showModal\(\);[\s\S]*?document\.body\.classList\.add\(['"]dialog-open['"]\)/);
