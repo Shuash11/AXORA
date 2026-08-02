@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-10';
+const assetVersion = '20260802-11';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -235,6 +235,60 @@ test('Why Choose AXORA section has required items', () => {
     const afterClassAttribute = opening.slice(opening.indexOf(classAttribute) + classAttribute.length);
     assert.doesNotMatch(afterClassAttribute, /\btabindex\b/, `static why-card must not have tabindex after its class attribute: ${opening}`);
   }
+});
+
+test('supporting Why cards upgrade flat icons into layered prop scenes', () => {
+  const why = html.match(/<section id="why-axora"[^>]*>([\s\S]*?)<\/section>\s*(?:<section|<\/main>)/)?.[1] ?? '';
+  /* Exactly three supporting cards carry the prop-card hook. */
+  const propCards = [...why.matchAll(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*\bwhy-prop-card\b[^"]*")[^>]*>/g)];
+  assert.equal(propCards.length, 3, 'exactly three supporting cards must carry why-prop-card');
+  /* Exactly three prop stages, each card-specific and aria-hidden. */
+  const propStages = [...why.matchAll(/<div\b[^>]*\bclass="[^"]*\bwhy-prop-stage\b[^"]*"/g)];
+  assert.equal(propStages.length, 3, 'exactly three why-prop-stage scenes must exist');
+  for (const cls of ['why-prop-delivery', 'why-prop-technology', 'why-prop-partnership']) {
+    assert.match(why, new RegExp(`<div\\b[^>]*\\bclass="[^"]*\\bwhy-prop-stage\\b[^"]*\\b${cls}\\b[^"]*"[^>]*\\baria-hidden="true"`), `${cls} stage must be card-specific and aria-hidden`);
+  }
+  /* The old flat supporting-card icons must be gone (other page SVGs stay untouched). */
+  assert.doesNotMatch(why, /<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*")[^>]*>\s*<svg\b/, 'supporting why cards must no longer open with flat svg icons');
+  /* Shared stage: perspective, preserve-3d, isolation, overflow bound. */
+  assert.match(css, /\.why-prop-stage\s*\{[^}]*perspective:[^;]+;[^}]*transform-style:[^;]+;[^}]*isolation:[^;]+;[^}]*overflow:\s*hidden;/, 'the shared prop stage must compose perspective, preserve-3d, isolation and overflow');
+  /* Each scene has a named focal prop plus at least one supporting prop. */
+  assert.match(css, /\.why-prop-delivery\s[\s\S]*?\.why-prop-cube\s*\{/, 'delivery must render a focal parcel cube');
+  assert.match(css, /\.why-prop-delivery\s[\s\S]*?\.why-prop-orb\s*\{/, 'delivery must render the coral status orb');
+  assert.match(css, /\.why-prop-technology\s[\s\S]*?\.why-prop-chip\s*\{/, 'technology must render a focal processor chip');
+  assert.match(css, /\.why-prop-technology\s[\s\S]*?\.why-prop-ring\s*\{/, 'technology must render the orbit ring');
+  assert.match(css, /\.why-prop-partnership\s[\s\S]*?\.why-prop-link\s*\{/, 'partnership must render the focal links');
+  assert.match(css, /\.why-prop-partnership\s[\s\S]*?\.why-prop-bead\s*\{/, 'partnership must render the relationship beads');
+  /* Focal props must read as convincing objects, not icons: minimum rendered scale per scene. */
+  assert.match(css, /\.why-prop-delivery\s[\s\S]*?\.why-prop-cube\s*\{[^}]*width:\s*(7[2-9]|80)px/, 'the delivery parcel wrapper must be roughly 72-80px wide');
+  assert.match(css, /\.why-prop-delivery\s[\s\S]*?\.why-prop-cube-front\s*\{[^}]*width:\s*(4[4-9]|50)px[^}]*height:\s*(3[4-9]|40)px/, 'the delivery parcel front must be roughly 44-50 x 34-40px');
+  assert.match(css, /\.why-prop-delivery\s[\s\S]*?\.why-prop-cube-shadow\s*\{[^}]*width:\s*(4[2-9]|50)px/, 'the delivery cast shadow must be roughly 42-50px wide');
+  assert.match(css, /@keyframes\s+why-prop-delivery-travel[\s\S]*?translate3d\(\s*24px[\s\S]*?translate3d\(\s*190px/, 'the parcel travel must span roughly x=24 to x=190px');
+  assert.match(css, /\.why-prop-technology\s[\s\S]*?\.why-prop-slab\s*\{[^}]*width:\s*(17[0-9]|18[0-9]|190)px[^}]*height:\s*(3[4-9]|40)px/, 'the technology platform must be roughly 170-190px wide');
+  assert.match(css, /\.why-prop-technology\s[\s\S]*?\.why-prop-chip\s*\{[^}]*width:\s*(6[4-9]|7[0-4])px[^}]*height:\s*(4[89]|5[0-6])px/, 'the processor chip must be roughly 64-74 x 48-56px');
+  assert.match(css, /\.why-prop-technology\s[\s\S]*?\.why-prop-chip-core\s*\{[^}]*width:\s*(2[89]|3[0-9]|40)px/, 'the luminous chip core must scale up with the chip');
+  assert.match(css, /\.why-prop-technology\s[\s\S]*?\.why-prop-ring\s*\{[^}]*width:\s*(18[0-9]|19[0-9]|200)px[^}]*height:\s*(7[89]|8[0-5])px/, 'the tech orbit must be roughly 190 x 82px');
+  assert.match(css, /\.why-prop-partnership\s[\s\S]*?\.why-prop-link\s*\{[^}]*width:\s*(6[4-9]|7[0-4])px[^}]*height:\s*(3[89]|4[0-6])px[^}]*border:\s*(9|10|11)px\s+solid/, 'each partnership link must be a roughly 64-74 x 38-46px chain link with 9-11px thickness');
+  assert.match(css, /\.why-prop-partnership\s[\s\S]*?\.why-prop-orbit\s*\{[^}]*width:\s*2[2-4][0-9]px/, 'the partnership orbit must be roughly 220-240px wide');
+  assert.match(css, /\.why-prop-partnership\s[\s\S]*?\.why-prop-link-l\s*\{[^}]*transform:\s*rotate\(-2[0-9]deg\)/, 'the left chain link must carry its own -22deg-ish base rotation');
+  assert.match(css, /\.why-prop-partnership\s[\s\S]*?\.why-prop-link-r\s*\{[^}]*transform:\s*rotate\(2[0-9]deg\)/, 'the right chain link must carry its own +22deg-ish base rotation');
+  assert.match(css, /@keyframes\s+why-prop-partner-link\s*\{[\s\S]*?translate:\s*-1[0-9]px[\s\S]*?translate:\s*1[0-9]px/, 'the interlock keyframes must breathe via translate only so both base rotations survive');
+  /* Named keyframes and their applications for the three scene loops. */
+  assert.match(css, /@keyframes\s+why-prop-delivery-travel\s*\{/, 'delivery travel keyframes must exist');
+  assert.match(css, /@keyframes\s+why-prop-tech-orbit\s*\{/, 'tech orbit keyframes must exist');
+  assert.match(css, /@keyframes\s+why-prop-tech-pulse\s*\{/, 'tech core pulse keyframes must exist');
+  assert.match(css, /@keyframes\s+why-prop-partner-link\s*\{/, 'partnership interlock keyframes must exist');
+  assert.match(css, /@keyframes\s+why-prop-partner-orbit\s*\{/, 'partnership orbit keyframes must exist');
+  assert.match(css, /animation:[^;]*why-prop-delivery-travel/, 'the delivery cube travel must run');
+  assert.match(css, /animation:[^;]*why-prop-tech-orbit/, 'the tech orbit must run');
+  assert.match(css, /animation:[^;]*why-prop-tech-pulse/, 'the chip core pulse must run');
+  assert.match(css, /animation:[^;]*why-prop-partner-link/, 'the link interlock motion must run');
+  assert.match(css, /animation:[^;]*why-prop-partner-orbit/, 'the partnership orbit must run');
+  /* Responsive stages: legible tablet, deliberate mobile. */
+  assert.match(css, /@media \(min-width:\s*768px\) and \(max-width:\s*1023px\)[\s\S]*?\.why-prop-stage\s*\{/, 'prop stages must stay legible across the tablet band');
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.why-prop-stage\s*\{/, 'prop stages must keep a deliberate composition on mobile');
+  /* Reduced motion must freeze every prop scene. */
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.why-prop-stage[\s\S]*?animation:\s*none/, 'reduced motion must freeze the prop scenes');
 });
 
 test('Portfolio section has categories and honest pre-launch state', () => {

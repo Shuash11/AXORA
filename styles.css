@@ -1087,6 +1087,95 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 
 .why-card p { max-inline-size: 36ch; margin: 0; color: var(--text-dim); font-size: .9rem; line-height: 1.65; }
 
+/* ---------- Why prop scenes (supporting cards) ---------- */
+/* One miniature spatial stage per supporting card: background grid + midground props + foreground hero.
+   All geometry is CSS-only (spans/divs, gradients, borders) — no WebGL, no external assets.
+   Top-left highlights and down-right cast shadows keep the three scenes coherent. */
+
+.why-prop-stage {
+  position: relative;
+  height: 132px;
+  margin-block-end: 14px;
+  border-radius: var(--radius-sm);
+  perspective: 600px;
+  transform-style: preserve-3d;
+  isolation: isolate;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(150% 110% at 30% 25%, rgb(255 255 255 / .55), transparent 55%),
+    radial-gradient(120% 100% at 82% 92%, rgb(15 23 42 / .07), transparent 60%),
+    linear-gradient(180deg, rgb(248 250 252 / .96), rgb(235 239 246 / .96));
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / .75), inset 0 -1px 0 rgb(15 23 42 / .06);
+}
+.why-prop-layer { position: absolute; inset: 0; }
+.why-prop-bg-grid {
+  position: absolute;
+  inset: 0;
+  opacity: .55;
+  background-image: linear-gradient(rgb(15 23 42 / .05) 1px, transparent 1px), linear-gradient(90deg, rgb(15 23 42 / .05) 1px, transparent 1px);
+  background-size: 18px 18px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 88%);
+  mask-image: linear-gradient(180deg, #000, transparent 88%);
+}
+.why-prop-card h3 { margin-block-start: 0; }
+
+/* --- Delivery: glossy parcel cube travelling a dashed route to a coral endpoint --- */
+.why-prop-delivery .why-prop-bg-grid { background-image: linear-gradient(rgb(240 101 79 / .08) 1px, transparent 1px), linear-gradient(90deg, rgb(240 101 79 / .08) 1px, transparent 1px); }
+.why-prop-delivery .why-prop-route { position: absolute; left: -18px; bottom: 20px; width: 250px; height: 80px; border-bottom: 2px dashed rgb(240 101 79 / .45); border-radius: 0 0 50% 50% / 0 0 100% 100%; }
+.why-prop-delivery .why-prop-pin { position: absolute; right: 38px; bottom: 18px; width: 14px; height: 14px; border: 2px solid rgb(240 101 79 / .85); border-radius: 50%; box-shadow: 0 0 0 4px rgb(240 101 79 / .1); }
+.why-prop-delivery .why-prop-pin::after { content: ""; position: absolute; inset: 3px; border-radius: 50%; background: rgb(240 101 79 / .95); }
+.why-prop-delivery .why-prop-orb { position: absolute; right: 16px; bottom: 62px; width: 12px; height: 12px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffd9ce, #ff7a66 62%, #e8583f); box-shadow: 0 0 14px rgb(255 122 102 / .55); }
+.why-prop-delivery .why-prop-cube-shadow { position: absolute; left: 6px; top: 96px; width: 46px; height: 8px; border-radius: 50%; background: rgb(15 23 42 / .2); filter: blur(1.5px); animation: why-prop-delivery-travel 9s ease-in-out infinite alternate; }
+.why-prop-delivery .why-prop-cube { position: absolute; left: 0; top: 24px; width: 76px; height: 68px; animation: why-prop-delivery-travel 9s ease-in-out infinite alternate; }
+.why-prop-delivery .why-prop-cube-body { position: absolute; inset: 0; animation: why-prop-cube-bob 3.6s ease-in-out infinite alternate; }
+.why-prop-delivery .why-prop-cube-top, .why-prop-delivery .why-prop-cube-front, .why-prop-delivery .why-prop-cube-side { position: absolute; }
+.why-prop-delivery .why-prop-cube-top { left: 16px; top: 8px; width: 46px; height: 18px; transform-origin: 100% 100%; transform: scaleY(.5) skewX(-45deg); background: linear-gradient(180deg, #fcede0, #f2d9bf); box-shadow: inset 0 1px 0 rgb(255 255 255 / .7); }
+.why-prop-delivery .why-prop-cube-front { left: 16px; top: 26px; width: 46px; height: 36px; border-radius: 4px; background: linear-gradient(135deg, #fffdf8, #fbe3cd); box-shadow: inset 0 1px 0 rgb(255 255 255 / .9), inset 2px 2px 6px rgb(255 255 255 / .55), inset -3px -3px 8px rgb(201 172 145 / .4); }
+.why-prop-delivery .why-prop-cube-side { left: 62px; top: 26px; width: 10px; height: 36px; transform-origin: 0 0; transform: scaleX(.92) skewY(-45deg); background: linear-gradient(180deg, #e2b48c, #cf9a6d); box-shadow: inset -1px 0 0 rgb(122 84 55 / .25); }
+.why-prop-delivery .why-prop-cube-check { position: absolute; left: 20px; top: 15px; width: 9px; height: 16px; border-right: 3px solid #f0654f; border-bottom: 3px solid #f0654f; transform: rotate(45deg); }
+
+@keyframes why-prop-delivery-travel {
+  from { transform: translate3d(24px, 0, 0); }
+  to { transform: translate3d(190px, 0, 0); }
+}
+@keyframes why-prop-cube-bob {
+  from { transform: translate3d(0, 1px, 0) rotate(-3deg); }
+  to { transform: translate3d(0, -2px, 0) rotate(3deg); }
+}
+
+/* --- Technology: isometric processor slab with a luminous core and an orbiting data bead --- */
+.why-prop-technology .why-prop-bg-grid { background-image: radial-gradient(circle, rgb(124 108 255 / .13) 1.2px, transparent 1.6px); background-size: 13px 13px; }
+.why-prop-technology .why-prop-ring { position: absolute; left: 66px; bottom: 40px; width: 190px; height: 82px; border: 1.5px solid rgb(124 108 255 / .5); border-radius: 50%; animation: why-prop-tech-orbit 6s linear infinite; }
+.why-prop-technology .why-prop-bead { position: absolute; left: 50%; top: -6px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ffffff, #8f7bff 60%, #6a53e8); box-shadow: 0 0 10px rgb(124 108 255 / .8); }
+.why-prop-technology .why-prop-slab { position: absolute; left: 71px; bottom: 22px; width: 180px; height: 36px; border-radius: 5px; background: linear-gradient(180deg, #dbe2ec, #c3ccda); box-shadow: 0 10px 18px rgb(15 23 42 / .18), inset 0 1px 0 rgb(255 255 255 / .8); }
+.why-prop-technology .why-prop-slab-top { position: absolute; left: 71px; bottom: 56px; width: 180px; height: 32px; transform-origin: 0 100%; transform: skewX(-14deg); border-radius: 5px 3px 0 0; background: linear-gradient(180deg, #f0f4f9, #dde4ee); box-shadow: inset 0 1px 0 rgb(255 255 255 / .9); }
+.why-prop-technology .why-prop-chip { position: absolute; left: 127px; bottom: 66px; width: 68px; height: 52px; border-radius: 5px; background: linear-gradient(180deg, #252f41, #131a28); box-shadow: 0 8px 14px rgb(15 23 42 / .4), inset 0 1px 0 rgb(255 255 255 / .18); }
+.why-prop-technology .why-prop-chip-core { position: absolute; left: 17px; top: 12px; width: 34px; height: 28px; border-radius: 4px; background: radial-gradient(circle at 40% 35%, #d9ecff, #5ea7f7 55%, #2f6fe0); box-shadow: 0 0 18px rgb(94 167 247 / .85), inset 0 1px 0 rgb(255 255 255 / .6); animation: why-prop-tech-pulse 3.2s ease-in-out infinite alternate; }
+.why-prop-technology .why-prop-chip-pins { position: absolute; top: 4px; bottom: 4px; display: flex; flex-direction: column; justify-content: space-between; }
+.why-prop-technology .why-prop-chip-pins-l { left: -7px; }
+.why-prop-technology .why-prop-chip-pins-r { right: -7px; }
+.why-prop-technology .why-prop-chip-pins .why-prop-pin { width: 6px; height: 6px; border-radius: 50%; background: rgb(255 255 255 / .6); }
+
+@keyframes why-prop-tech-orbit { to { transform: rotate(360deg); } }
+@keyframes why-prop-tech-pulse { from { transform: scale(1); opacity: .9; } to { transform: scale(1.12); opacity: 1; } }
+
+/* --- Partnership: two interlocked chain links breathing on a shared orbit line --- */
+.why-prop-partnership .why-prop-bg-grid { background-image: radial-gradient(circle, rgb(233 185 73 / .16) 1.2px, transparent 1.6px); background-size: 14px 14px; }
+.why-prop-partnership .why-prop-orbit { position: absolute; left: 46px; bottom: 26px; width: 230px; height: 84px; border: 1.5px solid rgb(233 185 73 / .4); border-radius: 50%; animation: why-prop-partner-orbit 11s linear infinite; }
+.why-prop-partnership .why-prop-bead { position: absolute; left: 50%; top: -6px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #cdeee6, #5fb8a6 62%, #3d8f7e); box-shadow: 0 0 8px rgb(95 184 166 / .7); }
+.why-prop-partnership .why-prop-bead-alt { position: absolute; left: auto; right: 74px; top: 76px; width: 8px; height: 8px; margin-left: 0; background: radial-gradient(circle at 35% 30%, #ffd9ce, #ff7a66 62%, #e8583f); box-shadow: 0 0 8px rgb(255 122 102 / .6); }
+.why-prop-partnership .why-prop-link { position: absolute; bottom: 44px; width: 68px; height: 42px; border-radius: 24px; border: 10px solid; animation: why-prop-partner-link 7s ease-in-out infinite alternate; }
+.why-prop-partnership .why-prop-link::before { content: ""; position: absolute; top: 3px; left: 9px; width: 18px; height: 9px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, rgb(255 255 255 / .95), transparent 70%); }
+.why-prop-partnership .why-prop-link-l { left: 112px; border-color: #e9b54a; box-shadow: inset 0 1px 3px rgb(255 255 255 / .8), 0 6px 12px rgb(201 141 31 / .35); transform: rotate(-22deg); }
+.why-prop-partnership .why-prop-link-r { right: 112px; border-color: #3e8e8e; box-shadow: inset 0 1px 3px rgb(255 255 255 / .65), 0 6px 12px rgb(46 110 110 / .35); transform: rotate(22deg); z-index: 1; animation-direction: alternate-reverse; }
+
+@keyframes why-prop-partner-link {
+  from { translate: -12px 0; }
+  to { translate: 12px 0; }
+}
+@keyframes why-prop-partner-orbit { to { transform: rotate(360deg); } }
+
 /* The team photo fills the card in full color; a bottom-anchored scrim keeps the caption readable without washing the photo. */
 .why-focal-media {
   position: absolute;
@@ -1840,6 +1929,9 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 @media (min-width: 768px) and (max-width: 1023px) {
   /* Tablet band: keep why-card headings on one line — the global 14ch cap would otherwise wrap them to two lines. */
   .why-card h3 { max-inline-size: none; font-size: clamp(.95rem, 1.7vw, 1.1rem); white-space: nowrap; }
+  /* Prop scenes scale down with the four-column cards so props stay legible without clipping at the 190px travel end. */
+  .why-prop-stage { height: 108px; }
+  .why-prop-stage .why-prop-layer { transform: scale(.72); transform-origin: top center; }
 }
 
 @media (min-width: 768px) and (max-width: 1199px) {
@@ -1907,6 +1999,10 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .about-story { grid-template-columns: 1fr; }
   .why-grid { grid-template-columns: 1fr; }
   .why-focal, .why-card:not(.why-focal) { grid-column: 1; grid-row: auto; }
+  /* One-column prop cards keep a deliberate composition: full-height stage, full-size geometry. */
+  .why-prop-stage { height: 120px; }
+  .why-prop-stage .why-prop-layer { transform: none; }
+  .why-prop-stage .why-prop-bg-grid { opacity: .35; }
   .portfolio-grid { grid-template-columns: 1fr; }
   .proof-board { grid-template-columns: 1fr; }
   .proof-manifesto { min-block-size: 320px; }
@@ -1928,6 +2024,12 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .greeter-bubble { inline-size: 158px; margin: 0 -10px 72px 0; padding: 12px 14px; }
   .greeter-bubble strong { font-size: 1.05rem; }
   .greeter-bubble span { font-size: .67rem; }
+}
+
+@media (max-width: 420px) {
+  /* Bound every prop to the narrow card so nothing overflows the stage. */
+  .why-prop-stage { height: 112px; }
+  .why-prop-stage .why-prop-layer { transform: scale(.9); transform-origin: top center; }
 }
 
 @media (max-width: 540px) {
@@ -2002,6 +2104,8 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .story-carousel.is-enhanced .story-slide:not([data-position="0"]) { opacity: 0 !important; }
   .scene-back-a { transform: rotate(-2.6deg); }
   .scene-back-b { transform: rotate(2.2deg); }
+  /* Freeze every prop scene in its attractive resting layout. */
+  .why-prop-stage, .why-prop-stage *, .why-prop-stage *::before, .why-prop-stage *::after { animation: none !important; transition: none !important; }
 }
 
 /* ---------- Scene backdrop containment on narrow screens ---------- */
