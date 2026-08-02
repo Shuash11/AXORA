@@ -4,7 +4,7 @@
   .hero { grid-template-columns: minmax(0, 1fr); gap: 3.2rem; justify-items: stretch; }
   .hero-copy { max-inline-size: none; }
   .hero-scene { justify-self: center; inline-size: min(560px, 100%); }
-  .team-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .people-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .dialog-shell { grid-template-columns: 1fr; row-gap: 1.25rem; }
   #team-dialog section { grid-column: 1; }
   .contact-panel { grid-template-columns: 1fr; gap: 1.75rem; }
@@ -80,8 +80,7 @@
   .hero-actions .button { inline-size: 100%; }
   .chips { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .55rem; inline-size: 100%; max-inline-size: 360px; }
   .chip { justify-content: center; min-inline-size: 0; inline-size: 100%; padding-inline: .5rem; }
-  .team-list { grid-template-columns: 1fr; }
-  .team-card { min-block-size: 320px; }
+  .people-list { grid-template-columns: 1fr; }
   .contact-panel { padding: 2.1rem 1.5rem; }
   .about-stage { grid-template-columns: 1fr; }
   .about-who, .about-prop, .about-direction { grid-column: 1; grid-row: auto; }
@@ -160,7 +159,6 @@
   .hero-scene.is-enhanced .carousel-arrow { position: absolute; top: 50%; z-index: 3; transform: translateY(-50%); }
   .hero-scene.is-enhanced [data-carousel-prev] { left: 10px; }
   .hero-scene.is-enhanced [data-carousel-next] { right: 10px; }
-  .team-card { min-block-size: 320px; }
   .contact-email { font-size: .82rem; }
   .scroll-greeter { inset: auto -12px -20px auto; scale: .78; }
   .greeter-bubble { inline-size: 156px; margin: 0 -12px 72px 0; padding: 11px 12px; }
@@ -183,7 +181,7 @@
 /* ---------- Coarse pointers ---------- */
 
 @media (hover: none), (pointer: coarse) {
-  .scene, .team-card, .why-card, .portfolio-card, .value-tile { transform: none; }
+  .scene, .person-stage, .why-card, .portfolio-card, .value-tile { transform: none; }
   .js [data-tilt][data-reveal].is-revealed { --lift: 0px; transform: none; }
   .scene-back-a { transform: rotate(-2.6deg); }
   .scene-back-b { transform: rotate(2.2deg); }
@@ -200,7 +198,7 @@
   }
   .load-item { opacity: 1; animation: none !important; }
   .js [data-reveal] { opacity: 1 !important; transform: none !important; transition: none !important; }
-  .scene, .team-card, .why-card, .portfolio-card, .value-tile { transform: none !important; transition: none !important; }
+  .scene, .person-stage, .why-card, .portfolio-card, .value-tile { transform: none !important; transition: none !important; }
   .scroll-greeter.is-visible .peek-character { transform: none !important; }
   .scroll-greeter.is-visible .greeter-bubble { opacity: 1 !important; transform: none !important; }
   .hero-scene.is-enhanced .scene-slide { transition: none; }

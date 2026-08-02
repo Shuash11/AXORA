@@ -552,9 +552,9 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /h1\s*\{[^}]*font-size:\s*clamp\(2\.8rem,\s*5\.4vw,\s*4\.9rem\)/, 'desktop H1 must retain the prominent responsive display scale');
   assert.match(css, /\.eyebrow\s*\{[^}]*font-family:\s*var\(--label\)/);
   assert.match(css, /\.hero-identity\s*\{[^}]*flex-direction:\s*column[^}]*font-family:\s*var\(--label\)/, 'the hero identity must be a two-line label-type block');
-  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.hero-scene', '.scene', '.stage', '.scene-slide', '.carousel-controls', '.carousel-arrow', '.dot', '.team-card', '.contact-panel', '.site-footer', '.team-photo']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
-  assert.match(css, /\.team-photo\s*\{[^}]*object-fit:\s*cover/, '.team-photo must use object-fit: cover');
-  assert.match(css, /\.team-photo\s*\{[^}]*object-position:\s*top/, '.team-photo must anchor the face near top');
+  for (const selector of ['.site-header', '.nav-toggle', '.hero', '.hero-scene', '.scene', '.stage', '.scene-slide', '.carousel-controls', '.carousel-arrow', '.dot', '.people-list', '.person-stage', '.person-scene', '.person-backdrop', '.person-light', '.person-floor-shadow', '.person-figure', '.person-placeholder', '.person-index', '.person-name', '.person-action', '.contact-panel', '.site-footer']) assert.match(css, new RegExp(selector.replace('.', '\\.') + '\\s*(?:,|\\{)'));
+  assert.match(css, /\.person-placeholder\s*\{[^}]*object-fit:\s*cover/, '.person-placeholder must use object-fit: cover');
+  assert.match(css, /\.person-placeholder\s*\{[^}]*object-position:\s*top/, '.person-placeholder must anchor the face near top');
   for (const safeguard of ['min-inline-size:\\s*44px', 'min-block-size:\\s*44px', ':focus-visible', 'overflow-x:\\s*hidden', '\\.sr-only\\s*\\{[\\s\\S]*?clip-path:', 'scroll-behavior:\\s*smooth', 'scroll-margin-block-start:\\s*96px', '@media \\(max-width:\\s*1023px\\)', '@media \\(max-width:\\s*767px\\)', '@media \\(max-width:\\s*420px\\)', '@media \\(hover:\\s*none\\),\\s*\\(pointer:\\s*coarse\\)', '@media \\(prefers-reduced-motion:\\s*reduce\\)']) assert.match(css, new RegExp(safeguard));
   assert.match(css, /perspective:\s*1[34]\d{2}px/);
   assert.match(css, /transform-style:\s*preserve-3d/);
@@ -583,7 +583,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.hero-scene\.is-enhanced \.carousel-controls\s*\{[\s\S]*?display:\s*flex/);
   assert.match(css, /\.carousel-arrow\s*\{[\s\S]*?min-inline-size:\s*36px[\s\S]*?min-block-size:\s*36px/);
   assert.match(css, /\.dot\s*\{[\s\S]*?min-inline-size:\s*44px[\s\S]*?min-block-size:\s*44px/);
-  assert.match(css, /\.team-card:not\(:disabled\):hover[\s\S]*?--lift:\s*-7px/);
+  assert.match(css, /\.person-stage:not\(:disabled\):hover[\s\S]*?--lift:\s*-7px/);
   assert.match(css, /\.scene-back-a\s*\{[^}]*var\(--px\)/);
   assert.match(css, /\.scene-back-b\s*\{[^}]*var\(--py\)/);
   assert.match(css, /\.scene\s*\{[^}]*transform:\s*rotateX\(var\(--tilt-x, 0deg\)\)/);
@@ -593,10 +593,10 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /#team-dialog::backdrop\s*\{[^}]*opacity:\s*0/);
   assert.match(css, /#team-dialog\.is-open::backdrop\s*\{[^}]*opacity:\s*1/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.js \[data-reveal\]\s*\{[^}]*opacity:\s*1\s*!important[^}]*transform:\s*none\s*!important/);
-  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene,\s*\.team-card,\s*\.why-card,\s*\.portfolio-card,\s*\.value-tile\s*\{[^}]*transform:\s*none\s*!important/);
+  assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.scene,\s*\.person-stage,\s*\.why-card,\s*\.portfolio-card,\s*\.value-tile\s*\{[^}]*transform:\s*none\s*!important/);
   assert.match(css, /@media \(prefers-reduced-motion:\s*reduce\)[\s\S]*?\.load-item\s*\{[^}]*animation:\s*none\s*!important/);
-  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.team-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
-  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.team-list\s*\{[^}]*grid-template-columns:\s*1fr/);
+  assert.match(css, /@media \(max-width:\s*1023px\)[\s\S]*?\.people-list\s*\{[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/);
+  assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.people-list\s*\{[^}]*grid-template-columns:\s*1fr/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.hero-actions\s*\{[^}]*grid-template-columns:\s*1fr/);
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.chips\s*\{[^}]*display:\s*grid[^}]*grid-template-columns:\s*repeat\(2,\s*minmax\(0,\s*1fr\)\)/, 'mobile capability chips must form a balanced two-column grid');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.site-footer\s*\{[^}]*display:\s*flex[^}]*flex-direction:\s*column/);
