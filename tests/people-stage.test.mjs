@@ -29,21 +29,25 @@ test('person-stage is a transparent preserve-3d control carrying tilt and lift',
   assert.doesNotMatch(css, /\.person-stage\s*\{[^}]*transition:[^}]*?(?:border|shadow|color|background|filter)\b/, 'no other property may join the stage transition list');
 });
 
-test('person-scene is a bounded 3:4 stage viewport with its own perspective', () => {
+test('person-scene is an open transparent 3:4 stage with its own perspective', () => {
   assert.match(css, /\.person-scene\s*\{[^}]*aspect-ratio:\s*3\s*\/\s*4/, 'the scene must hold a 3:4 figure ratio');
   assert.match(css, /\.person-scene\s*\{[^}]*perspective:/, 'the scene must project its layers in depth');
-  assert.match(css, /\.person-scene\s*\{[^}]*overflow:\s*hidden/, 'the scene must bound its layers');
+  assert.match(css, /\.person-scene\s*\{[^}]*overflow:\s*visible/, 'the stage must leave its rear light plane and shadow open to the page');
+  assert.match(css, /\.person-scene\s*\{[^}]*background:\s*transparent/, 'the scene itself must not paint a card surface');
+  assert.doesNotMatch(css, /\.person-scene\s*\{[^}]*border-radius:/, 'the scene itself must not be a rounded card');
 });
 
 test('scene layers place a rear wall, top-left light, floor shadow, and forward figure', () => {
   assert.match(css, /\.person-backdrop\s*\{[^}]*translateZ\(-\d+px\)/, 'the backdrop must sit behind the stage at negative depth');
   assert.match(css, /\.person-light\s*\{[^}]*radial-gradient\(/, 'the stage light must be a radial key light');
   assert.match(css, /\.person-floor-shadow\s*\{[^}]*border-radius:\s*50%[^}]*radial-gradient\(ellipse[^}]*filter:\s*blur\(/, 'the floor shadow must be a blurred ellipse');
-  assert.match(css, /\.person-figure\s*\{[^}]*clip-path:[^}]*translateZ\(28px\)/, 'the figure must be clipped into a standing silhouette at +28px depth');
+  assert.match(css, /\.person-figure\s*\{[^}]*overflow:\s*hidden[^}]*clip-path:[^}]*translateZ\(28px\)/, 'the figure must own the bounded standing-silhouette crop at +28px depth');
+  assert.match(css, /\.person-figure::before\s*\{[^}]*content:\s*"AXORA"[^}]*repeating-linear-gradient\([^}]*/, 'the bounded figure must provide an AXORA grid fallback behind an unloaded image');
+  assert.match(css, /\.person-figure::before\s*\{[^}]*z-index:\s*0/, 'the fallback must sit behind the loaded image');
 });
 
 test('placeholder images crop top-center cover and the stage keeps its index label', () => {
-  assert.match(css, /img\.person-placeholder\s*\{[^}]*object-fit:\s*cover[^}]*object-position:\s*top\s+center/, 'the placeholder image itself must crop from the top center like a portrait');
+  assert.match(css, /img\.person-placeholder\s*\{[^}]*position:\s*relative[^}]*z-index:\s*1[^}]*object-fit:\s*cover[^}]*object-position:\s*top\s+center/, 'the opaque placeholder image itself must cover the AXORA fallback from the top center');
   assert.match(css, /\.person-index\s*\{/, 'the stage must style its index label');
 });
 
