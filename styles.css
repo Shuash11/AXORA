@@ -1176,6 +1176,14 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 }
 @keyframes why-prop-partner-orbit { to { transform: rotate(360deg); } }
 
+/* Center each scene's composition in its stage. The mg/fg layers shift by half the stage
+   width minus the scene's natural content midpoint (66+190/2=161 for the wide tech/partner
+   props; the delivery route+endpoint pair centers at W/2-17, clamped so the parcel's
+   travel end never clips at narrow stages). The bg grid layer stays put, full-bleed. */
+.why-prop-delivery .why-prop-layer-mg, .why-prop-delivery .why-prop-layer-fg { transform: translateX(min(17px, calc(50% - 124px))); }
+.why-prop-technology .why-prop-layer-mg, .why-prop-technology .why-prop-layer-fg { transform: translateX(calc(50% - 161px)); }
+.why-prop-partnership .why-prop-layer-mg, .why-prop-partnership .why-prop-layer-fg { transform: translateX(calc(50% - 161px)); }
+
 /* The team photo fills the card in full color; a bottom-anchored scrim keeps the caption readable without washing the photo. */
 .why-focal-media {
   position: absolute;
@@ -1932,6 +1940,10 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   /* Prop scenes scale down with the four-column cards so props stay legible without clipping at the 190px travel end. */
   .why-prop-stage { height: 100px; }
   .why-prop-stage .why-prop-layer { transform: scale(.58); transform-origin: top center; }
+  /* Per-scene centering: shift every layer (bg + mg + fg) so the prop composition is optically centered. */
+  .why-prop-delivery .why-prop-layer { transform: scale(.58) translateX(calc(50% - 80px)); }
+  .why-prop-technology .why-prop-layer { transform: scale(.58) translateX(calc(50% - 161px)); }
+  .why-prop-partnership .why-prop-layer { transform: scale(.58) translateX(calc(50% - 145px)); }
 }
 
 @media (min-width: 768px) and (max-width: 1199px) {
@@ -2002,6 +2014,10 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   /* One-column prop cards keep a deliberate composition: full-height stage, full-size geometry. */
   .why-prop-stage { height: 120px; }
   .why-prop-stage .why-prop-layer { transform: none; }
+  /* Full-size geometry on the full-width card still needs the same optical centering. */
+  .why-prop-delivery .why-prop-layer-mg, .why-prop-delivery .why-prop-layer-fg { transform: translateX(min(17px, calc(50% - 124px))); }
+  .why-prop-technology .why-prop-layer-mg, .why-prop-technology .why-prop-layer-fg { transform: translateX(calc(50% - 161px)); }
+  .why-prop-partnership .why-prop-layer-mg, .why-prop-partnership .why-prop-layer-fg { transform: translateX(calc(50% - 161px)); }
   .why-prop-stage .why-prop-bg-grid { opacity: .35; }
   .portfolio-grid { grid-template-columns: 1fr; }
   .proof-board { grid-template-columns: 1fr; }
@@ -2030,6 +2046,10 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   /* Bound every prop to the narrow card so nothing overflows the stage. */
   .why-prop-stage { height: 112px; }
   .why-prop-stage .why-prop-layer { transform: scale(.9); transform-origin: top center; }
+  /* Keep the .9 scale optically centered on the smallest cards. */
+  .why-prop-delivery .why-prop-layer-mg, .why-prop-delivery .why-prop-layer-fg { transform: scale(.9) translateX(min(17px, calc(50% - 124px))); }
+  .why-prop-technology .why-prop-layer-mg, .why-prop-technology .why-prop-layer-fg { transform: scale(.9) translateX(calc(50% - 161px)); }
+  .why-prop-partnership .why-prop-layer-mg, .why-prop-partnership .why-prop-layer-fg { transform: scale(.9) translateX(calc(50% - 161px)); }
 }
 
 @media (max-width: 540px) {
