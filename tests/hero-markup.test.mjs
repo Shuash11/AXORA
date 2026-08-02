@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-8';
+const assetVersion = '20260802-9';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -531,6 +531,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /@media \(max-width:\s*340px\)[\s\S]*?\.value-tiles \.value-tile:last-child\s*\{[^}]*grid-column:\s*auto/, 'last value tile span must reset at 340px');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.proof-board\s*\{/, 'proof-board must have a mobile rule');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.footer-legal\s*\{/, 'footer-legal must have mobile rule');
+  assert.match(css, /@media \(min-width:\s*768px\) and \(max-width:\s*1023px\)[\s\S]*?\.why-card h3\s*\{[^}]*max-inline-size:\s*none;[^}]*font-size:\s*clamp\(\.95rem,\s*1\.7vw,\s*1\.1rem\);[^}]*white-space:\s*nowrap;/, 'why-card headings must stay on one line across the tablet band');
   /* Tilt integration for new cards */
   assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');
   assert.match(css, /\.why-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'why-card must preserve-3d');

@@ -1837,6 +1837,11 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .site-footer { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.5rem; }
 }
 
+@media (min-width: 768px) and (max-width: 1023px) {
+  /* Tablet band: keep why-card headings on one line — the global 14ch cap would otherwise wrap them to two lines. */
+  .why-card h3 { max-inline-size: none; font-size: clamp(.95rem, 1.7vw, 1.1rem); white-space: nowrap; }
+}
+
 @media (max-width: 1380px) {
   /* Two-column hero: the scene column sits near the right edge, so the side layers shift less to stay on-page. */
   .hero-scene.is-enhanced .scene-slide[data-position="1"], .hero-scene.is-enhanced .scene-slide[data-position="2"] { transform: translate3d(48px, 0, 0) scale(.97); }
