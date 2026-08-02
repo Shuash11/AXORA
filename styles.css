@@ -1087,7 +1087,7 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 
 .why-card p { max-inline-size: 36ch; margin: 0; color: var(--text-dim); font-size: .9rem; line-height: 1.65; }
 
-/* The team photo sits under the copy: a soft, transparent backdrop instead of a framed picture. */
+/* The team photo fills the card in full color; a bottom-anchored scrim keeps the caption readable without washing the photo. */
 .why-focal-media {
   position: absolute;
   inset: 0;
@@ -1096,14 +1096,15 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   border-radius: inherit;
   background: var(--surface-2);
 }
-.why-focal-media img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; opacity: .7; filter: contrast(1.06) saturate(1.08); user-select: none; -webkit-user-drag: none; }
+.why-focal-media img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; opacity: 1; filter: contrast(1.06) saturate(1.08); user-select: none; -webkit-user-drag: none; }
 .why-focal-media::after {
   position: absolute;
-  inset: 0;
+  inset: auto 0 0;
+  block-size: 60%;
   content: "";
-  background: linear-gradient(160deg, rgb(248 250 255 / .88), rgb(248 250 255 / .6) 55%, rgb(255 255 255 / .45));
+  background: linear-gradient(180deg, transparent, rgb(248 250 255 / .58) 46%, rgb(248 250 255 / .88) 74%, rgb(248 250 255 / .97) 100%);
 }
-.why-focal { overflow: hidden; min-block-size: clamp(260px, 30vw, 380px); }
+.why-focal { overflow: hidden; min-block-size: clamp(260px, 30vw, 380px); justify-content: flex-end; }
 .why-focal h3, .why-focal p { position: relative; z-index: 1; }
 .why-focal p { color: var(--text); }
 

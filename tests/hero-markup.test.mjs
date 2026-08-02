@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-4';
+const assetVersion = '20260802-5';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -526,8 +526,10 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');
   assert.match(css, /\.why-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'why-card must preserve-3d');
   assert.match(css, /\.why-focal-media\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0/, 'the team photo must be a full-card background layer');
-  assert.match(css, /\.why-focal-media img\s*\{[^}]*object-fit:\s*cover[^}]*opacity:\s*\.\d+[^}]*filter:\s*contrast\(/, 'the backdrop photo must fill its frame, crisp enough to read behind the copy');
-  assert.match(css, /\.why-focal-media::after\s*\{[^}]*linear-gradient/, 'the backdrop must carry a light scrim so the copy stays readable');
+  assert.match(css, /\.why-focal-media img\s*\{[^}]*object-fit:\s*cover[^}]*opacity:\s*1[^}]*filter:\s*contrast\(/, 'the photo must render vivid and full-color, not globally faded');
+  assert.match(css, /\.why-focal-media::after\s*\{[^}]*linear-gradient/, 'the backdrop must carry a scrim so the copy stays readable');
+  assert.match(css, /\.why-focal-media::after\s*\{[^}]*inset:\s*auto\s+0\s+0/, 'the caption scrim must anchor to the bottom of the card so the photo stays vivid above it');
+  assert.match(css, /\.why-focal\s*\{[^}]*justify-content:\s*flex-end/, 'the caption must sit on the bottom scrim plate, not float over the photo');
   assert.match(css, /\.why-focal\s*\{[^}]*min-block-size:\s*clamp\(/, 'the focal card must reserve enough height for a readable photo backdrop');
   assert.match(css, /\.why-focal-open\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0[^}]*z-index:\s*2/, 'the tappable photo layer must cover the whole card above the backdrop');
   assert.match(css, /\.why-focal-hint\s*\{[^}]*border-radius:\s*999px/, 'the view-photo hint must render as a pill');
