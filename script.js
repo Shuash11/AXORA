@@ -696,9 +696,9 @@
       }
     }
 
-    function show(index) {
+    function show(index, announce = true) {
       activeIndex = normalizeIndex(index, count);
-      render(true);
+      render(announce);
     }
 
     storyCarousel.classList.add('is-enhanced');
@@ -725,6 +725,54 @@
         show(nextIndex(activeIndex, count));
       }
     });
+
+    /* Autoplay: advance every 1s (at least 0.9s), pause on hover, focus, and while hidden. */
+    let autoplayTimer;
+    let autoplayHeld = false;
+
+    function startAutoplay() {
+      stopAutoplay();
+      if (reducedMotionQuery.matches || document.hidden || autoplayHeld) {
+        return;
+      }
+      autoplayTimer = window.setInterval(() => {
+        show(nextIndex(activeIndex, count), false);
+      }, 1000);
+    }
+
+    function stopAutoplay() {
+      if (autoplayTimer !== undefined) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = undefined;
+      }
+    }
+
+    storyCarousel.addEventListener('pointerenter', () => {
+      autoplayHeld = true;
+      stopAutoplay();
+    });
+    storyCarousel.addEventListener('pointerleave', () => {
+      autoplayHeld = false;
+      startAutoplay();
+    });
+    storyCarousel.addEventListener('focusin', () => {
+      autoplayHeld = true;
+      stopAutoplay();
+    });
+    storyCarousel.addEventListener('focusout', () => {
+      autoplayHeld = false;
+      startAutoplay();
+    });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopAutoplay();
+      } else {
+        startAutoplay();
+      }
+    });
+    reducedMotionQuery.addEventListener('change', startAutoplay);
+
+    startAutoplay();
 
     render(false);
   }

@@ -540,6 +540,16 @@ test('script keeps one RAF scheduler plus one IntersectionObserver and drops sta
   assert.match(script, /function initCarousel\(heroStack\)\s*\{/);
   assert.match(script, /function initStoryCarousel\(storyCarousel\)\s*\{/);
   assert.match(script, /if \(storyCarousel\) \{\s*initStoryCarousel\(storyCarousel\);/);
+  const storyCarousel = script.match(/function initStoryCarousel\(storyCarousel\)\s*\{[\s\S]*?\n  \}/)?.[0] ?? '';
+  assert.match(storyCarousel, /function show\(index, announce = true\)/, 'story slides can advance without announcing');
+  assert.match(storyCarousel, /show\(nextIndex\(activeIndex, count\), false\)/, 'autoplay advances the deck quietly');
+  assert.match(storyCarousel, /setInterval\(\(\) => \{[\s\S]*?\}, 1000\)/, 'autoplay ticks at 1s (at least 0.9s)');
+  assert.match(storyCarousel, /if \(reducedMotionQuery\.matches \|\| document\.hidden \|\| autoplayHeld\)/, 'autoplay respects reduced motion, hidden tabs, and manual hold');
+  assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]pointerenter['"]/);
+  assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]pointerleave['"]/);
+  assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]focusin['"]/);
+  assert.match(storyCarousel, /storyCarousel\.addEventListener\(['"]focusout['"]/);
+  assert.match(storyCarousel, /reducedMotionQuery\.addEventListener\(['"]change['"], startAutoplay\)/);
   for (const name of ['initNavigation', 'initReveals', 'initTeamDialog', 'initSpatialMotion']) {
     assert.equal((script.match(new RegExp(`\\b${name}\\(\\)\\s*;`)) ?? []).length, 1, `${name}() must run exactly once`);
   }
