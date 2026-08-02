@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-9';
+const assetVersion = '20260802-10';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -532,6 +532,7 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.proof-board\s*\{/, 'proof-board must have a mobile rule');
   assert.match(css, /@media \(max-width:\s*767px\)[\s\S]*?\.footer-legal\s*\{/, 'footer-legal must have mobile rule');
   assert.match(css, /@media \(min-width:\s*768px\) and \(max-width:\s*1023px\)[\s\S]*?\.why-card h3\s*\{[^}]*max-inline-size:\s*none;[^}]*font-size:\s*clamp\(\.95rem,\s*1\.7vw,\s*1\.1rem\);[^}]*white-space:\s*nowrap;/, 'why-card headings must stay on one line across the tablet band');
+  assert.match(css, /@media \(min-width:\s*768px\) and \(max-width:\s*1199px\)(?:(?!@media)[\s\S])*?\.values-row\s*\{\s*grid-template-columns:\s*1fr;\s*\}[^}]*?\.value-tiles\s*\{\s*grid-template-columns:\s*repeat\(6,\s*minmax\(0,\s*1fr\)\);\s*\}[^}]*?\.value-tile\s*\{\s*grid-column:\s*span 2;\s*\}[^}]*?\.value-tile:nth-child\(n\s*\+\s*4\)\s*\{\s*grid-column:\s*span 3;\s*\}[^}]*?\.value-tile:nth-child\(3\)\s*\{\s*border-inline-end:\s*0;\s*\}[^}]*?\.value-tile:nth-child\(-n\s*\+\s*3\)\s*\{\s*border-block-end:\s*1px\s+solid\s+rgb\(255\s+255\s+255\s+\/\s*10%\);\s*\}/, 'the values rail must reflow into a balanced connected 3+2 grid from 768px through 1199px');
   /* Tilt integration for new cards */
   assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');
   assert.match(css, /\.why-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'why-card must preserve-3d');

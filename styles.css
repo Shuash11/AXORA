@@ -1842,6 +1842,16 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
   .why-card h3 { max-inline-size: none; font-size: clamp(.95rem, 1.7vw, 1.1rem); white-space: nowrap; }
 }
 
+@media (min-width: 768px) and (max-width: 1199px) {
+  /* Core Values rail: stack below the intro and reflow into a balanced connected 3+2 grid. */
+  .values-row { grid-template-columns: 1fr; }
+  .value-tiles { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .value-tile { grid-column: span 2; }
+  .value-tile:nth-child(n + 4) { grid-column: span 3; }
+  .value-tile:nth-child(3) { border-inline-end: 0; }
+  .value-tile:nth-child(-n + 3) { border-block-end: 1px solid rgb(255 255 255 / 10%); }
+}
+
 @media (max-width: 1380px) {
   /* Two-column hero: the scene column sits near the right edge, so the side layers shift less to stay on-page. */
   .hero-scene.is-enhanced .scene-slide[data-position="1"], .hero-scene.is-enhanced .scene-slide[data-position="2"] { transform: translate3d(48px, 0, 0) scale(.97); }
