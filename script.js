@@ -291,33 +291,32 @@
   /* ---------- Team photo lightbox ---------- */
 
   function initPhotoLightbox() {
-    const opener = document.querySelector('[data-open-lightbox]');
-    const lightbox = document.querySelector('#photo-lightbox');
-    if (!opener || !lightbox || typeof lightbox.showModal !== 'function') {
-      return;
-    }
-    const closeButton = lightbox.querySelector('[data-close-lightbox]');
-    if (!closeButton) {
-      return;
-    }
+    const openers = document.querySelectorAll('[data-open-lightbox]');
+    if (!openers.length) return;
 
-    opener.disabled = false;
+    openers.forEach((opener) => {
+      const lightbox = document.getElementById(opener.dataset.lightbox || 'photo-lightbox');
+      const closeButton = lightbox?.querySelector('[data-close-lightbox]');
+      if (!lightbox || !closeButton || typeof lightbox.showModal !== 'function') return;
 
-    opener.addEventListener('click', () => {
-      lightbox.showModal();
-      document.body.classList.add('dialog-open');
-    });
+      opener.disabled = false;
 
-    closeButton.addEventListener('click', () => lightbox.close());
+      opener.addEventListener('click', () => {
+        lightbox.showModal();
+        document.body.classList.add('dialog-open');
+      });
 
-    lightbox.addEventListener('click', (event) => {
-      if (event.target === lightbox) {
-        lightbox.close();
-      }
-    });
+      closeButton.addEventListener('click', () => lightbox.close());
 
-    lightbox.addEventListener('close', () => {
-      document.body.classList.remove('dialog-open');
+      lightbox.addEventListener('click', (event) => {
+        if (event.target === lightbox) {
+          lightbox.close();
+        }
+      });
+
+      lightbox.addEventListener('close', () => {
+        document.body.classList.remove('dialog-open');
+      });
     });
   }
 
