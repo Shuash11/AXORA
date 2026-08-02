@@ -1087,17 +1087,24 @@ main > section:not(.hero) > h2 { max-inline-size: 16ch; }
 
 .why-card p { max-inline-size: 36ch; margin: 0; color: var(--text-dim); font-size: .9rem; line-height: 1.65; }
 
+/* The team photo sits under the copy: a soft, transparent backdrop instead of a framed picture. */
 .why-focal-media {
-  inline-size: 100%;
-  aspect-ratio: 4 / 3;
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   overflow: hidden;
-  border: 1px solid var(--line);
-  border-radius: calc(var(--radius-md) - 4px);
+  border-radius: inherit;
   background: var(--surface-2);
-  box-shadow: inset 0 1px 0 rgb(255 255 255 / 35%), 0 18px 38px -22px rgb(45 57 126 / 45%);
 }
-.why-focal-media img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; user-select: none; -webkit-user-drag: none; }
-.why-focal .why-focal-media { margin-block-end: .15rem; }
+.why-focal-media img { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; opacity: .45; user-select: none; -webkit-user-drag: none; }
+.why-focal-media::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(160deg, rgb(248 250 255 / .82), rgb(248 250 255 / .45) 62%, rgb(255 255 255 / .62));
+}
+.why-focal { overflow: hidden; min-block-size: clamp(260px, 30vw, 380px); }
+.why-focal h3, .why-focal p { position: relative; z-index: 1; }
 
 /* ---------- Portfolio ---------- */
 

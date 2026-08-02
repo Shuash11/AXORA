@@ -6,7 +6,7 @@ import { runInNewContext } from 'node:vm';
 const html = readFileSync('index.html', 'utf8');
 const css = readFileSync('styles.css', 'utf8');
 const script = readFileSync('script.js', 'utf8');
-const assetVersion = '20260802-1';
+const assetVersion = '20260802-2';
 
 const slides = [
   ['Hero Image/755941564_2053703328575625_420494940045368523_n.jpg', 'Hero%20Image/755941564_2053703328575625_420494940045368523_n.jpg', 'AXORA team together on stage.', 'Web systems that work', 'From internal tools to client-facing platforms — built to perform.'],
@@ -215,7 +215,7 @@ test('Why Choose AXORA section has required items', () => {
   assert.match(why, /We use current tools and best practices to create scalable digital solutions\./);
   assert.match(why, /Long Term Partnership/);
   assert.match(why, /We continue supporting your business even after project completion\./);
-  assert.match(why, /<div class="why-focal-media">[\s\S]*?<img\b[^>]*\bsrc="Hero Image\/755690039_2254034195393709_1404549311183090400_n\.jpg"[^>]*\bloading="lazy"/, 'the focal team card must show the team photo instead of a plain box');
+  assert.match(why, /<div class="why-focal-media"[^>]*>[\s\S]*?<img\b[^>]*\bsrc="Hero Image\/755690039_2254034195393709_1404549311183090400_n\.jpg"[^>]*\bloading="lazy"/, 'the focal team card must show the team photo instead of a plain box');
   assert.doesNotMatch(why.match(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*\bwhy-focal\b[^"]*")[^>]*>[\s\S]*?<\/article>/)?.[0] ?? '', /<svg\b/, 'the focal team card must not fake a team visual with an icon');
   /* Static why cards must not be keyboard-focusable after their class attribute. */
   const whyCardOpenings = [...why.matchAll(/<article\b(?=[^>]*\bclass="[^"]*\bwhy-card\b[^"]*")[^>]*>/g)].map((match) => match[0]);
@@ -521,8 +521,10 @@ test('styles define the white 3D studio design with motion safeguards', () => {
   /* Tilt integration for new cards */
   assert.match(css, /\.why-card\s*\{[^}]*--tilt-x/, 'why-card must participate in tilt system');
   assert.match(css, /\.why-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'why-card must preserve-3d');
-  assert.match(css, /\.why-focal-media\s*\{[^}]*aspect-ratio:\s*4\s*\/\s*3/, 'focal team media must keep a stable 4:3 ratio');
-  assert.match(css, /\.why-focal-media img\s*\{[^}]*object-fit:\s*cover/, 'focal team photo must fill its frame');
+  assert.match(css, /\.why-focal-media\s*\{[^}]*position:\s*absolute[^}]*inset:\s*0/, 'the team photo must be a full-card background layer');
+  assert.match(css, /\.why-focal-media img\s*\{[^}]*object-fit:\s*cover[^}]*opacity:\s*\.45/, 'the backdrop photo must fill its frame, softened to stay behind the copy');
+  assert.match(css, /\.why-focal-media::after\s*\{[^}]*linear-gradient/, 'the backdrop must carry a light scrim so the copy stays readable');
+  assert.match(css, /\.why-focal h3,\s*\.why-focal p\s*\{[^}]*z-index:\s*1/, 'the focal copy must sit above the photo layer');
   assert.match(css, /\.portfolio-card\s*\{[^}]*--tilt-x/, 'portfolio-card must participate in tilt system');
   assert.match(css, /\.portfolio-card\s*\{[^}]*transform-style:\s*preserve-3d/, 'portfolio-card must preserve-3d');
   /* Reduced motion coverage for new sections */
