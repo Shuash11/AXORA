@@ -4,9 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "npm run test:markup && npm run test:carousel",
+    "test": "npm run test:markup && npm run test:people-stage && npm run test:carousel",
     "test:markup": "node --test tests/hero-markup.test.mjs",
+    "test:people-stage": "node --test tests/people-stage.test.mjs",
     "test:carousel": "node --test tests/carousel-state.test.mjs",
-    "verify:static": "node --test tests/hero-markup.test.mjs"
+    "verify:static": "node --test tests/hero-markup.test.mjs tests/people-stage.test.mjs"
   }
 }

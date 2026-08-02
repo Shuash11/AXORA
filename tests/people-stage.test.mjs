@@ -53,7 +53,9 @@ test('hover, focus, and selection lift the stage and tighten the floor shadow', 
 });
 
 test('the fast tilt transition out-specifies the shared reveal transition', () => {
-  assert.match(css, /\.js\s*\.person-stage\[data-tilt\]\[data-reveal\]\.is-revealed\.is-tilting\s*\{[^}]*transition:\s*transform\s+130ms\s+ease-out;/, 'the tilting transition must out-specify the module-15 shared reveal transition');
+  assert.match(css, /\.js\s*\.person-stage\[data-tilt\]\[data-reveal\]\.is-revealed\.is-tilting\s*\{[^}]*transition:\s*opacity\s+700ms\s+var\(--ease-out\)\s+calc\(var\(--reveal-order,\s*0\)\s*\*\s*90ms\),\s*transform\s+130ms\s+ease-out;/, 'the tilting transition must speed transform while keeping the reveal opacity contract');
+  assert.match(css, /\.js\s*\.person-stage\[data-tilt\]\[data-reveal\]\.is-revealed\.is-tilting\s*\{[^}]*transition:[^}]*opacity\s+700ms/, 'opacity must remain in the tilting transition list');
+  assert.doesNotMatch(css, /\.js\s*\.person-stage\[data-tilt\]\[data-reveal\]\.is-revealed\.is-tilting\s*\{[^}]*transition:\s*transform\s+130ms\s+ease-out;/, 'the tilting transition must not drop opacity for a transform-only list');
   assert.doesNotMatch(css, /\.person-stage\.is-tilting\s*\{/, 'the low-specificity tilting rule must not return');
 });
 

@@ -28,7 +28,7 @@
   transition: transform 260ms var(--ease-out), opacity 220ms ease;
 }
 
-.js .person-stage[data-tilt][data-reveal].is-revealed.is-tilting { transition: transform 130ms ease-out; }
+.js .person-stage[data-tilt][data-reveal].is-revealed.is-tilting { transition: opacity 700ms var(--ease-out) calc(var(--reveal-order, 0) * 90ms), transform 130ms ease-out; }
 
 .person-stage:disabled { cursor: default; opacity: 1; }
 
